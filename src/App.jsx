@@ -72,8 +72,8 @@ function App() {
   const { address } = useAppKitAccount();
 
   const [isOpen, setIsOpen] = useState(false);
-const [isProfileOpen, setIsProfileOpen] = useState(false);
-const navigate = useNavigate();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(init()).then(() => {
@@ -168,52 +168,59 @@ const navigate = useNavigate();
           ))}
         </div>
       </section>
-          
-      <h1 className="text-3xl font-bold mb-6 text-center text-indigo-700 border-b-4 border-indigo-300 pb-2">
+
+      {/* <h1 className="text-3xl font-bold mb-6 text-center text-indigo-700 border-b-4 border-indigo-300 pb-2">
         Contract Interaction
-      </h1>
-          <main className="w-full relative bg-gradient-to-b from-[#0a0125] via-[#120038] to-[#0a0125] py-12">
-  <div className="container mx-auto px-6">
-    <div className="bg-[#120038] rounded-xl p-4 mb-8 flex items-center justify-between">
-      <div>
-        <h2 className="text-xl font-bold text-white">Contract Info</h2>
-        <p className="text-gray-300">
-          View contract registration and mint options on the Contract page.
-        </p>
-      </div>
-      <div>
-        <button
-          onClick={() => navigate("/contract")}
-          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg openinfo"
-        >
-          Open Contract Info
-        </button>
-      </div>
-    </div>
+      </h1> */}
+      <main className="w-full relative bg-gradient-to-b from-[#0a0125] via-[#120038] to-[#0a0125] py-12">
+        <div className="container mx-auto px-6">
+          <div className="bg-[#120038] rounded-xl p-4 mb-8 flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-white">Contract Info</h2>
+              <p className="text-gray-300">
+                View contract registration and mint options on the Contract page.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => navigate("/dashboard")}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg openinfo"
+              >
+                Dashboard
+              </button>
+              <button
+                onClick={() => navigate("/contract")}
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg openinfo"
+              >
+                Open Contract Info
+              </button>
+            </div>
+          </div>
 
-    <MintModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
 
-    <Modal
-      isOpen={isProfileOpen}
-      onRequestClose={() => setIsProfileOpen(false)}
-      className="max-w-3xl mx-auto mt-20 bg-[#120038] rounded-xl p-6 text-white outline-none"
-      overlayClassName="fixed inset-0 bg-black/50 flex justify-center items-start z-50"
-    >
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Profile</h2>
-        <button
-          onClick={() => setIsProfileOpen(false)}
-          className="text-gray-300 hover:text-white font-bold text-xl"
-        >
-          ×
-        </button>
-      </div>
-      <ProfileSection />
-    </Modal>
-  </div>
-</main>
+          <MintModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
 
-      <ConnectButton />
+          <Modal
+            isOpen={isProfileOpen}
+            onRequestClose={() => setIsProfileOpen(false)}
+            className="max-w-3xl mx-auto mt-20 bg-[#120038] rounded-xl p-6 text-white outline-none"
+            overlayClassName="fixed inset-0 bg-black/50 flex justify-center items-start z-50"
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">Profile</h2>
+              <button
+                onClick={() => setIsProfileOpen(false)}
+                className="text-gray-300 hover:text-white font-bold text-xl"
+              >
+                ×
+              </button>
+            </div>
+            <ProfileSection />
+          </Modal>
+        </div>
+      </main>
+
+      {/* <ConnectButton />
 
 
       {address && admin && address.toLowerCase() === admin.toLowerCase() && (
@@ -261,7 +268,7 @@ const navigate = useNavigate();
       </div>
 
 
-      <MintModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <MintModal isOpen={isOpen} onClose={() => setIsOpen(false)} /> */}
 
 
       <section className="bg-[#0a0125] py-0 text-white">

@@ -73,8 +73,7 @@ const ContractPage = () => {
                             />
                         </div>
                     </div>
-
-
+                  
                     <Modal
                         isOpen={isProfileOpen}
                         onRequestClose={() => setIsProfileOpen(false)}

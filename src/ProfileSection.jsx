@@ -114,68 +114,68 @@ console.log("downlines", tradingIncome,levelIncome,referralIncome);
 return (status === "loading" ? <p className="text-gray-600">Loading...</p> :
     error ? <p className="text-red-600 font-semibold">{error}</p> :
         registered ?
-            <div className="bg-white rounded-xl shadow-lg p-6 mb-10">
+            <div className="rounded-xl shadow-lg p-6 mb-10">
                 {/* Heading */}
-                <h2 className="text-2xl font-semibold mb-6 text-indigo-700 border-b pb-2">
+                <h2 className="pckagehdings">
                     My Package / Profile
                 </h2>
 
                 {/* Profile stats grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div className="bg-gray-50 rounded-lg p-4 shadow">
-                        <p className="text-sm text-gray-500">Package Type</p>
+                <div className="pckagegridall">
+                    <div className="singlepckagebox shadow">
+                        <h2 className="text-sm text-gray-500">Package Type</h2>
                         <p className="font-bold text-gray-800">{formatEther(packages[Package.id].price)} $</p>
                     </div>
                     {/* <div className="bg-gray-50 rounded-lg p-4 shadow">
                             <p className="text-sm text-gray-500">Total Upline</p>
                             <p className="font-bold text-gray-800">{uplines.length}</p>
                         </div> */}
-                    <div className="bg-gray-50 rounded-lg p-4 shadow">
-                        <p className="text-sm text-gray-500">Team size</p>
+                    <div className="singlepckagebox shadow">
+                        <h2 className="text-sm text-gray-500">Team size</h2>
                         <p className="font-bold text-gray-800">{downlines.indirect.length}</p>
                     </div>
 
-                    <div className="bg-gray-50 rounded-lg p-4 shadow">
-                        <p className="text-sm text-gray-500">Team size</p>
+                    <div className="singlepckagebox shadow">
+                        <h2 className="text-sm text-gray-500">Team size</h2>
                         <p className="font-bold text-gray-800">{downlines.indirect.length}</p>
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-4 shadow">
-                        <p className="text-sm text-gray-500">Direct Referrals</p>
+                    <div className="singlepckagebox shadow">
+                        <h2 className="text-sm text-gray-500">Direct Referrals</h2>
                         <p className="font-bold text-gray-800">{downlines.direct.length}</p>
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-4 shadow">
-                        <p className="text-sm text-gray-500">Package Limit</p>
+                    <div className="singlepckagebox shadow">
+                        <h2 className="text-sm text-gray-500">Package Limit</h2>
                         <p className="font-bold text-gray-800">{formatEther(Package.limit)} $</p>
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-4 shadow">
-                        <p className="text-sm text-gray-500">Remaining Limit</p>
+                    <div className="singlepckagebox shadow">
+                        <h2 className="text-sm text-gray-500">Remaining Limit</h2>
                         <p className="font-bold text-gray-800">{Number(formatEther(Package.limit)) - Number(formatEther(limitUtilized))} $</p>
                     </div>
 
-                    <div className="bg-gray-50 rounded-lg p-4 shadow">
-                        <p className="text-sm text-gray-500">NFTque Status</p>
+                    <div className="singlepckagebox shadow">
+                        <h2 className="text-sm text-gray-500">NFTque Status</h2>
                         <p className="font-bold text-gray-800">{NFTQueStatus}</p>
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-4 shadow">
-                        <p className="text-sm text-gray-500">NFTque Earnings</p>
+                    <div className="singlepckagebox shadow">
+                        <h2 className="text-sm text-gray-500">NFTque Earnings</h2>
                         <p className="font-bold text-green-600">
                             {NFTQuebalance1} $
                         </p>
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-4 shadow">
-                        <p className="text-sm text-gray-500">Level Income</p>
+                    <div className="singlepckagebox shadow">
+                        <h2 className="text-sm text-gray-500">Level Income</h2>
                         <p className="font-bold text-green-600">
                             {formatEther(levelIncome)} $
                         </p>
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-4 shadow">
-                        <p className="text-sm text-gray-500">Referral Income</p>
+                    <div className="singlepckagebox shadow">
+                        <h2 className="text-sm text-gray-500">Referral Income</h2>
                         <p className="font-bold text-green-600">
                             {formatEther(referralIncome)} $
                         </p>
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-4 shadow">
-                        <p className="text-sm text-gray-500">Trading Income</p>
+                    <div className="singlepckagebox shadow">
+                        <h2 className="text-sm text-gray-500">Trading Income</h2>
                         <p className="font-bold text-green-600">
                             {formatEther(tradingIncome)} $
                         </p>
@@ -183,7 +183,7 @@ return (status === "loading" ? <p className="text-gray-600">Loading...</p> :
                 </div>
 
                 {/* NFTs Owned */}
-                <div className="mt-10">
+                <div className="mt-10 nftsbtns">
                     <h3 className="text-xl font-semibold mb-4 text-gray-700">
                         My NFTs
                     </h3>
@@ -195,7 +195,7 @@ return (status === "loading" ? <p className="text-gray-600">Loading...</p> :
                 </div>
                 {/* Upgrade Button */}
                 {Package && packages && (
-                    <div className="mt-8">
+                    <div className="btnclicknfts">
                         {(() => {
 
                             const nextPackage = packages[Number(Package.id) + 1]; // next package
@@ -205,7 +205,7 @@ return (status === "loading" ? <p className="text-gray-600">Loading...</p> :
                             return (Number(Package.id) < (packages.length - 2) &&
                                 <button
                                     disabled={!canUpgrade}
-                                    className={`w-full py-3 rounded-lg font-semibold transition-colors ${canUpgrade
+                                    className={`w-full py-3 rounded-lg font-semibold transition-colors  ${canUpgrade
                                         ? "bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
                                         : "bg-gray-300 text-gray-500 cursor-not-allowed"
                                         }`}

@@ -79,7 +79,7 @@ console.log("first",nft)
 
         <div
             key={index}
-            className="bg-white shadow-md rounded-xl overflow-hidden flex flex-col hover:shadow-xl transition"
+            className="collectionfulgrid  shadow-md rounded-xl overflow-hidden flex flex-col hover:shadow-xl transition"
         >
             {/* Image (80% height) */}
             <div className="flex-1">
@@ -91,19 +91,19 @@ console.log("first",nft)
             </div>
 
             {/* Info (20% height) */}
-            <div className="p-3 bg-gray-100 text-sm space-y-1">
-                <p>
+            <div className="p-3 bg-gray-100 text-sm space-y-1 nftgridss">
+                <h3>
                     <span className="font-semibold">Name:</span> {name}
-                </p>
+                </h3>
                 <p className="truncate">
                     <span className="font-semibold">Owner:</span> {`${nft._owner.slice(0, 4)}...${nft._owner.slice(-4)}`}
                 </p>
 
                 {/* Price + Buy Button */}
                 <div className="flex items-center justify-between">
-                    <p>
+                    <h5>
                         <span className="font-semibold">Price:</span> {Number(formatEther(nft.price)*1.07).toFixed(2) } $
-                    </p>
+                    </h5>
                     {address != nft._owner && <button
                         onClick={() => handleBuy(nft.id)}
                         className="bg-blue-600 text-white text-xs px-3 py-1 rounded-lg hover:bg-blue-700 transition"
@@ -138,7 +138,7 @@ const NFTGrid = () => {
 
 //console.log("nft",nfts)
     return (nfts && 
-        <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className=" p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {nfts.map((nft, index) => {
              if(nft._owner!="0x0000000000000000000000000000000000000000"){
                 return (

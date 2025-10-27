@@ -4,6 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import ContractPage from './components/ContractPage/ContractPage.jsx'
 import Register from './components/Register/Register.jsx'
+import Dashboard from './components/Dashboard/Dashboard.jsx'   // ✅ add this
 import { AppKitProvider } from './WagmiProvider.jsx'
 import { Provider } from 'react-redux'
 import store from './store'
@@ -18,6 +19,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="/" element={<App />} />
             <Route path="/contract" element={<ContractPage />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/dashboard" element={<Dashboard />} />  {/* ✅ new route */}
           </Routes>
         </Router>
       </Provider>
