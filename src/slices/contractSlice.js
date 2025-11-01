@@ -53,7 +53,7 @@ export const readName = createAsyncThunk(
       const nextTokenId = await safeCall("_nextTokenId", () => nftContract.methods._nextTokenId().call());
       //      const nftused = await safeCall("nftused(0)", () => contract.methods.getNFTused().call());
 
-     
+
       let Package = null;
       let uplines = [];
       let downlines = [];
@@ -66,6 +66,7 @@ export const readName = createAsyncThunk(
       let referralIncome = 0
       let tradingIncome = 0
       let walletBalance = 0
+      let totalIncome = 0
 
       if (a.address && registered) {
         Package = await safeCall("userPackage", () => contract.methods.userPackage(a.address).call());
@@ -98,16 +99,21 @@ export const readName = createAsyncThunk(
         admin,
         allowance,
         directReferrals,
-        limitUtilized:Number(formatEther(limitUtilized)).toFixed(4),
+        limitUtilized: Number(formatEther(limitUtilized)).toFixed(4),
         NFTque,
-        NFTQueBalance:Number(formatEther(NFTQueBalance)).toFixed(4),
+        NFTQueBalance: Number(formatEther(NFTQueBalance)).toFixed(4),
         myNFTs,
         NFTMayBeCreated,
         nextTokenId,
-        levelIncome:Number(formatEther(levelIncome)).toFixed(4),
-        referralIncome:Number(formatEther(referralIncome)).toFixed(4),
-        tradingIncome:Number(formatEther(tradingIncome)).toFixed(4),
-        walletBalance:Number(formatEther(walletBalance)).toFixed(4)
+        levelIncome: Number(formatEther(levelIncome)).toFixed(4),
+        referralIncome: Number(formatEther(referralIncome)).toFixed(4),
+        tradingIncome: Number(formatEther(tradingIncome)).toFixed(4),
+        walletBalance: Number(formatEther(walletBalance)).toFixed(4),
+        totalIncome: (
+          Number(formatEther(referralIncome)) +
+          Number(formatEther(tradingIncome)) +
+          Number(formatEther(levelIncome))
+        ).toFixed(4)
 
 
         //      nftused,
@@ -140,10 +146,11 @@ const contractSlice = createSlice({
     myNFTs: [],
     NFTMayBeCreated: false,
     nextTokenId: 0,
-           levelIncome:0,
-        referralIncome:0,
-        tradingIncome:0,
-        walletBalance:0,
+    levelIncome: 0,
+    referralIncome: 0,
+    tradingIncome: 0,
+    walletBalance: 0,
+    totalIncome: 0,
     //nftused: null,
     status: "idle",
     error: null,

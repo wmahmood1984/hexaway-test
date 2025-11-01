@@ -6,7 +6,7 @@ import { executeContract, formatAddress, formatWithCommas } from '../utils/contr
 import { formatEther } from 'ethers';
 import toast from 'react-hot-toast';
 import { init, readName } from '../slices/contractSlice';
-import { mlmcontractaddress, usdtContract } from '../config';
+import { mlmcontractaddress, packageKeys, usdtContract } from '../config';
 import CountdownTimer from './Timer';
 import Spinner from './Spinner';
 
@@ -87,27 +87,27 @@ export default function Dashboard() {
     };
 
     const normalizedAddr = address && address.toLowerCase();
-    const normalizedQue = NFTque &&  NFTque.map(a => a.toLowerCase());
+    const normalizedQue = NFTque && NFTque.map(a => a.toLowerCase());
 
 
-    const NFTQueStatus = NFTque &&  normalizedQue.indexOf(normalizedAddr) < 0
-    ? "Not in the Que"
-    : normalizedQue.indexOf(normalizedAddr) + 1;
+    const NFTQueStatus = NFTque && normalizedQue.indexOf(normalizedAddr) < 0
+        ? "Not in the Que"
+        : normalizedQue.indexOf(normalizedAddr) + 1;
 
     const now = new Date().getTime()
 
 
-     const isLoading = !Package || !downlines || !packages;
+    const isLoading = !Package || !downlines || !packages;
 
-  if (isLoading) {
-    // show a waiting/loading screen
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mb-4"></div>
-        <p className="text-gray-600 text-lg font-medium">Loading your data...</p>
-      </div>
-    );
-  }
+    if (isLoading) {
+        // show a waiting/loading screen
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-center">
+                <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mb-4"></div>
+                <p className="text-gray-600 text-lg font-medium">Loading your data...</p>
+            </div>
+        );
+    }
 
 
     return (
@@ -154,7 +154,7 @@ export default function Dashboard() {
                                             Active Package
                                         </div>
                                         <div class="text-sm sm:text-base lg:text-lg font-semibold text-gray-900" id="active-package">
-                                            {Package.id == "0" ? "Welcome" : `$ ${formatEther(Package.price)}`}
+                                            {packageKeys[Package.id]}
                                         </div>
                                     </div>
                                 </div>
@@ -185,9 +185,12 @@ export default function Dashboard() {
                                             Limit: {formatEther(packages[0].limit)}
                                         </div>
                                         <button
-                                            disabled={Package.id == 0}
+                                            disabled={Package.id >= 0}
                                             style={Number(Package.id) + 1 > 0 ? { backgroundColor: "grey", color: "white" } : {}}
-                                            class="w-full bg-blue-600 text-white py-2 sm:py-3 rounded-lg hover:bg-blue-700 text-sm sm:text-base transition-colors font-medium">Upgrade</button>
+                                            class="w-full bg-blue-600 text-white py-2 sm:py-3 rounded-lg hover:bg-blue-700 text-sm sm:text-base transition-colors font-medium">
+                                                {Package.id ==0? `Active`:`Upgrade`}
+                                                
+                                                </button>
                                     </div>
                                     <div class="package-card bg-gradient-to-br from-green-50 to-green-100 p-4 sm:p-6 rounded-xl text-center border-2 border-transparent hover:border-green-300 transition-all">
                                         <h4 class="font-bold text-base sm:text-xl text-green-800 mb-2">DI</h4>
@@ -198,8 +201,8 @@ export default function Dashboard() {
                                             Limit: ${formatEther(packages[1].limit)}
                                         </div>
                                         <button
-                                            disabled={Package.id == 1 || downlines.indirect.length < packages[1].team}
-                                            style={Number(Package.id) == 1 || downlines.indirect.length < packages[1].team ? { backgroundColor: "grey", color: "white" } : {}}
+                                            disabled={Package.id >= 1 || downlines.indirect.length < packages[1].team}
+                                            style={Number(Package.id) >= 1 || downlines.indirect.length < packages[1].team ? { backgroundColor: "grey", color: "white" } : {}}
                                             onClick={() => { handleUpdate(packages[1]) }}
                                             class="w-full bg-purple-600 text-white py-2 sm:py-3 rounded-lg hover:bg-purple-700 text-sm sm:text-base transition-colors font-medium">
                                             {
@@ -210,7 +213,7 @@ export default function Dashboard() {
                                                     </>
                                                 ) :
 
-                                                    downlines.indirect.length >= packages[1].team ? `Upgrade` : `Need ${packages[1].team - downlines.indirect.length} team members`}
+                                                    Package.id ==1? `Active`:downlines.indirect.length >= packages[1].team ? `Upgrade` : `Need ${packages[1].team - downlines.indirect.length} team members`}
                                         </button>
                                     </div>
                                     <div class="package-card bg-gradient-to-br from-purple-50 to-purple-100 p-4 sm:p-6 rounded-xl text-center border-2 border-transparent hover:border-purple-300 transition-all">
@@ -221,8 +224,8 @@ export default function Dashboard() {
                                         <div class="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">
                                             Limit: ${formatEther(packages[2].limit)}
                                         </div><button
-                                            disabled={Package.id == 2 || downlines.indirect.length < packages[2].team}
-                                            style={Number(Package.id) == 2 || downlines.indirect.length < packages[2].team ? { backgroundColor: "grey", color: "white" } : {}}
+                                            disabled={Package.id >= 2 || downlines.indirect.length < packages[2].team}
+                                            style={Number(Package.id) >= 2 || downlines.indirect.length < packages[2].team ? { backgroundColor: "grey", color: "white" } : {}}
                                             onClick={() => { handleUpdate(packages[2]) }}
                                             class="w-full bg-purple-600 text-white py-2 sm:py-3 rounded-lg hover:bg-purple-700 text-sm sm:text-base transition-colors font-medium">
                                             {
@@ -231,7 +234,7 @@ export default function Dashboard() {
                                                         <Spinner size={20} color="#fff" />
                                                         <span>Processing...</span>
                                                     </>
-                                                ) : downlines.indirect.length >= packages[2].team ? `Upgrade` : `Need ${packages[2].team - downlines.indirect.length} team members`}
+                                                ) : Package.id ==2? `Active`: downlines.indirect.length >= packages[2].team ? `Upgrade` : `Need ${packages[2].team - downlines.indirect.length} team members`}
                                         </button>
                                     </div>
                                     <div class="package-card bg-gradient-to-br from-yellow-50 to-yellow-100 p-4 sm:p-6 rounded-xl text-center border-2 border-transparent hover:border-yellow-300 transition-all">
@@ -242,8 +245,8 @@ export default function Dashboard() {
                                         <div class="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">
                                             Limit: ${formatEther(packages[3].limit)}
                                         </div><button
-                                            disabled={Package.id == 3 || downlines.indirect.length < packages[3].team}
-                                            style={Number(Package.id) == 3 || downlines.indirect.length < packages[3].team ? { backgroundColor: "grey", color: "white" } : {}}
+                                            disabled={Package.id >= 3 || downlines.indirect.length < packages[3].team}
+                                            style={Number(Package.id) >= 3 || downlines.indirect.length < packages[3].team ? { backgroundColor: "grey", color: "white" } : {}}
                                             onClick={() => { handleUpdate(packages[3]) }}
                                             class="w-full bg-purple-600 text-white py-2 sm:py-3 rounded-lg hover:bg-purple-700 text-sm sm:text-base transition-colors font-medium">
                                             {loading ? (
@@ -251,7 +254,7 @@ export default function Dashboard() {
                                                     <Spinner size={20} color="#fff" />
                                                     <span>Processing...</span>
                                                 </>
-                                            ) : downlines.indirect.length >= packages[3].team ? `Upgrade` : `Need ${packages[3].team - downlines.indirect.length} team members`}
+                                            ) : Package.id ==3? `Active`: downlines.indirect.length >= packages[3].team ? `Upgrade` : `Need ${packages[3].team - downlines.indirect.length} team members`}
                                         </button>
                                     </div>
                                     <div class="package-card bg-gradient-to-br from-red-50 to-red-100 p-4 sm:p-6 rounded-xl text-center border-2 border-transparent hover:border-red-300 transition-all">
@@ -262,8 +265,8 @@ export default function Dashboard() {
                                         <div class="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">
                                             Limit: ${formatEther(packages[4].limit)}
                                         </div><button
-                                            disabled={Package.id == 4 || downlines.indirect.length < packages[4].team}
-                                            style={Number(Package.id) == 4 || downlines.indirect.length < packages[4].team ? { backgroundColor: "grey", color: "white" } : {}}
+                                            disabled={Package.id >= 4 || downlines.indirect.length < packages[4].team}
+                                            style={Number(Package.id) >= 4 || downlines.indirect.length < packages[4].team ? { backgroundColor: "grey", color: "white" } : {}}
                                             onClick={() => { handleUpdate(packages[4]) }}
                                             class="w-full bg-purple-600 text-white py-2 sm:py-3 rounded-lg hover:bg-purple-700 text-sm sm:text-base transition-colors font-medium">
                                             {loading ? (
@@ -271,7 +274,7 @@ export default function Dashboard() {
                                                     <Spinner size={20} color="#fff" />
                                                     <span>Processing...</span>
                                                 </>
-                                            ) : downlines.indirect.length >= packages[4].team ? `Upgrade` : `Need ${packages[4].team - downlines.indirect.length} team members`}
+                                            ) : Package.id ==4? `Active`: downlines.indirect.length >= packages[4].team ? `Upgrade` : `Need ${packages[4].team - downlines.indirect.length} team members`}
                                         </button>
                                     </div>
                                     <div class="package-card bg-gradient-to-br from-indigo-50 to-indigo-100 p-4 sm:p-6 rounded-xl text-center border-2 border-transparent hover:border-indigo-300 transition-all">
@@ -282,8 +285,8 @@ export default function Dashboard() {
                                         <div class="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">
                                             Limit: ${formatEther(packages[5].limit)}
                                         </div><button
-                                            disabled={Package.id == 5 || downlines.indirect.length < packages[5].team}
-                                            style={Number(Package.id) == 5 || downlines.indirect.length < packages[5].team ? { backgroundColor: "grey", color: "white" } : {}}
+                                            disabled={Package.id >= 5 || downlines.indirect.length < packages[5].team}
+                                            style={Number(Package.id) >= 5 || downlines.indirect.length < packages[5].team ? { backgroundColor: "grey", color: "white" } : {}}
                                             onClick={() => { handleUpdate(packages[5]) }}
                                             class="w-full bg-purple-600 text-white py-2 sm:py-3 rounded-lg hover:bg-purple-700 text-sm sm:text-base transition-colors font-medium">
                                             {loading ? (
@@ -291,7 +294,7 @@ export default function Dashboard() {
                                                     <Spinner size={20} color="#fff" />
                                                     <span>Processing...</span>
                                                 </>
-                                            ) : downlines.indirect.length >= packages[5].team ? `Upgrade` : `Need ${packages[5].team - downlines.indirect.length} team members`}
+                                            ) : Package.id ==5? `Active`: downlines.indirect.length >= packages[5].team ? `Upgrade` : `Need ${packages[5].team - downlines.indirect.length} team members`}
                                         </button>
                                     </div>
                                 </div>
@@ -382,7 +385,12 @@ export default function Dashboard() {
                     <div class="bg-white/95 backdrop-blur-sm border border-white/20 rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8">
                         <div class="p-4 sm:p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl sm:rounded-2xl border border-purple-200">
                             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
-                                <h3 class="text-base sm:text-lg font-semibold text-purple-800 mb-2 sm:mb-0">🎨 NFTque Status</h3><span id="nftque-status-badge" class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs sm:text-sm font-medium self-start">Inactive</span>
+                                <h3 class="text-base sm:text-lg font-semibold text-purple-800 mb-2 sm:mb-0">🎨 NFTque Status</h3>
+                                <span id="nftque-status-badge" 
+                                class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs sm:text-sm font-medium self-start">
+                                    {NFTQueStatus=="Not in the Que"?
+                                    `Inactive`:`Active`}
+                                    </span>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div class="text-center p-3 bg-white/50 rounded-lg">

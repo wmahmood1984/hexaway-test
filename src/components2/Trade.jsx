@@ -4,6 +4,7 @@ import { formatWithCommas } from '../utils/contractExecutor';
 import { formatEther } from 'ethers';
 import { helperAbi, helperAddress, web3 } from '../config';
 import { NFT } from './NFT';
+import { Link } from 'react-router-dom';
 
 export default function Trade() {
 
@@ -46,7 +47,7 @@ export default function Trade() {
     );
   }
 
-  console.log("NFT",nfts);
+
 
 
     return (
@@ -57,7 +58,9 @@ export default function Trade() {
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
                         <h2 class="text-3xl font-bold text-gray-900 mb-4 sm:mb-0">NFT Marketplace</h2><button onclick="showPage('history')" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 font-medium shadow-lg flex items-center space-x-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg><span>Transaction History</span> </button>
+                            </svg><Link
+                            to={"/history"}
+                            >Transaction History</Link> </button>
                     </div>
                     <div class="bg-white/95 backdrop-blur-sm border border-white/20 rounded-2xl shadow-2xl p-6 mb-8">
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -124,6 +127,7 @@ export default function Trade() {
                     </div>
                     <div class="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
                         {nfts.map((v,e)=>{
+                             if(v._owner!="0x0000000000000000000000000000000000000000"){
                             return (
                                 <NFT nft={v} index={e} toggle={toggle} setToggle={setToggle}/>
                                 //     <div class="nft-card bg-white/95 backdrop-blur-md border border-blue-200 rounded-xl shadow-lg overflow-hidden">
@@ -143,7 +147,7 @@ export default function Trade() {
                         //         </div><button class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">Buy Now</button>
                         //     </div>
                         // </div>
-                            )
+                            )}   
                         })
                             
                             

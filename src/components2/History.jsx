@@ -1,6 +1,53 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { helperAbi, helperAddress, web3, web31 } from '../config';
+import { useAppKitAccount } from '@reown/appkit/react';
 
 export default function History() {
+  const { address } = useAppKitAccount();
+      const [transactions, setTransaction] = useState()
+      const helperContract = new web31.eth.Contract(helperAbi, helperAddress)
+      useEffect(() => {
+        const bringTransaction = async () => {
+          if (!address) return;
+    
+    
+          const latestBlock = await web3.eth.getBlockNumber();
+                const fromBlock = latestBlock-50000;
+          const step = 5000; // or smaller if node still complains
+          let allEvents = [];
+    
+          for (let i = fromBlock; i <= latestBlock; i += step) {
+            const toBlock = Math.min(i + step - 1, latestBlock);
+    
+            try {
+              const events = await helperContract.getPastEvents("Incomes",
+    
+                {
+    
+                  fromBlock: i,
+                  toBlock: toBlock,
+                });
+              allEvents = allEvents.concat(events);
+              setTransaction(allEvents)
+              // console.log(`Fetched ${events.length} events from ${i} to ${toBlock}`);
+            } catch (error) {
+              console.warn(`Error fetching from ${i} to ${toBlock}`, error);
+            }
+          }
+    
+          console.log("All events:", allEvents);
+        };
+    
+        bringTransaction();
+      }, [address]);
+
+
+        const filteredTransactions = transactions && transactions.filter(e => e.
+    returnValues.
+    _user === address).map((v, e) => { return ({ values: v.returnValues, hash: v.transactionHash }) })
+
+        console.log("NFT",filteredTransactions);
+    
     return (
         <div>
 

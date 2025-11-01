@@ -2,24 +2,39 @@ import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { helperAbi, helperAddress, web3 } from '../config';
 import { useAppKitAccount } from '@reown/appkit/react';
+import { formatAddress } from '../utils/contractExecutor';
+import { useDispatch, useSelector } from 'react-redux';
+import { init, readName } from '../slices/contractSlice';
 
 export default function Nav() {
 
-        const [registered, setRegistered] = useState(false);
+
+        const { Package, myNFTs, packages, downlines, registered, admin, allowance, NFTQueBalance, limitUtilized, NFTque
+
+        , levelIncome,
+        referralIncome,
+        tradingIncome, walletBalance,NFTMayBeCreated,
+        status, error
+    } = useSelector((state) => state.contract);
+
+
+
        const { address } = useAppKitAccount()
-        const contract = new web3.eth.Contract(helperAbi, helperAddress)
     
-        useEffect(() => {
-    
-            const abc = async () => {
-    
-                
-                const _registered = await contract.methods.userRegistered(address).call()
-                setRegistered(_registered)
+    const dispatch = useDispatch()
+
+
+    useEffect(() => {
+        dispatch(init()).then(() => {
+            if (address) {
+                dispatch(readName({ address }));
+            }else{
+                dispatch(readName({ address:"0x0000000000000000000000000000000000000000" }))
             }
-    
-            abc()
-        }, [address])
+        });
+    }, [dispatch, address]);
+
+    console.log("nav",NFTMayBeCreated);
 
 
     return (
@@ -35,17 +50,19 @@ export default function Nav() {
                             {registered && <>
                             <Link to={"/dashboard"}  class="text-gray-600 hover:text-indigo-600 font-medium transition-colors text-sm xl:text-base">Dashboard</Link>
                             <Link to={"/trade"}  class="text-gray-600 hover:text-indigo-600 font-medium transition-colors text-sm xl:text-base">Trade</Link>
-                            <Link to={"/create"}  class="text-gray-600 hover:text-indigo-600 font-medium transition-colors text-sm xl:text-base">Create</Link>
+                            {NFTMayBeCreated&&  <Link to={"/create"}  class="text-gray-600 hover:text-indigo-600 font-medium transition-colors text-sm xl:text-base">Create</Link>}
                             <Link to={"/asset"}  class="text-gray-600 hover:text-indigo-600 font-medium transition-colors text-sm xl:text-base">Assets</Link>
                             <Link to={"/tree"}  class="text-gray-600 hover:text-indigo-600 font-medium transition-colors text-sm xl:text-base">Team Tree</Link>
                             </>}
                             
                             <Link 
                             to={"/auth"}
-                            id="auth-btn"  class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 sm:px-6 py-2 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 font-medium shadow-lg text-sm xl:text-base">Get Started</Link>
+                            id="auth-btn"  class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 sm:px-6 py-2 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 font-medium shadow-lg text-sm xl:text-base">{address? formatAddress(address) :`Get Started`}</Link>
                         </div>
-                        <div class="lg:hidden"><button onclick="toggleMobileMenu()" class="text-gray-600 hover:text-indigo-600 p-2">
-                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        <div class="lg:hidden">
+                            <button onclick="toggleMobileMenu()" class="text-gray-600 hover:text-indigo-600 p-2">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                             </svg></button>
                         </div>
                     </div>
