@@ -105,6 +105,7 @@ export const readName = createAsyncThunk(
         admin,
         allowance,
         directReferrals,
+        
         limitUtilized: Number(formatEther(limitUtilized)).toFixed(4),
         NFTque,
         NFTQueBalance: Number(formatEther(NFTQueBalance)).toFixed(4),
