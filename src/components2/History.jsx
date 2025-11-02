@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { helperAbi, helperAddress, incomeKeys, mlmabi, mlmcontractaddress, packageKeys, tradeKeys, url, web3, web31 } from '../config';
 import { useAppKitAccount } from '@reown/appkit/react';
 import { formatEther } from 'ethers';
@@ -177,32 +177,34 @@ export default function History() {
 
 
 
-    const merged = transactions && trades && Upgrades && [...filteredTransactions, ...filteredTrades,...filteredUpgrades].sort(
-        (a, b) => b.time - a.time
-    ).filter((e) => {
-        console.log("filter", filter);
-        if (filter == `All Transactions`) {
-            return true
-        } else {
-            return e.name == filter
-        }
-    })
-        ;
+ const isDataReady = transactions && trades && Upgrades;
 
+  // ✅ Memoize merging, sorting, and filtering (prevents unnecessary reprocessing)
+  const merged = useMemo(() => {
+    if (!isDataReady) return [];
 
+    const combined = [
+      ...(filteredTransactions || []),
+      ...(filteredTrades || []),
+      ...(filteredUpgrades || []),
+    ];
 
+    return combined
+      .sort((a, b) => b.time - a.time)
+      .filter((e) => (filter === 'All Transactions' ? true : e.name === filter));
+  }, [transactions, trades, Upgrades, filter]);
 
-    const isLoading = !transactions || !trades || !Upgrades;
+  // ✅ Handle loading based on data readiness and merge result
+  const isLoading = !isDataReady || merged.length === 0;
 
-    if (isLoading) {
-        // show a waiting/loading screen
-        return (
-            <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-center">
-                <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mb-4"></div>
-                <p className="text-gray-600 text-lg font-medium">Loading your data...</p>
-            </div>
-        );
-    }
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mb-4"></div>
+        <p className="text-gray-600 text-lg font-medium">Loading your data...</p>
+      </div>
+    );
+  }
 
     console.log("NFT", merged);
 
