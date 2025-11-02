@@ -81,7 +81,7 @@ const totalEth = formatEther(totalWei);
                                 </div>
                             </div>
                         </div>
-                        <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-3 sm:p-6 border border-gray-100">
+                        {/* <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-3 sm:p-6 border border-gray-100">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <div class="text-lg sm:text-2xl lg:text-3xl font-bold text-orange-600">
@@ -96,7 +96,7 @@ const totalEth = formatEther(totalWei);
                                     </svg>
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                     {/* <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8 border border-gray-100">
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
