@@ -16,5 +16,5 @@ value of NFT
 
 
 change price and last price in nft of asset
-
+monthly time for package
 

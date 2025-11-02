@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import Nav from './components2/Nav'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
 import Home from './components2/Home'
 import Auth from './components2/Auth'
 import Dashboard from './components2/Dashboard'
@@ -18,13 +18,15 @@ export default function App() {
 
     const dispatch = useDispatch()
     const { address } = useAppKitAccount();
+    const navigate = useNavigate()
 
   useEffect(() => {
     dispatch(init()).then(() => {
       if (address) {
         dispatch(readName({ address }));
       } else {
-        dispatch(readName({ address: "0x0000000000000000000000000000000000000000" }));
+        // dispatch(readName({ address: "0x0000000000000000000000000000000000000000" }));
+        navigate("/")
       }
     });
   }, [dispatch, address]);

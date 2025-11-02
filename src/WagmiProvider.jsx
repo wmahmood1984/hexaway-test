@@ -15,7 +15,7 @@ const projectId = '52c10a92b5e746a646872479049e9ccd'
 const metadata = {
   name: 'AppKit',
   description: 'AppKit Example',
-  url: 'https://hospitalinformationsystem.netlify.app/', // origin must match your domain & subdomain
+  url: 'https://hexaway.netlify.app/', // origin must match your domain & subdomain
   icons: ['https://avatars.githubusercontent.com/u/179229932']
 }
 
