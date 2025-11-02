@@ -15,10 +15,8 @@ export default function Dashboard() {
     const config = useConfig()
     const { Package, myNFTs, packages, downlines, registered, admin, allowance, NFTQueBalance, limitUtilized, NFTque
 
-        , levelIncome,
-        referralIncome,
-        tradingIncome, walletBalance,
-        status, error
+        , walletBalance, tradingReferralBonus, packageReferralBonus, tradingLevelBonus, packageLevelBonus, selfTradingProfit,
+        status, error,totalIncome
     } = useSelector((state) => state.contract);
     const { address } = useAppKitAccount();
     const [referrer, setReferrer] = useState()
@@ -99,7 +97,7 @@ export default function Dashboard() {
 
     const isLoading = !Package || !downlines || !packages;
 
-    console.log("dashoard",packageKeys[Package.id].name);
+    console.log("dashoard", packageKeys[Package.id].name);
 
     if (isLoading) {
         // show a waiting/loading screen
@@ -175,6 +173,9 @@ export default function Dashboard() {
                                     </div>
                                 </div>
                             </div>
+                            {
+                                <CountdownTimer durationInSeconds={Number(Package.purchaseTime) + 60 * 60 * 24 * 30 - now / 1000} />
+                            }
                             <div class="bg-white/95 backdrop-blur-sm border border-white/20 rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
                                 <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Hexaway Packages</h3>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 sm:gap-6">
@@ -306,27 +307,27 @@ export default function Dashboard() {
                                     <div class="text-2xl sm:text-3xl mb-2">
                                         🤝
                                     </div>
-                                    <h4 class="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Direct Referral Bonus</h4>
+                                    <h4 class="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Trading Referral Bonus</h4>
                                     <div id="group-trading-bonus" class="text-xl sm:text-2xl font-bold text-green-600">
-                                        ${referralIncome}
+                                        ${tradingReferralBonus}
                                     </div>
                                 </div>
                                 <div class="bg-white/95 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl p-4 sm:p-6 text-center">
                                     <div class="text-2xl sm:text-3xl mb-2">
                                         💰
                                     </div>
-                                    <h4 class="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Level Bonus</h4>
+                                    <h4 class="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Package Referral Bonus</h4>
                                     <div id="level-income" class="text-xl sm:text-2xl font-bold text-blue-600">
-                                        ${levelIncome}
+                                        ${packageReferralBonus}
                                     </div>
                                 </div>
                                 <div class="bg-white/95 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl p-4 sm:p-6 text-center">
                                     <div class="text-2xl sm:text-3xl mb-2">
                                         📈
                                     </div>
-                                    <h4 class="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Team Trading Bonus</h4>
+                                    <h4 class="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Trading Level Bonus</h4>
                                     <div id="referral-income" class="text-xl sm:text-2xl font-bold text-purple-600">
-                                        ${tradingIncome}
+                                        ${tradingLevelBonus}
                                     </div>
                                 </div>
                                 <div class="bg-white/95 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl p-4 sm:p-6 text-center">
@@ -337,9 +338,9 @@ export default function Dashboard() {
                                             class="w-24 sm:w-28"
                                         />
                                     </div>
-                                    <h4 class="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Self Trading Profit</h4>
+                                    <h4 class="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Package Level Bonus</h4>
                                     <div id="referral-income" class="text-xl sm:text-2xl font-bold text-purple-600">
-                                        ${tradingIncome}
+                                        ${packageLevelBonus}
                                     </div>
                                 </div>
                                 <div class="bg-white/95 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl p-4 sm:p-6 text-center">
@@ -350,9 +351,9 @@ export default function Dashboard() {
                                             class="w-24 sm:w-28"
                                         />
                                     </div>
-                                    <h4 class="font-semibold text-gray-900 mb-2 text-sm sm:text-base">NFT Creation Earning</h4>
+                                    <h4 class="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Self Trading Profit</h4>
                                     <div id="referral-income" class="text-xl sm:text-2xl font-bold text-purple-600">
-                                        ${tradingIncome}
+                                        ${selfTradingProfit}
                                     </div>
                                 </div>
                                 <div class="bg-white/95 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl p-4 sm:p-6 text-center">
@@ -365,7 +366,7 @@ export default function Dashboard() {
                                     </div>
                                     <h4 class="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Total Earnings</h4>
                                     <div id="referral-income" class="text-xl sm:text-2xl font-bold text-purple-600">
-                                        ${tradingIncome}
+                                        ${totalIncome}
                                     </div>
                                 </div>
                             </div>
@@ -419,9 +420,7 @@ export default function Dashboard() {
                             </div>
                         </div> */}
 
-                        {
-                            <CountdownTimer durationInSeconds={Number(Package.purchaseTime) + 60 * 60 * 24 * 30 - now / 1000} />
-                        }
+
                     </div>
                     <div class="bg-white/95 backdrop-blur-sm border border-white/20 rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8">
                         <div class="p-4 sm:p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl sm:rounded-2xl border border-purple-200">

@@ -55,8 +55,15 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         //userLevelIncomeBlockTime[msg.sender] = block.timestamp;
     }
 
-    event Incomes(uint time, uint amount, uint _type, address _user, uint level, uint id);
-    event Trades(uint time, uint amount, uint _type, address _user,uint id);
+    event Incomes(
+        uint time,
+        uint amount,
+        uint _type,
+        address _user,
+        uint level,
+        uint id
+    );
+    event Trades(uint time, uint amount, uint _type, address _user, uint id);
     event Upgrades(uint time, uint amount, uint _type, address _user);
 
     uint timelimit;
@@ -91,9 +98,11 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     Package[] public packages;
 
     mapping(address => Package) public userPackage;
-    mapping(address => uint) public userLevelIncome;
-    mapping(address => uint) public userReferralIncome;
-    mapping(address => uint) public userTradingIncome;
+    mapping(address => uint) public tradingReferralBonus;
+    mapping(address => uint) public packageReferralBonus;
+    mapping(address => uint) public tradingLevelBonus;
+    mapping(address => uint) public packageLevelBonus;
+    mapping(address => uint) public selfTradingProfit;
     //    mapping(address => address) public referredBy; // user → direct referrer
 
     // mapping(address => address[]) public parentChild; // user → direct referrals
@@ -126,13 +135,6 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     function register(address _ref, address _user) public {
         address _referrer = _ref != address(0) ? _ref : owner();
         uint amount = packages[0].price;
-        // require(
-        //     paymentToken.allowance(msg.sender, address(this)) >= amount,
-        //     "1"
-        // );
-
-        //paymentToken.transferFrom(msg.sender, address(this), amount);
-
         Package memory tx1 = packages[0];
         tx1.purchaseTime = block.timestamp;
         userPackage[_user] = tx1;
@@ -151,17 +153,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         users[_referrer].direct.push(_user);
 
         // ✅ Add to referrer's indirect network
-        // users[_referrer].indirect.push(_user);
-
-        // // ✅ Also add this user to every upline's allReferrals
-        // address current = placement;//_referrer;
-        // for (uint i = 0; i < maxLevels; i++) {
-        //     // limit to prevent infinite loops
-        //     address upper = users[current].parent;
-        //     if (upper == address(0)) break;
-        //     users[upper].indirect.push(_user);
-        //     current = upper;
-        // }
+    
 
         address current = placement;
         for (uint i = 0; i < maxLevels; i++) {
@@ -170,37 +162,50 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
             current = users[current].parent;
         }
 
-        // if (_referrer != placement) {
-        //     users[_referrer].indirect.push(_user);
-        // }
-
         userRegistered[_user] = true;
 
-        sendConditional(_referrer, amount / 2,1,0);
+        sendConditional(_referrer, amount / 2, 1, 0);
 
         userTradingTime[_user] = block.timestamp;
-        //userLevelIncomeBlockTime[_user] = block.timestamp;
-        emit Upgrades(block.timestamp,amount,0,_user );
+
+        emit Upgrades(block.timestamp, amount, 0, _user);
     }
 
-    function sendConditional(address up, uint amount, uint _type,uint _id) internal {
+    function sendConditional(
+        address up,
+        uint amount,
+        uint _type,
+        uint _id
+    ) internal {
         bool eligible = _type != 1
-            ? 
-            // (block.timestamp - userPackage[up].purchaseTime) <=
+            ? // (block.timestamp - userPackage[up].purchaseTime) <=
             //     60 * 60 * 24 * 30
-            // : 
-            userPackage[up].id > 0 : true;
+            // :
+            userPackage[up].id > 0
+            : true;
 
-        uint8 transactionType = _type ==3? 0:1;
-        if (eligible && 
+        uint8 transactionType = _type == 3 ? 0 : 1;
+        if (
+            eligible &&
             (block.timestamp - userPackage[up].purchaseTime) <=
-                60 * 60 * 24 * 30 && 
+                60 * 60 * 24 * 30 &&
             block.timestamp - userLevelIncomeBlockTime[up] >= (timelimit)
         ) {
             if (block.timestamp - userTradingTime[up] <= (timelimit)) {
                 paymentToken.transfer(up, amount);
-                userReferralIncome[up] += amount;
-                emit Incomes(block.timestamp, amount, transactionType, up,0,_id);
+                if(_type ==3 ){
+                    tradingReferralBonus[up] += amount;
+                }else {
+                    packageReferralBonus[up] += amount;
+                }
+                emit Incomes(
+                    block.timestamp,
+                    amount,
+                    transactionType,
+                    up,
+                    0,
+                    _id
+                );
             } else {
                 userLevelIncomeBlockTime[up] = block.timestamp;
             }
@@ -269,12 +274,12 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 
         address up = users[_user].referrer;
 
-        sendConditional(up, (amount * 20) / 100,2,0);
+        sendConditional(up, (amount * 20) / 100, 2, 0);
 
         address[] memory uplines = getUplines(_user);
 
-        processLevelIncome(uplines, amount, 25, 2,0);
-        emit Upgrades(block.timestamp,amount,id,_user );
+        processLevelIncome(uplines, amount, 25, 2, 0);
+        emit Upgrades(block.timestamp, amount, id, _user);
     }
 
     function checkEligibility(
@@ -368,16 +373,18 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
             oldOwner,
             ((amount * percentageAtBuyToTrader) / percentageAtBuy)
         );
-        userTradingIncome[oldOwner] += ((amount * percentageAtBuyToTrader) /
+        selfTradingProfit[oldOwner] += ((amount * percentageAtBuyToTrader) /
             percentageAtBuy);
         emit Incomes(
             block.timestamp,
             ((amount * percentageAtBuyToTrader) / percentageAtBuy),
             4,
-            oldOwner,0,_nft.id
+            oldOwner,
+            0,
+            _nft.id
         );
-        emit Trades(block.timestamp,amount,0,oldOwner,_nft.id);
-        emit Trades(block.timestamp,amount,1,_user,_nft.id);
+        emit Trades(block.timestamp, amount, 0, oldOwner, _nft.id);
+        emit Trades(block.timestamp, amount, 1, _user, _nft.id);
         paymentToken.transfer(
             owner(),
             ((amount * percentageAtBuyToAdmin) / percentageAtBuy)
@@ -405,7 +412,8 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 
         processTTBBonus(
             ((amount * percentageAtBuyforTTBonus) / percentageAtBuy),
-            _user,_nft.id
+            _user,
+            _nft.id
         );
 
         // update NFT queue balance
@@ -413,61 +421,74 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         return amount;
     }
 
-    function processTTBBonus(uint _amount, address _user,uint _id) internal {
+    function processTTBBonus(uint _amount, address _user, uint _id) internal {
         paymentToken.transfer(owner(), (_amount * 10) / 100);
         address up = users[_user].referrer;
-        sendConditional(up, (_amount * 10) / 100,3,_id);
+        sendConditional(up, (_amount * 10) / 100, 3, _id);
 
         address[] memory _uplines = getUplines(_user);
 
         if (_uplines.length == 25) {
             paymentToken.transfer(_uplines[24], (_amount * 10) / 100);
-            userLevelIncome[_uplines[24]] += (_amount * 10) / 100;
+            tradingLevelBonus[_uplines[24]] += (_amount * 10) / 100;
             emit Incomes(
                 block.timestamp,
                 (_amount * 10) / 100,
                 2,
-                _uplines[24]
-            ,25,_id);
+                _uplines[24],
+                25,
+                _id
+            );
         } else {
             paymentToken.transfer(owner(), (_amount * 10) / 100);
         }
 
-        processLevelIncome(_uplines, _amount, 24, 1,_id);
+        processLevelIncome(_uplines, _amount, 24, 1, _id);
     }
 
     function processLevelIncome(
         address[] memory _uplines,
         uint _amount,
         uint8 levelD,
-        uint8 _type,uint _id
+        uint8 _type,
+        uint _id
     ) internal {
         uint leftOver = 0;
 
         for (uint i = 0; i < _uplines.length; i++) {
             address up = _uplines[i];
             bool cond = _type == 2 // Package Buy
-            // ((userPackage[up].id == 5 &&
-                ? //     userLimitUtilized[up] >= (userPackage[up].limit / 2)) ||
+            //     userLimitUtilized[up] >= (userPackage[up].limit / 2)) ||
+                ? // ((userPackage[up].id == 5 &&
                 //     userPackage[up].id != 5) &&
-                
-                    users[up].direct.length >= 2 // ((userPackage[up].id == 5 && // Package buy
-                : //     userLimitUtilized[up] >= (userPackage[up].limit / 2)) ||
-                //     userPackage[up].id != 5) &&
-      
-                    userPackage[up].levelUnlock >= i &&
+
+                users[up].direct.length >= 2 // ((userPackage[up].id == 5 && // Package buy
+                //     userLimitUtilized[up] >= (userPackage[up].limit / 2)) ||
+                : //     userPackage[up].id != 5) &&
+
+                userPackage[up].levelUnlock >= i &&
                     users[up].direct.length >= userPackage[up].directrequired;
-            uint transactionType = _type==1?2:3;
-            if (cond && block.timestamp - userLevelIncomeBlockTime[up] >= (timelimit) &&
-                    userPackage[up].id > 0) {
+            uint transactionType = _type == 1 ? 2 : 3;
+            if (
+                cond &&
+                block.timestamp - userLevelIncomeBlockTime[up] >= (timelimit) &&
+                userPackage[up].id > 0
+            ) {
                 if (block.timestamp - userTradingTime[up] <= (timelimit)) {
                     paymentToken.transfer(up, ((_amount * 70) / 100) / levelD);
-                    userLevelIncome[up] += ((_amount * 70) / 100) / levelD;
+                    if(_type==1){
+                        tradingLevelBonus[up] += ((_amount * 70) / 100) / levelD;
+                    }else{
+                        packageLevelBonus[up] += ((_amount * 70) / 100) / levelD;
+                    }
+                    
                     emit Incomes(
                         block.timestamp,
                         ((_amount * 70) / 100) / levelD,
                         transactionType,
-                        up,i+1,_id
+                        up,
+                        i + 1,
+                        _id
                     );
                     leftOver++;
                 } else {
@@ -546,7 +567,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
             tx1.premium = 0;
             tx1.price = 50 ether;
             removeFirst2();
-            emit Trades(block.timestamp,tx1.price,2,_user,tx1.id);
+            emit Trades(block.timestamp, tx1.price, 2, _user, tx1.id);
         } else {
             tx1 = NFT(_nextTokenId, 50 ether, _user, _uri, 0, 1);
         }
@@ -671,7 +692,7 @@ contract MyNFT is
     }
 
     /// @notice Burn an existing NFT (only token owner or approved)
-//    function burn(uint256 tokenId, uint index) public {}
+    //    function burn(uint256 tokenId, uint index) public {}
 
     function register(address _referrer) public {
         uint allowance = paymentToken.allowance(msg.sender, address(this));

@@ -6,19 +6,19 @@ import { useConfig } from "wagmi";
 import { readName } from "../slices/contractSlice";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { helperAbi, helperAddress, mlmcontractaddress, usdtContract, web3 } from "../config";
-import {  parseEther } from "ethers";
+import { parseEther } from "ethers";
 
 export default function MintModal({ isOpen, onClose }) {
-//      const { nftused } = useSelector((state) => state.contract);
+  //      const { nftused } = useSelector((state) => state.contract);
 
 
-      const [nftused,setNFTUsed] = useState()
-          const { address } = useAppKitAccount();
-    const [name, setName] = useState("");
+  const [nftused, setNFTUsed] = useState()
+  const { address } = useAppKitAccount();
+  const [name, setName] = useState("");
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const config = useConfig()
-   const dispatch = useDispatch()
+  const dispatch = useDispatch()
   // ⚠️ SECURITY: Do NOT expose Pinata keys in frontend production apps!
   // Instead, build a small Express backend that signs requests.
   // const pinata = new pinataSDK({
@@ -26,12 +26,12 @@ export default function MintModal({ isOpen, onClose }) {
   //   pinataSecretApiKey: import.meta.env.VITE_PINATA_SECRET,
   // });
 
-  const helperContract = new web3.eth.Contract(helperAbi,helperAddress)
+  const helperContract = new web3.eth.Contract(helperAbi, helperAddress)
 
-  useEffect(()=>{
+  useEffect(() => {
 
 
-    const abc = async ()=>{
+    const abc = async () => {
       const _nftUsed = await helperContract.methods.getNFTused().call()
       setNFTUsed(_nftUsed)
     }
@@ -39,132 +39,132 @@ export default function MintModal({ isOpen, onClose }) {
     abc()
 
 
-  },[])
+  }, [])
 
 
-    const handleUpdate = async (uri,add) => {
-          await executeContract({
-              config,
-              functionName: "mint",
-              args: [uri],
-              onSuccess: (txHash, receipt) => {
-                  console.log("🎉 Tx Hash:", txHash);
-                  console.log("🚀 Tx Receipt:", receipt);
-                  dispatch(readName({ address: receipt.from }));
-                     setLoading(false);
-    onClose();
-              },
-              onError: (err) => {
-                  console.error("🔥 Error in register:", err);
-                  alert("Transaction failed");
-                  setLoading(false)
-                  onClose()
-              },
-          });
-      };
+  const handleUpdate = async (uri, add) => {
+    await executeContract({
+      config,
+      functionName: "mint",
+      args: [uri],
+      onSuccess: (txHash, receipt) => {
+        console.log("🎉 Tx Hash:", txHash);
+        console.log("🚀 Tx Receipt:", receipt);
+        dispatch(readName({ address: receipt.from }));
+        setLoading(false);
+        onClose();
+      },
+      onError: (err) => {
+        console.error("🔥 Error in register:", err);
+        alert("Transaction failed");
+        setLoading(false)
+        onClose()
+      },
+    });
+  };
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
 
-const handleMint = async () => {
-  try {
-    setLoading(true);
+  const handleMint = async () => {
+    try {
+      setLoading(true);
 
-    // -----------------------
-    // 1. Upload image to Pinata
-    // -----------------------
-    const formData = new FormData();
-    formData.append("file", file);
+      // -----------------------
+      // 1. Upload image to Pinata
+      // -----------------------
+      const formData = new FormData();
+      formData.append("file", file);
 
-    const imgRes = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${import.meta.env.VITE_PINATA_JWT}`,
-      },
-      body: formData,
+      const imgRes = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${import.meta.env.VITE_PINATA_JWT}`,
+        },
+        body: formData,
+      });
+
+      const imgResult = await imgRes.json();
+
+      if (!imgRes.ok || !imgResult.IpfsHash) {
+        throw new Error(
+          `Image upload failed: ${imgRes.status} ${JSON.stringify(imgResult)}`
+        );
+      }
+
+      const imageURI = `https://harlequin-biological-bat-26.mypinata.cloud/ipfs/${imgResult.IpfsHash}`;
+      console.log("✅ Image uploaded:", imageURI);
+
+      // -----------------------
+      // 2. Create metadata JSON
+      // -----------------------
+      const metadata = {
+        name,
+        description: `${name} minted from dApp`,
+        image: imageURI,
+        attributes: [],
+      };
+
+      // -----------------------
+      // 3. Upload metadata JSON
+      // -----------------------
+      const metaRes = await fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${import.meta.env.VITE_PINATA_JWT}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(metadata),
+      });
+
+      const metaResult = await metaRes.json();
+
+      if (!metaRes.ok || !metaResult.IpfsHash) {
+        throw new Error(
+          `Metadata upload failed: ${metaRes.status} ${JSON.stringify(metaResult)}`
+        );
+      }
+
+      const metadataURI = `https://harlequin-biological-bat-26.mypinata.cloud/ipfs/${metaResult.IpfsHash}`;
+      console.log("✅ Metadata uploaded:", metadataURI);
+
+      // -----------------------
+      // 4. Send to smart contract
+      // -----------------------
+      if (!metadataURI) {
+        throw new Error("Metadata URI is missing, aborting mint.");
+      }
+
+      handleUpdate(metadataURI, address); // call your mint function
+      console.log("🚀 Mint request sent with URI:", metadataURI);
+
+
+    } catch (err) {
+      console.error("❌ Error uploading to Pinata:", err);
+      alert(`Mint failed: ${err.message}`);
+      setLoading(false);
+    }
+  };
+
+
+  const handleRegister = async () => {
+    console.log("handle", nftused)
+    // if (allowance >= (nftused.price+nftused.premium)) {
+    //     handleMint()
+    // } else {
+    const value = 30.2890738239215
+    console.log("value", value.toString())
+    await executeContract({
+      config,
+      functionName: "approve",
+      args: [mlmcontractaddress, parseEther(value.toString())],
+      onSuccess: () => handleMint(),
+      onError: (err) => alert("Transaction failed", err),
+      contract: usdtContract
     });
-
-    const imgResult = await imgRes.json();
-
-    if (!imgRes.ok || !imgResult.IpfsHash) {
-      throw new Error(
-        `Image upload failed: ${imgRes.status} ${JSON.stringify(imgResult)}`
-      );
-    }
-
-    const imageURI = `https://harlequin-biological-bat-26.mypinata.cloud/ipfs/${imgResult.IpfsHash}`;
-    console.log("✅ Image uploaded:", imageURI);
-
-    // -----------------------
-    // 2. Create metadata JSON
-    // -----------------------
-    const metadata = {
-      name,
-      description: `${name} minted from dApp`,
-      image: imageURI,
-      attributes: [],
-    };
-
-    // -----------------------
-    // 3. Upload metadata JSON
-    // -----------------------
-    const metaRes = await fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${import.meta.env.VITE_PINATA_JWT}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(metadata),
-    });
-
-    const metaResult = await metaRes.json();
-
-    if (!metaRes.ok || !metaResult.IpfsHash) {
-      throw new Error(
-        `Metadata upload failed: ${metaRes.status} ${JSON.stringify(metaResult)}`
-      );
-    }
-
-    const metadataURI = `https://harlequin-biological-bat-26.mypinata.cloud/ipfs/${metaResult.IpfsHash}`;
-    console.log("✅ Metadata uploaded:", metadataURI);
-
-    // -----------------------
-    // 4. Send to smart contract
-    // -----------------------
-    if (!metadataURI) {
-      throw new Error("Metadata URI is missing, aborting mint.");
-    }
-
-    handleUpdate(metadataURI,address); // call your mint function
-    console.log("🚀 Mint request sent with URI:", metadataURI);
-
- 
-  } catch (err) {
-    console.error("❌ Error uploading to Pinata:", err);
-    alert(`Mint failed: ${err.message}`);
-    setLoading(false);
-  }
-};
+    // }
 
 
-    const handleRegister = async () => {
-      console.log("handle",nftused)
-        // if (allowance >= (nftused.price+nftused.premium)) {
-        //     handleMint()
-        // } else {
-                const value = 30.2890738239215
-                      console.log("value", value.toString())
-            await executeContract({
-                config,
-                functionName: "approve",
-                args: [mlmcontractaddress, parseEther(value.toString())],
-                onSuccess: () => handleMint(),
-                onError: (err) => alert("Transaction failed",err),
-                contract: usdtContract
-            });
-        // }
-
-
-    };
+  };
 
 
 

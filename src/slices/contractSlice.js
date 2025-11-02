@@ -62,11 +62,13 @@ export const readName = createAsyncThunk(
       let limitUtilized = 0;
       let myNFTs = [];
       let NFTQueBalance = 0
-      let levelIncome = 0
-      let referralIncome = 0
-      let tradingIncome = 0
+      let tradingReferralBonus = 0
+      let packageReferralBonus = 0
+      let tradingLevelBonus = 0
+      let packageLevelBonus = 0
+      let selfTradingProfit = 0
       let walletBalance = 0
-      let totalIncome = 0
+
 
       if (a.address && registered) {
         Package = await safeCall("userPackage", () => contract.methods.userPackage(a.address).call());
@@ -77,9 +79,11 @@ export const readName = createAsyncThunk(
         limitUtilized = await safeCall("userLimitUtilized", () => contract.methods.userLimitUtilized(a.address).call());
         myNFTs = await safeCall("getNFTs(address)", () => contract.methods.getNFTs(a.address).call());
         NFTQueBalance = await safeCall("NFTQueBalance", () => contract.methods.NFTQueBalance(a.address).call());
-        levelIncome = await safeCall("levelIncome", () => contract.methods.userLevelIncome(a.address).call());
-        referralIncome = await safeCall("referralIncome", () => contract.methods.userReferralIncome(a.address).call());
-        tradingIncome = await safeCall("tradingIncome", () => contract.methods.userTradingIncome(a.address).call());
+        tradingReferralBonus = await safeCall("levelIncome", () => contract.methods.tradingReferralBonus(a.address).call());
+        packageReferralBonus = await safeCall("referralIncome", () => contract.methods.packageReferralBonus(a.address).call());
+        tradingLevelBonus = await safeCall("tradingIncome", () => contract.methods.tradingLevelBonus(a.address).call());
+        packageLevelBonus = await safeCall("tradingIncome", () => contract.methods.packageLevelBonus(a.address).call());
+        selfTradingProfit = await safeCall("tradingIncome", () => contract.methods.selfTradingProfit(a.address).call());
         walletBalance = await safeCall("walletbalance", () => uContract.methods.balanceOf(a.address).call());
 
       }
@@ -105,14 +109,19 @@ export const readName = createAsyncThunk(
         myNFTs,
         NFTMayBeCreated,
         nextTokenId,
-        levelIncome: Number(formatEther(levelIncome)).toFixed(4),
-        referralIncome: Number(formatEther(referralIncome)).toFixed(4),
-        tradingIncome: Number(formatEther(tradingIncome)).toFixed(4),
+
+        tradingReferralBonus: Number(formatEther(tradingReferralBonus)).toFixed(4),
+        packageReferralBonus: Number(formatEther(packageReferralBonus)).toFixed(4),
+        tradingLevelBonus: Number(formatEther(tradingLevelBonus)).toFixed(4),
+        packageLevelBonus: Number(formatEther(packageLevelBonus)).toFixed(4),
+        selfTradingProfit: Number(formatEther(selfTradingProfit)).toFixed(4),
         walletBalance: Number(formatEther(walletBalance)).toFixed(4),
         totalIncome: (
-          Number(formatEther(referralIncome)) +
-          Number(formatEther(tradingIncome)) +
-          Number(formatEther(levelIncome))
+          Number(formatEther(tradingReferralBonus)) +
+          Number(formatEther(packageReferralBonus)) +
+          Number(formatEther(tradingLevelBonus)) +
+          Number(formatEther(packageLevelBonus)) +
+          Number(formatEther(selfTradingProfit))
         ).toFixed(4)
 
 
@@ -146,9 +155,11 @@ const contractSlice = createSlice({
     myNFTs: [],
     NFTMayBeCreated: false,
     nextTokenId: 0,
-    levelIncome: 0,
-    referralIncome: 0,
-    tradingIncome: 0,
+    tradingReferralBonus: 0,
+    packageReferralBonus: 0,
+    tradingLevelBonus: 0,
+    packageLevelBonus: 0,
+    selfTradingProfit: 0,
     walletBalance: 0,
     totalIncome: 0,
     //nftused: null,
