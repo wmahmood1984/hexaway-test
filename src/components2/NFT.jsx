@@ -116,7 +116,7 @@ export const NFT = ({ nft, index, toggle, setToggle }) => {
                 <div class="text-2xl font-bold text-blue-600 mb-3">
                     ${Number(formatEther(nft.price) * 1.07).toFixed(2)}
                 </div>
-                <button
+               {address != nft._owner && <button
 
                     onClick={() => handleBuy(nft.id)}
                     class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
@@ -125,7 +125,7 @@ export const NFT = ({ nft, index, toggle, setToggle }) => {
                             <Spinner size={20} color="#fff" />
                             <span>Processing...</span>
                         </>
-                    ) : "Buy Now"}</button>
+                    ) : "Buy Now"}</button>}
             </div>
         </div>
 
