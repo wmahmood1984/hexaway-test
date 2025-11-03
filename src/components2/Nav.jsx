@@ -59,9 +59,9 @@ export default function Nav() {
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-3">
               <img
-                src="HEXA.png"
+                src="/HEXA.png"
                 alt="Hexaway Logo"
-                className="w-12 h-12 sm:w-14 sm:h-14 object-contain"
+                className="w-12 h-12 sm:w-14 sm:h-14"
               />
               <h1
                 id="company-name"
