@@ -30,11 +30,11 @@ export default function Nav() {
   }, [dispatch, address]);
 
 
-      useEffect(() => {
-          if (registered) {
-              navigate("/");
-          }
-      }, [registered, navigate]);
+      // useEffect(() => {
+      //     if (registered) {
+      //         navigate("/");
+      //     }
+      // }, [registered, navigate]);
 
   const handleClick = async () => {
     if (isConnected) {
