@@ -237,7 +237,7 @@ export default function Suck() {
         //     handleUpdate2(pkg.id)
         // } else {
 
-        const value = nftused[0].premium
+         const value = Number(formatEther(nftused[0].price) * .07) + Number(formatEther(nftused[0].premium))
         await executeContract({
             config,
             functionName: "approve",

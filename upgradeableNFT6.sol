@@ -383,7 +383,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
             0,
             _nft.id
         );
-        emit Trades(block.timestamp, amount, 0, oldOwner, _nft.id);
+        emit Trades(block.timestamp, _nft.premium, 0, oldOwner, _nft.id);
         emit Trades(block.timestamp, amount + _nft.premium, 1, _user, _nft.id);
         paymentToken.transfer(
             owner(),
@@ -406,7 +406,8 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         }
 
         paymentToken.transfer(
-            owner(),
+            //owner(),
+            address(this),
             ((amount * percentageAtBuyforMaintenance) / percentageAtBuy)
         );
 
@@ -540,9 +541,11 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         //     1
         // );
 
-        uint amount = nftused[0].premium;
-        // require(paymentToken.allowance(owner(), address(this)) >= amount, "11");
-        paymentToken.transfer(nftused[0]._owner, amount);
+        goDistribute(nftused[0],nftused[0]._owner,owner());
+
+        // uint amount = nftused[0].premium;
+        // // require(paymentToken.allowance(owner(), address(this)) >= amount, "11");
+        // paymentToken.transfer(nftused[0]._owner, amount);
 
         removeFirst2();
 

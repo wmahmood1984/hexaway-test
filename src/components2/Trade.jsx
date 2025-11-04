@@ -35,7 +35,7 @@ export default function Trade() {
           },[toggle])
 
 
-               const isLoading = !nfts;
+               const isLoading = !nfts || !Package
 
   if (isLoading) {
     // show a waiting/loading screen
@@ -48,7 +48,7 @@ export default function Trade() {
   }
 
 
-
+  console.log("nn", nfts);
 
     return (
         <div>
