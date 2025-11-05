@@ -2266,9 +2266,9 @@ export const helperAbi = [
 	}
 ]
 
-export const helperAddress = "0x0614455467c216EF59e4Dc579095CF74eC853D3C"
+export const helperAddress = "0xaEF699153652C52a29b4B3A9B3baa8777969E0E3"
 
-export const mlmcontractaddress = "0x045c2661f32a1FA00aF882b7ABDD567362250ED5";
+export const mlmcontractaddress = "0x5Bc040B4a2823E6F4326Cf284F1a6ad01EBA92F0";
 
 export const mlmcontractaddressImplementation =
 	"0xB9605fAe41F3D602e576a5Fa30dfCa810A35B76E";
