@@ -3,7 +3,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useConfig } from "wagmi";
-import { executeContract, formatAddress } from "../utils/contractExecutor";
+import { executeContract, extractRevertReason, formatAddress } from "../utils/contractExecutor";
 import { readName } from "../slices/contractSlice";
 import { formatEther, parseEther } from "ethers";
 import { mlmcontractaddress, usdtContract } from "../config";
@@ -55,7 +55,8 @@ export const NFT = ({ nft, index, toggle, setToggle }) => {
       },
       onError: (err) => {
         setLoading(false)
-        toast.error("Transaction failed", err)
+        let reason = extractRevertReason(err)
+        toast.error("Transaction failed:", reason)
       },
     });
   }
@@ -76,7 +77,8 @@ export const NFT = ({ nft, index, toggle, setToggle }) => {
       onSuccess: () => handleBuy2(id, address),
       onError: (err) => {
         setLoading(false)
-        toast.error("Transaction failed", err)
+        let reason = extractRevertReason(err)
+        toast.error("Transaction failed:", reason)
       },
       contract: usdtContract
     });

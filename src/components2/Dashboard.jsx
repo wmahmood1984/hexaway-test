@@ -2,7 +2,7 @@ import { useAppKitAccount } from '@reown/appkit/react';
 import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useConfig } from 'wagmi';
-import { executeContract, formatAddress, formatWithCommas } from '../utils/contractExecutor';
+import { executeContract, extractRevertReason, formatAddress, formatWithCommas } from '../utils/contractExecutor';
 import { formatEther } from 'ethers';
 import toast from 'react-hot-toast';
 import { init, readName } from '../slices/contractSlice';
@@ -17,8 +17,8 @@ export default function Dashboard() {
     const config = useConfig()
     const { Package, myNFTs, packages, downlines, registered, admin, allowance, NFTQueBalance, limitUtilized, NFTque
 
-        , walletBalance, tradingReferralBonus, packageReferralBonus, tradingLevelBonus, packageLevelBonus, selfTradingProfit,nftPurchaseTime,
-        status, error,totalIncome
+        , walletBalance, tradingReferralBonus, packageReferralBonus, tradingLevelBonus, packageLevelBonus, selfTradingProfit, nftPurchaseTime,
+        status, error, totalIncome
     } = useSelector((state) => state.contract);
     const { address } = useAppKitAccount();
     const [referrer, setReferrer] = useState()
@@ -50,7 +50,8 @@ export default function Dashboard() {
             },
             onError: (err) => {
                 console.error("🔥 Error in register:", err);
-                toast.error("Transaction failed");
+                let reason = extractRevertReason(err)
+                toast.error("Transaction failed:", reason)
                 setLoading(false)
             },
         });
@@ -70,7 +71,8 @@ export default function Dashboard() {
             args: [mlmcontractaddress, pkg.price],
             onSuccess: () => handleUpdate2(pkg.id),
             onError: (err) => {
-                toast.error("Transaction failed", err)
+                let reason = extractRevertReason(err)
+                toast.error("Transaction failed:", reason)
                 setLoading(false)
             },
             contract: usdtContract
@@ -169,10 +171,10 @@ export default function Dashboard() {
                                     </div>
                                 </div>
                             </div>
-                            
-                                <CountdownTimer durationInSeconds={Number(Package.purchaseTime) + 60 * 60 * 24 * 30 - now / 1000} />
-                                <CountdownTimer2 durationInSeconds={Number(nftPurchaseTime) + 60 * 60 - now / 1000} />
-                            
+
+                            <CountdownTimer durationInSeconds={Number(Package.purchaseTime) + 60 * 60 * 24 * 30 - now / 1000} />
+                            <CountdownTimer2 durationInSeconds={Number(nftPurchaseTime) + 60 * 60 - now / 1000} />
+
                             {/* <div class="bg-white/95 backdrop-blur-sm border border-white/20 rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
                                 <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Hexaway Packages</h3>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 sm:gap-6">
@@ -301,16 +303,16 @@ export default function Dashboard() {
                             </div> */}
 
                             <HexawayPackages
-                            packages={packages} 
-                            Package={Package} 
-                            downlines={downlines}
-                             handleUpdate={handleUpdate}
-                            loading={loading}
-                            
+                                packages={packages}
+                                Package={Package}
+                                downlines={downlines}
+                                handleUpdate={handleUpdate}
+                                loading={loading}
+
                             />
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
                                 <div class="bg-white/95 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl p-4 sm:p-6 text-center">
-                                                                        <div class="flex justify-center mb-2">
+                                    <div class="flex justify-center mb-2">
                                         <img
                                             src="tradingprofit.png"
                                             alt="Self Trading"

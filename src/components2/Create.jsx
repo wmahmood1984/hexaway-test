@@ -3,11 +3,12 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { useConfig } from 'wagmi';
 import { helperAbi, helperAddress, mlmcontractaddress, usdtContract, web3 } from '../config';
-import { executeContract } from '../utils/contractExecutor';
+import { executeContract, extractRevertReason } from '../utils/contractExecutor';
 import { readName } from '../slices/contractSlice';
 import { useNavigate } from 'react-router-dom';
 import { formatEther, parseEther } from 'ethers';
 import Spinner from './Spinner';
+import toast from 'react-hot-toast';
 
 export default function Create() {
     const [nftused, setNFTUsed] = useState()
@@ -57,7 +58,8 @@ export default function Create() {
             },
             onError: (err) => {
                 console.error("🔥 Error in register:", err);
-                alert("Transaction failed");
+                let reason = extractRevertReason(err)
+                toast.error("Transaction failed:", reason)
                 setLoading(false)
 
             },
@@ -168,7 +170,11 @@ export default function Create() {
             functionName: "approve",
             args: [mlmcontractaddress, parseEther(value.toString())],
             onSuccess: () => handleMint(),
-            onError: (err) => alert("Transaction failed", err),
+            onError: (err) => {
+
+                let reason = extractRevertReason(err)
+                toast.error("Transaction failed:", reason)
+            },
             contract: usdtContract
         });
         // }

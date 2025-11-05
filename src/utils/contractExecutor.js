@@ -1,5 +1,7 @@
 // utils/contractExecutor.js
-import { writeContract, waitForTransactionReceipt } from "@wagmi/core";
+import {
+  BaseError ,
+  writeContract, waitForTransactionReceipt } from "@wagmi/core";
 
 import { mlmContract } from "../config.js";
 
@@ -30,6 +32,12 @@ export async function executeContract({
     onError(error);
     throw error;
   }
+}
+
+export function extractRevertReason(error) {
+  if (error.shortMessage) return error.shortMessage;
+  const match = error.message?.match(/reverted with reason string '([^']+)'/);
+  return match ? match[1] : "Transaction failed";
 }
 
 export function formatAddress(add) {

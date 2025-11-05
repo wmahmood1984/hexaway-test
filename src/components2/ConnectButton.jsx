@@ -1,5 +1,5 @@
 import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
-import { executeContract } from "../utils/contractExecutor";
+import { executeContract, extractRevertReason } from "../utils/contractExecutor";
 import { useConfig } from "wagmi";
 import { useEffect, useState } from "react";
 import { helperAbi, helperAddress, mlmcontractaddress, usdtContract, web3 } from "../config";
@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { readName } from "../slices/contractSlice";
 import { useNavigate } from "react-router-dom";
 import Spinner from "./Spinner";
+import toast from "react-hot-toast";
 
 export default function ConnectButton({ referrer }) {
     const { open } = useAppKit()
@@ -48,7 +49,9 @@ export default function ConnectButton({ referrer }) {
                 setLoading(false)
             },
             onError: (err) => {
-                console.error("Registration failed:", err);
+                let reason = extractRevertReason(err)
+                toast.error("Transaction failed:")
+                console.log("Transaction failed:", err)
                 setLoading(false)
             },
         });
@@ -60,24 +63,29 @@ export default function ConnectButton({ referrer }) {
 
 
     const handleRegister = async (e) => {
-        e.preventDefault(); // stop form submission
-        setLoading(true)
-        // if (allowance >= packages[0].price) {
-        //     handleRegister2()
-        // } else {
+        // e.preventDefault(); // stop form submission
+        // setLoading(true)
+        // // if (allowance >= packages[0].price) {
+        // //     handleRegister2()
+        // // } else {
 
-        await executeContract({
-            config,
-            functionName: "approve",
-            args: [mlmcontractaddress, packages[0].price],
-            onSuccess: () => handleRegister2(),
-            onError: (err) => {
+        // await executeContract({
+        //     config,
+        //     functionName: "approve",
+        //     args: [mlmcontractaddress, packages[0].price],
+        //     onSuccess: () => handleRegister2(),
+        //     onError: (err) => {
+        //         let reason = extractRevertReason(err)
+        //         toast.error("Transaction failed:", reason)
 
-                alert("Transaction failed", err)
-                setLoading(false)
-            },
-            contract: usdtContract
-        });
+        //         setLoading(false)
+
+
+        //     },
+        //     contract: usdtContract
+        // });
+
+        handleRegister2()
     }
 
 
