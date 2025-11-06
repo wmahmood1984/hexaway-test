@@ -12,8 +12,8 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 contract Helper is
     Initializable,
     OwnableUpgradeable,
-    UUPSUpgradeable,
-    ReentrancyGuardUpgradeable
+    UUPSUpgradeable
+
 {
     constructor() {
         _disableInitializers(); // prevents logic contract from being initialized directly
@@ -21,7 +21,7 @@ contract Helper is
 
     function initialize(address initialOwner) public initializer {
         __Ownable_init(initialOwner);
-        __ReentrancyGuard_init();
+
         __UUPSUpgradeable_init();
         uint32 daysSeconds = (60 * 60 * 24);
         packages.push(
@@ -40,7 +40,7 @@ contract Helper is
             Package(4, 50 ether, 90 * daysSeconds, 15, 2200 ether, 0, 20, 5)
         ); //100
         packages.push(
-            Package(5, 165 ether, 120 * daysSeconds, 20, 6000 ether, 0, 25, 6)
+            Package(5, 165 ether, 120 * daysSeconds, 20, 5500 ether, 0, 25, 6)
         ); //300
 
         maxLevels = 25;
@@ -142,26 +142,18 @@ contract Helper is
     mapping(address => User) public users;
     uint previousFund;
 
-    function incInFunds() internal returns (uint) {
-        uint newBalance = paymentToken.balanceOf(address(this));
-        uint inc = 0;
-        if (newBalance > previousFund) {
-            inc = newBalance - previousFund;
-        }
-        previousFund = newBalance;
-        return inc;
-    }
 
-    function register(address _ref, address _user) public nonReentrant {
+
+    function register(address _ref, address _user,uint funds) public {
         address _referrer = _ref != address(0) ? _ref : owner();
         uint amount = packages[0].price;
         Package memory tx1 = packages[0];
         tx1.purchaseTime = block.timestamp;
         userPackage[_user] = tx1;
 
-        uint inc = incInFunds();
 
-        require(inc >= amount, "insufficient funds");
+
+        require(funds >= amount, "insufficient funds");
         require(users[_user].referrer == address(0), "zero address");
         require(_referrer != _user, "self referrer");
         require(userRegistered[_referrer], "already registered");
@@ -277,12 +269,14 @@ contract Helper is
         return (users[_user]);
     }
 
-    function buyPackage(uint8 id, address _user) public nonReentrant {
+    uint  public inc;
+
+    function buyPackage(uint8 id, address _user, uint funds) public {
         uint amount = packages[id].price;
 
-        uint inc = incInFunds();
 
-        require(inc >= amount, "insufficient funds");
+
+        require(funds >= amount, "insufficient funds");
         require(checkEligibility(_user, id), "not eligible");
         // require(
         //     paymentToken.allowance(msg.sender, address(this)) >= amount,
@@ -321,8 +315,8 @@ contract Helper is
 
     function buyNFT(
         uint id,
-        address _user
-    ) public nonReentrant returns (bool _burn, address _owner) {
+        address _user,uint funds
+    ) public  returns (bool _burn, address _owner) {
         require(id > 0, "invalid id");
         uint index = id - 1;
         require(index < nfts.length, "NFT does not exist");
@@ -335,7 +329,7 @@ contract Helper is
             "7"
         );
 
-        (uint forDis) = goDistribute(_nft, _nft._owner, _user);
+        (uint forDis) = goDistribute(_nft, _nft._owner, _user,funds);
         userLimitUtilized[_user] += (_nft.price + (_nft.price * 7) / 100);
         // transfer token (ERC721) — use tokenId `id`
 
@@ -369,13 +363,13 @@ contract Helper is
     function goDistribute(
         NFT memory _nft,
         address oldOwner,
-        address _user
+        address _user,uint funds
     ) internal returns (uint) {
         uint amount = (_nft.price * percentageAtBuy) / 1000;
 
-        uint inc = incInFunds();
+
         require(
-            inc >= (_nft.price * percentageAtBuy) / 1000 + _nft.premium,
+            funds >= (_nft.price * percentageAtBuy) / 1000 + _nft.premium,
             "insufficient funds"
         );
 
@@ -558,7 +552,7 @@ contract Helper is
         mintPause = _cond;
     }
 
-    function ownerSettlement() public {
+    function ownerSettlement(uint funds) public {
         // NFT memory tx1;
 
         require(nftused.length > 0, "9");
@@ -571,7 +565,7 @@ contract Helper is
         //     1
         // );
 
-        goDistribute(nftused[0], nftused[0]._owner, owner());
+        goDistribute(nftused[0], nftused[0]._owner, owner(),funds);
 
         // uint amount = nftused[0].premium;
         // // require(paymentToken.allowance(owner(), address(this)) >= amount, "11");
@@ -588,8 +582,8 @@ contract Helper is
     function mint(
         string memory _uri,
         address _user,
-        uint _nextTokenId
-    ) public nonReentrant {
+        uint _nextTokenId,uint funds
+    ) public  {
         require(
             _user == owner() || (NFTMayBeCreated == true && !mintPause),
             "minting not authorized"
@@ -606,7 +600,7 @@ contract Helper is
                 nftused[0].premium,
                 1
             );
-            goDistribute(tx1, nftused[0]._owner, _user);
+            goDistribute(tx1, nftused[0]._owner, _user,funds);
             tx1.premium = 0;
             tx1.price = 50 ether;
             removeFirst2();
@@ -631,7 +625,7 @@ contract Helper is
         string memory _uri,
         address _user,
         uint _nextTokenId
-    ) public nonReentrant {
+    ) public  {
         NFT memory tx1;
 
         tx1 = NFT(_nextTokenId, 50 ether, _user, _uri, 0, 1);
@@ -639,7 +633,7 @@ contract Helper is
         nfts.push(tx1);
     }
 
-    function burn(uint index) public nonReentrant {
+    function burn(uint index) public {
         nftused.push(nfts[index]);
         delete nfts[index];
         nftBurnt++;
@@ -686,7 +680,7 @@ contract Helper is
         return userMint[_user];
     }
 
-    function withdrawUSDT() public onlyOwner nonReentrant {
+    function withdrawUSDT() public onlyOwner {
         paymentToken.transfer(owner(), paymentToken.balanceOf(address(this)));
         previousFund = 0;
     }
@@ -745,24 +739,31 @@ contract MyNFT is
     //    function burn(uint256 tokenId, uint index) public {}
 
     function register(address _referrer) public {
+        uint before = paymentToken.balanceOf(address(helper));
         uint allowance = paymentToken.allowance(msg.sender, address(this));
         paymentToken.transferFrom(msg.sender, address(helper), allowance);
-        helper.register(_referrer, msg.sender);
+        uint _after = paymentToken.balanceOf(address(helper));
+        helper.register(_referrer, msg.sender,_after-before);
     }
 
     function buyPackage(uint8 id) public {
+        uint before = paymentToken.balanceOf(address(helper));
         uint allowance = paymentToken.allowance(msg.sender, address(this));
         paymentToken.transferFrom(msg.sender, address(helper), allowance);
-        helper.buyPackage(id, msg.sender);
+        uint _after = paymentToken.balanceOf(address(helper));
+        helper.buyPackage(id, msg.sender,_after-before);
     }
 
     function buyNFT(uint id) public {
+        uint before = paymentToken.balanceOf(address(helper));
         uint allowance = paymentToken.allowance(msg.sender, address(this));
         paymentToken.transferFrom(msg.sender, address(helper), allowance);
+        uint _after = paymentToken.balanceOf(address(helper));
+        (bool yes, ) = helper.buyNFT(id, msg.sender,_after-before);
         // (, address _owner) = helper.buyNFT(id);
         _transfer(ownerOf(id), msg.sender, id);
 
-        (bool yes, ) = helper.buyNFT(id, msg.sender);
+        
 
         if (yes) {
             _burn(id);
@@ -770,10 +771,12 @@ contract MyNFT is
     }
 
     function mint(string memory _uri) public {
+        uint before = paymentToken.balanceOf(address(helper));
         uint allowance = paymentToken.allowance(msg.sender, address(this));
         paymentToken.transferFrom(msg.sender, address(helper), allowance);
+        uint _after = paymentToken.balanceOf(address(helper));
 
-        helper.mint(_uri, msg.sender, _nextTokenId);
+        helper.mint(_uri, msg.sender, _nextTokenId,_after-before);
         _safeMint(msg.sender, _nextTokenId);
         _tokenURIs[_nextTokenId] = _uri;
         _nextTokenId++;
@@ -800,9 +803,11 @@ contract MyNFT is
     }
 
     function ownerSettlement() public {
+        uint before = paymentToken.balanceOf(address(helper));
         uint allowance = paymentToken.allowance(msg.sender, address(this));
         paymentToken.transferFrom(msg.sender, address(helper), allowance);
-        helper.ownerSettlement();
+        uint _after = paymentToken.balanceOf(address(helper));
+        helper.ownerSettlement(_after-before);
     }
 
     function withdrawUSDT() public onlyOwner {
