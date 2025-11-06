@@ -9,12 +9,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
-contract Helper is
-    Initializable,
-    OwnableUpgradeable,
-    UUPSUpgradeable
-
-{
+contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     constructor() {
         _disableInitializers(); // prevents logic contract from being initialized directly
     }
@@ -23,7 +18,7 @@ contract Helper is
         __Ownable_init(initialOwner);
 
         __UUPSUpgradeable_init();
-        uint32 daysSeconds = (60 * 60 * 24);
+        uint32 daysSeconds = (60 );
         packages.push(
             Package(0, 2 ether, 0 * daysSeconds, 0, 100 ether, 0, 0, 0)
         ); //0
@@ -52,7 +47,7 @@ contract Helper is
         percentageAtBuyforTTBonus = 15;
 
         paymentToken = IERC20(0x951f3Cc97326eB18D6d3F2dc869e0Ca504023BBB);
-        timelimit = 60 * 60; //60*60*48;
+        timelimit = 60 * 60*3; //60*60*48;
 
         userRegistered[msg.sender] = true;
         Package memory tx1 = packages[1];
@@ -142,16 +137,12 @@ contract Helper is
     mapping(address => User) public users;
     uint previousFund;
 
-
-
-    function register(address _ref, address _user,uint funds) public {
+    function register(address _ref, address _user, uint funds) public {
         address _referrer = _ref != address(0) ? _ref : owner();
         uint amount = packages[0].price;
         Package memory tx1 = packages[0];
         tx1.purchaseTime = block.timestamp;
         userPackage[_user] = tx1;
-
-
 
         require(funds >= amount, "insufficient funds");
         require(users[_user].referrer == address(0), "zero address");
@@ -192,8 +183,8 @@ contract Helper is
         uint _id
     ) internal {
         bool eligible = _type != 1 // (block.timestamp - userPackage[up].purchaseTime) <=
-        // :
-            ? //     60 * 60 * 24 * 30
+        //     60 * 60 * 24 * 30
+            ? // :
             userPackage[up].id > 0
             : true;
 
@@ -269,21 +260,13 @@ contract Helper is
         return (users[_user]);
     }
 
-    uint  public inc;
-
     function buyPackage(uint8 id, address _user, uint funds) public {
         uint amount = packages[id].price;
 
-
-
         require(funds >= amount, "insufficient funds");
+        require(id > userPackage[_user].id, "Already locked");
         require(checkEligibility(_user, id), "not eligible");
-        // require(
-        //     paymentToken.allowance(msg.sender, address(this)) >= amount,
-        //     "5"
-        // );
         require(userRegistered[_user], "6");
-        //        paymentToken.transferFrom(msg.sender, address(this), amount);
         Package memory tx1 = packages[id];
         tx1.purchaseTime = block.timestamp;
         userPackage[_user] = tx1;
@@ -315,8 +298,9 @@ contract Helper is
 
     function buyNFT(
         uint id,
-        address _user,uint funds
-    ) public  returns (bool _burn, address _owner) {
+        address _user,
+        uint funds
+    ) public returns (bool _burn, address _owner) {
         require(id > 0, "invalid id");
         uint index = id - 1;
         require(index < nfts.length, "NFT does not exist");
@@ -329,7 +313,7 @@ contract Helper is
             "7"
         );
 
-        (uint forDis) = goDistribute(_nft, _nft._owner, _user,funds);
+        (uint forDis) = goDistribute(_nft, _nft._owner, _user, funds);
         userLimitUtilized[_user] += (_nft.price + (_nft.price * 7) / 100);
         // transfer token (ERC721) — use tokenId `id`
 
@@ -363,10 +347,10 @@ contract Helper is
     function goDistribute(
         NFT memory _nft,
         address oldOwner,
-        address _user,uint funds
+        address _user,
+        uint funds
     ) internal returns (uint) {
         uint amount = (_nft.price * percentageAtBuy) / 1000;
-
 
         require(
             funds >= (_nft.price * percentageAtBuy) / 1000 + _nft.premium,
@@ -454,16 +438,18 @@ contract Helper is
         address[] memory _uplines = getUplines(_user);
 
         if (_uplines.length == 25) {
-            paymentToken.transfer(_uplines[24], (_amount * 10) / 100);
-            tradingLevelBonus[_uplines[24]] += (_amount * 10) / 100;
-            emit Incomes(
-                block.timestamp,
-                (_amount * 10) / 100,
-                2,
-                _uplines[24],
-                25,
-                _id
-            );
+            if (userPackage[up].id == 5 && users[up].direct.length >= 6) {
+                paymentToken.transfer(_uplines[24], (_amount * 10) / 100);
+                tradingLevelBonus[_uplines[24]] += (_amount * 10) / 100;
+                emit Incomes(
+                    block.timestamp,
+                    (_amount * 10) / 100,
+                    2,
+                    _uplines[24],
+                    25,
+                    _id
+                );
+            }
         } else {
             paymentToken.transfer(owner(), (_amount * 10) / 100);
         }
@@ -483,13 +469,13 @@ contract Helper is
         for (uint i = 0; i < _uplines.length; i++) {
             address up = _uplines[i];
             bool cond = _type == 2 // Package Buy
-            // ((userPackage[up].id == 5 &&
-                ? //     userLimitUtilized[up] >= (userPackage[up].limit / 2)) ||
+            //     userLimitUtilized[up] >= (userPackage[up].limit / 2)) ||
+                ? // ((userPackage[up].id == 5 &&
                 //     userPackage[up].id != 5) &&
 
                 users[up].direct.length >= 2 // ((userPackage[up].id == 5 && // Package buy
-                //     userPackage[up].id != 5) &&
-                : //     userLimitUtilized[up] >= (userPackage[up].limit / 2)) ||
+                //     userLimitUtilized[up] >= (userPackage[up].limit / 2)) ||
+                : //     userPackage[up].id != 5) &&
                 userPackage[up].levelUnlock >= i &&
                     users[up].direct.length >= userPackage[up].directrequired;
             uint transactionType = _type == 1 ? 2 : 3;
@@ -565,7 +551,7 @@ contract Helper is
         //     1
         // );
 
-        goDistribute(nftused[0], nftused[0]._owner, owner(),funds);
+        goDistribute(nftused[0], nftused[0]._owner, owner(), funds);
 
         // uint amount = nftused[0].premium;
         // // require(paymentToken.allowance(owner(), address(this)) >= amount, "11");
@@ -582,8 +568,9 @@ contract Helper is
     function mint(
         string memory _uri,
         address _user,
-        uint _nextTokenId,uint funds
-    ) public  {
+        uint _nextTokenId,
+        uint funds
+    ) public {
         require(
             _user == owner() || (NFTMayBeCreated == true && !mintPause),
             "minting not authorized"
@@ -600,7 +587,7 @@ contract Helper is
                 nftused[0].premium,
                 1
             );
-            goDistribute(tx1, nftused[0]._owner, _user,funds);
+            goDistribute(tx1, nftused[0]._owner, _user, funds);
             tx1.premium = 0;
             tx1.price = 50 ether;
             removeFirst2();
@@ -625,7 +612,7 @@ contract Helper is
         string memory _uri,
         address _user,
         uint _nextTokenId
-    ) public  {
+    ) public {
         NFT memory tx1;
 
         tx1 = NFT(_nextTokenId, 50 ether, _user, _uri, 0, 1);
@@ -743,7 +730,7 @@ contract MyNFT is
         uint allowance = paymentToken.allowance(msg.sender, address(this));
         paymentToken.transferFrom(msg.sender, address(helper), allowance);
         uint _after = paymentToken.balanceOf(address(helper));
-        helper.register(_referrer, msg.sender,_after-before);
+        helper.register(_referrer, msg.sender, _after - before);
     }
 
     function buyPackage(uint8 id) public {
@@ -751,7 +738,7 @@ contract MyNFT is
         uint allowance = paymentToken.allowance(msg.sender, address(this));
         paymentToken.transferFrom(msg.sender, address(helper), allowance);
         uint _after = paymentToken.balanceOf(address(helper));
-        helper.buyPackage(id, msg.sender,_after-before);
+        helper.buyPackage(id, msg.sender, _after - before);
     }
 
     function buyNFT(uint id) public {
@@ -759,11 +746,9 @@ contract MyNFT is
         uint allowance = paymentToken.allowance(msg.sender, address(this));
         paymentToken.transferFrom(msg.sender, address(helper), allowance);
         uint _after = paymentToken.balanceOf(address(helper));
-        (bool yes, ) = helper.buyNFT(id, msg.sender,_after-before);
+        (bool yes, ) = helper.buyNFT(id, msg.sender, _after - before);
         // (, address _owner) = helper.buyNFT(id);
         _transfer(ownerOf(id), msg.sender, id);
-
-        
 
         if (yes) {
             _burn(id);
@@ -776,7 +761,7 @@ contract MyNFT is
         paymentToken.transferFrom(msg.sender, address(helper), allowance);
         uint _after = paymentToken.balanceOf(address(helper));
 
-        helper.mint(_uri, msg.sender, _nextTokenId,_after-before);
+        helper.mint(_uri, msg.sender, _nextTokenId, _after - before);
         _safeMint(msg.sender, _nextTokenId);
         _tokenURIs[_nextTokenId] = _uri;
         _nextTokenId++;
@@ -807,7 +792,7 @@ contract MyNFT is
         uint allowance = paymentToken.allowance(msg.sender, address(this));
         paymentToken.transferFrom(msg.sender, address(helper), allowance);
         uint _after = paymentToken.balanceOf(address(helper));
-        helper.ownerSettlement(_after-before);
+        helper.ownerSettlement(_after - before);
     }
 
     function withdrawUSDT() public onlyOwner {
