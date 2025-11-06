@@ -176,12 +176,12 @@ export default function Dashboard() {
                                 </div>
                             </div>
 
-                            <CountdownTimer durationInSeconds={Number(Package.purchaseTime) + 60 *  30 - now / 1000} />
+                            <CountdownTimer durationInSeconds={Number(Package.purchaseTime) + 60 * 30 - now / 1000} />
                             {levelBlockSeconds > 0 ? <IncomeBlockTimer durationInSeconds={Number(incomeBlockTime) + 60 * 60 - now / 1000} />
-                                : Number(nftPurchaseTime) + 60 * 60*3 - now / 1000 >0 ? 
-                                
-                                <CountdownTimer2 durationInSeconds={Number(nftPurchaseTime) + 60 * 60*3 - now / 1000} />
-                            :<h1>Please Buy an NFT to get your income Unlocked</h1>
+                                : Number(nftPurchaseTime) + 60 * 60 * 3 - now / 1000 > 0 ?
+
+                                    <CountdownTimer2 durationInSeconds={Number(nftPurchaseTime) + 60 * 60 * 3 - now / 1000} />
+                                    : <h1>Please Buy an NFT to get your income Unlocked</h1>
                             }
 
 
@@ -448,11 +448,16 @@ export default function Dashboard() {
                         <div class="p-4 sm:p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl sm:rounded-2xl border border-purple-200">
                             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
                                 <h3 class="text-base sm:text-lg font-semibold text-purple-800 mb-2 sm:mb-0">🎨 NFTque Status</h3>
-                                <span id="nftque-status-badge"
-                                    class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs sm:text-sm font-medium self-start">
-                                    {NFTQueStatus == "Not in the Que" ?
-                                        `Inactive` : `Active`}
+                                <span
+                                    id="nftque-status-badge"
+                                    className={`px-3 py-1 rounded-full font-semibold self-start text-sm sm:text-base ${NFTQueStatus === "Not in the Que"
+                                            ? "bg-red-100 text-red-700"
+                                            : "bg-green-100 text-green-700"
+                                        }`}
+                                >
+                                    {NFTQueStatus === "Not in the Que" ? "Inactive" : "Active"}
                                 </span>
+
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div class="text-center p-3 bg-white/50 rounded-lg">
