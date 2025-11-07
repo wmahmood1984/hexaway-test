@@ -181,7 +181,9 @@ export default function Dashboard() {
                                 : Number(nftPurchaseTime) + 60 * 60 * 3 - now / 1000 > 0 ?
 
                                     <CountdownTimer2 durationInSeconds={Number(nftPurchaseTime) + 60 * 60 * 3 - now / 1000} />
-                                    : <h1>Please Buy an NFT to get your income Unlocked</h1>
+                                    : <h1 className="text-red-600 text-xl sm:text-2xl font-bold">
+                                        Please Buy an NFT to get your income Unlocked
+                                    </h1>
                             }
 
 
@@ -451,8 +453,8 @@ export default function Dashboard() {
                                 <span
                                     id="nftque-status-badge"
                                     className={`px-3 py-1 rounded-full font-semibold self-start text-sm sm:text-base ${NFTQueStatus === "Not in the Que"
-                                            ? "bg-red-100 text-red-700"
-                                            : "bg-green-100 text-green-700"
+                                        ? "bg-red-100 text-red-700"
+                                        : "bg-green-100 text-green-700"
                                         }`}
                                 >
                                     {NFTQueStatus === "Not in the Que" ? "Inactive" : "Active"}
