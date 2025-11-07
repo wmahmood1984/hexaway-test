@@ -22,13 +22,13 @@ export const NFT = ({ nft, index, toggle, setToggle }) => {
 
         , levelIncome,
         referralIncome,
-        tradingIncome, walletBalance,
+        tradingIncome, walletBalance,packageExpiryLimit,
         status, error
     } = useSelector((state) => state.contract);
 
   const now = new Date().getTime()/1000
 
-  const canBuy = now - Number(Package.purchaseTime)<=60*1
+  const canBuy = now - Number(Package.packageUpgraded)<=packageExpiryLimit
 
 
   const dispatch = useDispatch()
