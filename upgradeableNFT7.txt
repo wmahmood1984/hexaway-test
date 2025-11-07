@@ -19,24 +19,26 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 
         __UUPSUpgradeable_init();
         uint32 daysSeconds = (60);
+
+        packageExpiry=60*5;
         packages.push(
-            Package(0, 2 ether, 0 * daysSeconds, 0, 100 ether, 0, 0, 0)
+            Package(0, 2 ether, 0 * daysSeconds, 0, 100 ether, 0, 0, 0,0)
         ); //0
         packages.push(
-            Package(1, 15 ether, 0 * daysSeconds, 0, 300 ether, 0, 5, 2)
+            Package(1, 15 ether, 0 * daysSeconds, 0, 300 ether, 0, 5, 2,0)
         ); //0  //1
         packages.push(
-            Package(2, 20 ether, 30 * daysSeconds, 5, 700 ether, 0, 10, 3)
-        ); //15 //10
+            Package(2, 20 ether, packageExpiry, 5, 700 ether, 0, 10, 3,0)
+        ); //15 //10 //30
         packages.push(
-            Package(3, 25 ether, 60 * daysSeconds, 10, 1200 ether, 0, 15, 4)
-        ); //40
+            Package(3, 25 ether, packageExpiry*2, 10, 1200 ether, 0, 15, 4,0)
+        ); //40 //60
         packages.push(
-            Package(4, 50 ether, 90 * daysSeconds, 15, 2200 ether, 0, 20, 5)
-        ); //100
+            Package(4, 50 ether, packageExpiry*3, 15, 2200 ether, 0, 20, 5,0)
+        ); //100 //90
         packages.push(
-            Package(5, 165 ether, 120 * daysSeconds, 20, 6000 ether, 0, 25, 6)
-        ); //300
+            Package(5, 165 ether, packageExpiry*4, 20, 6000 ether, 0, 25, 6,0)
+        ); //300//120
 
         maxLevels = 25;
         percentageAtBuy = 70;
@@ -45,6 +47,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         percentageAtBuyToNFTQue = 15;
         percentageAtBuyforMaintenance = 10;
         percentageAtBuyforTTBonus = 15;
+
 
         paymentToken = IERC20(0x951f3Cc97326eB18D6d3F2dc869e0Ca504023BBB);
         timelimit = 60 * 60 * 3; //60*60*48;
@@ -68,7 +71,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     event Trades(uint time, uint amount, uint _type, address _user, uint id);
     event Upgrades(uint time, uint amount, uint _type, address _user);
 
-    uint timelimit;
+    uint public timelimit;
     struct Package {
         uint id;
         uint price;
@@ -78,6 +81,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         uint purchaseTime;
         uint levelUnlock;
         uint8 directrequired;
+        uint packageUpgraded;
     }
 
     struct NFT {
@@ -99,7 +103,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 
     Package[] public packages;
     uint public nftBurnt;
-    uint packageExpiryTime = 60*1;
+
 
     mapping(address => Package) public userPackage;
     mapping(address => uint[]) public userMint;
@@ -128,7 +132,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     uint8 percentageAtBuyforTTBonus;
     mapping(address => uint) public NFTQueBalance;
     bool public NFTMayBeCreated;
-
+    uint public packageExpiry;
     bool public mintPause;
 
     address[] public NFTQue;
@@ -144,6 +148,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         uint amount = packages[0].price;
         Package memory tx1 = packages[0];
         tx1.purchaseTime = block.timestamp;
+        tx1.packageUpgraded = block.timestamp;
         userPackage[_user] = tx1;
 
         require(funds >= amount, "insufficient funds");
@@ -271,7 +276,8 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         require(id>=userPackage[_user].id, "cannot upgrade old package");
         require(userRegistered[_user], "6");
         Package memory tx1 = packages[id];
-        tx1.purchaseTime = block.timestamp;
+        tx1.packageUpgraded = block.timestamp;
+        tx1.purchaseTime = userPackage[_user].purchaseTime;
         userPackage[_user] = tx1;
 
         paymentToken.transfer(owner(), (amount * 10) / 100);
@@ -296,7 +302,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         Package memory _currentPackage = userPackage[_user];
 
         condition =
-            block.timestamp - _currentPackage.purchaseTime >= packageExpiryTime ||
+            block.timestamp - _currentPackage.purchaseTime >= _currentPackage.time ||
             users[_user].indirect.length >= _package.team;
     }
 
@@ -312,7 +318,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         NFT storage _nft = nfts[index];
         Package storage _package = userPackage[_user];
         
-        if(block.timestamp-userTradingLimitTime[_user]<=60*10){
+        if(block.timestamp-userTradingLimitTime[_user]<=60*3){
             require(
                 (_package.limit - userLimitUtilized[_user]) >=
                     (_nft.price + (_nft.price * 7) / 100),
@@ -325,7 +331,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 
 
 
-        require(block.timestamp-userPackage[_user].purchaseTime<=packageExpiryTime,"package expired");
+        require(block.timestamp-userPackage[_user].packageUpgraded<=packageExpiry,"package expired");
 
         (uint forDis) = goDistribute(_nft, _nft._owner, _user, funds);
         userLimitUtilized[_user] += (_nft.price + (_nft.price * 7) / 100);

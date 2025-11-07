@@ -20,7 +20,7 @@ export default function Dashboard() {
     const { Package, myNFTs, packages, downlines, registered, admin, allowance, NFTQueBalance, limitUtilized, NFTque
 
         , walletBalance, tradingReferralBonus, packageReferralBonus, tradingLevelBonus, packageLevelBonus, selfTradingProfit, nftPurchaseTime, incomeBlockTime,
-        status, error, totalIncome, timeLimit
+        status, error, totalIncome, timeLimit,packageExpiryLimit
     } = useSelector((state) => state.contract);
     const { address } = useAppKitAccount();
     const [referrer, setReferrer] = useState()
@@ -112,12 +112,15 @@ export default function Dashboard() {
             </div>
         );
     }
-    console.log({
+
+    const abc = {
         now: Math.floor(Date.now() / 1000),
         purchaseTime: Number(Package.purchaseTime),
         time: Number(Package.time),
-        expiry: Number(Package.purchaseTime) + Number(Package.time)
-    });
+        expiry: Number(Package.purchaseTime) + Number(Package.time),
+        remaining:Number(Package.purchaseTime) + Number(Package.time)-Math.floor(Date.now() / 1000)}
+    console.log("dashboard",
+    Package.purchaseTime);
 
 
     return (
@@ -188,7 +191,7 @@ export default function Dashboard() {
 
                                 durationInSeconds={Math.max(
                                     0,
-                                    Number(Package.purchaseTime) + Number(Package.time) - Math.floor(Date.now() / 1000)
+                                    Number(Package.purchaseTime) + Number(packageExpiryLimit) - Math.floor(Date.now() / 1000)
                                 )}
 
                             />

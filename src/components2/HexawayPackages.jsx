@@ -9,10 +9,17 @@ export default function HexawayPackages({ packages, Package, downlines, handleUp
   const getRemainingTime = (pkg) => {
     const now = Math.floor(Date.now() / 1000); // current time in seconds
     const purchaseTime = Number(Package.purchaseTime || 0);
-       const remainingPackage = Number(pkg.id)-Number(Package.id) >0? Number(pkg.id)-Number(Package.id) : 1
-    const unlockTime = purchaseTime + Number(pkg.time*remainingPackage || 0);
+    const unlockTime = purchaseTime + Number(pkg.time || 0);
     const remaining = unlockTime - now;
     if (remaining <= 0) return 0;
+
+        console.log("packages",{
+        now: Math.floor(Date.now() / 1000),
+        purchaseTime: Number(Package.purchaseTime),
+        time: Number(Package.time),
+        expiry: Number(Package.purchaseTime) + Number(Package.time)
+        ,remaining:unlockTime-now
+    });
 
     const days = Math.floor(remaining / 86400);
     const hours = Math.floor((remaining % 86400) / 3600);
@@ -26,14 +33,17 @@ export default function HexawayPackages({ packages, Package, downlines, handleUp
   };
 
   // Helper: determine upgrade eligibility (either team or time after purchase + pkg.time)
-  const canUpgrade = (i) => {
+   const canUpgrade = (i) => {
     const pkg = packages[i];
     const hasTeam = (downlines?.indirect?.length || 0) >= Number(pkg.team || 0);
     const hasPrevPackage = Number(Package.id) === i - 1;
     const alreadyActive = Number(Package.id) >= i;
 
+    // Always allow clicking on current active package for "Re-activate"
+    if (Number(Package.id) === i) return true;
+
     // WELCOME package (index 0) is always available initially
-    if (i === 0) return false //Number(Package.id) === 0 || Number(Package.id) === -1;
+    if (i === 0) return false;
 
     if (!hasPrevPackage || alreadyActive) return false;
 
@@ -47,9 +57,17 @@ export default function HexawayPackages({ packages, Package, downlines, handleUp
   };
 
   // Button text generation
-  const getButtonText = (i) => {
-    if (loading) return (<><Spinner size={20} color="#fff" /><span className="ml-2">Processing...</span></>);
-if (Number(Package.id) >= i) return `Active`;
+ const getButtonText = (i) => {
+    if (loading)
+      return (
+        <>
+          <Spinner size={20} color="#fff" />
+          <span className="ml-2">Processing...</span>
+        </>
+      );
+
+    // If it's the currently active package
+    if (Number(Package.id) === i) return `Re-activate`;
 
     const pkg = packages[i];
     const teamHave = (downlines?.indirect?.length || 0);
@@ -57,22 +75,18 @@ if (Number(Package.id) >= i) return `Active`;
 
     const now = Math.floor(Date.now() / 1000);
     const purchaseTime = Number(Package.purchaseTime || 0);
-    const remainingPackage = Number(pkg.id)-Number(Package.id) >0? Number(pkg.id)-Number(Package.id)+1 : 1
-    const unlockTime = purchaseTime + Number(pkg.time*remainingPackage || 0);
+    const unlockTime = purchaseTime + Number(pkg.time || 0);
     const timeRemainingSec = unlockTime - now;
     const timeRemainingStr = timeRemainingSec > 0 ? getRemainingTime(pkg) : null;
     const timeFulfilled = timeRemainingSec <= 0;
 
     if (!canUpgrade(i)) {
-      // If both team and time are missing, show "X team members or Y time left"
       if (remainingTeam > 0 && timeRemainingStr) {
         return `${remainingTeam} team size or ${timeRemainingStr} left`;
       }
-      // If only team missing
       if (remainingTeam > 0) {
         return `${remainingTeam} team size required`;
       }
-      // If only time missing
       if (timeRemainingStr) {
         return `${timeRemainingStr} remaining`;
       }

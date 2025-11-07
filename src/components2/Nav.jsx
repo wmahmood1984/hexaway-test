@@ -12,7 +12,7 @@ export default function Nav() {
 
   const {
     registered,
-    NFTMayBeCreated, admin
+    NFTMayBeCreated, admin,status
   } = useSelector((state) => state.contract);
 
   const { address, isConnected } = useAppKitAccount();
@@ -25,7 +25,7 @@ export default function Nav() {
         dispatch(readName({ address }));
       }
 
-      if(address && !registered){
+      if(address && !registered && status=="succeeded"){
         navigate("/auth")
       }
 
@@ -53,6 +53,8 @@ export default function Nav() {
     setMobileOpen((prev) => !prev);
   };
 
+
+  console.log("nav",status);
 
 
   return (
