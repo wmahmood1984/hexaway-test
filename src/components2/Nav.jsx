@@ -142,11 +142,11 @@ export default function Nav() {
               <>
                 {address == admin &&
                   <Link
-                    to="/dashboard"
+                    to="/suck"
                     onClick={() => setMobileOpen(false)}
                     className="block px-3 py-3 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors font-medium"
                   >
-                    Dashboard
+                    Suck
                   </Link>
 
                 }
