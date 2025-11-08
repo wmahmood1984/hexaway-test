@@ -52,6 +52,7 @@ export default function Dashboard() {
             onSuccess: (txHash, receipt) => {
                 console.log("🎉 Tx Hash:", txHash);
                 console.log("🚀 Tx Receipt:", receipt);
+                toast.success("Package Bought Successfully")
                 dispatch(readName({ address: receipt.from }));
                 setLoading(false)
             },

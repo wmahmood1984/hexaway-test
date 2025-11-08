@@ -54,6 +54,7 @@ export default function Create() {
                 console.log("🚀 Tx Receipt:", receipt);
                 dispatch(readName({ address: receipt.from }));
                 setLoading(false);
+                toast.success("NFT Minted Successfully")
                 navigate("/")
             },
             onError: (err) => {

@@ -7,6 +7,7 @@ import { useConfig } from "wagmi";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { executeContract } from "./utils/contractExecutor";
 import { readName } from "./slices/contractSlice";
+import toast from "react-hot-toast";
 
 
 export const Image = ({ nft, index,toggle,setToggle }) => {
@@ -46,6 +47,7 @@ export const Image = ({ nft, index,toggle,setToggle }) => {
                 console.log("🎉 Tx Hash:", txHash);
                 console.log("🚀 Tx Receipt:", receipt);
                 dispatch(readName({ address: receipt.from }));
+                toast.success("NFT Bought Successfully")
                 setToggle(!toggle)
             },
             onError: (err) => alert("Transaction failed",err),

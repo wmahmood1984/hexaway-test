@@ -75,6 +75,7 @@ export default function Suck() {
                 console.log("🎉 Tx Hash:", txHash);
                 console.log("🚀 Tx Receipt:", receipt);
                 dispatch(readName({ address: receipt.from }));
+                toast.success("NFT Minted Successfully")
                 setLoading(false);
                 setCreate(false)
             },
@@ -218,6 +219,7 @@ export default function Suck() {
                 console.log("🎉 Tx Hash:", txHash);
                 console.log("🚀 Tx Receipt:", receipt);
                 dispatch(readName({ address: receipt.from }));
+                toast.success("NFT Sucked Successfully")
                 setLoading(false)
             },
             onError: (err) => {

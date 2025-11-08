@@ -9,6 +9,7 @@ import { useConfig } from "wagmi";
 import { readName } from "./slices/contractSlice";
 import { Image } from "./NFTGrid";
 import MintModal from "./components/MintModal";
+import toast from "react-hot-toast";
 //import { saveRelationship } from "./utils/saveRelationship";
 
 const ProfileSection = ({onClose}) => {
@@ -33,6 +34,7 @@ const handleRegister2 = async () => {
             console.log("🎉 Tx Hash:", txHash);
             console.log("🚀 Tx Receipt:", receipt);
             dispatch(readName({ address: receipt.from }));
+            toast.success("Registration complete")
             onClose()
         },
         onError: (err) => {
@@ -84,6 +86,7 @@ const handleUpdate2 = async (id) => {
             console.log("🎉 Tx Hash:", txHash);
             console.log("🚀 Tx Receipt:", receipt);
             dispatch(readName({ address: receipt.from }));
+            toast.success("Package Upgraded Successfully")
         },
         onError: (err) => {
             console.error("🔥 Error in register:", err);

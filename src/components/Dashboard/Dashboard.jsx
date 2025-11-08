@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import Modal from "react-modal";
 import ProfileSection from "../../ProfileSection.jsx";
 import MintModal from "../../components/MintModal";
+import toast from "react-hot-toast";
 
 Modal.setAppElement("#root");
 
@@ -144,6 +145,7 @@ export default function MagicverseDashboard() {
       onSuccess: (txHash, receipt) => {
         console.log("🎉 Tx Hash:", txHash);
         console.log("🚀 Tx Receipt:", receipt);
+        toast.success("Package Bought Successfully")
         dispatch(readName({ address: receipt.from }));
       },
       onError: (err) => {

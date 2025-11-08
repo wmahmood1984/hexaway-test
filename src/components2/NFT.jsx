@@ -100,6 +100,7 @@ export const NFT = ({ nft, index, toggle, setToggle,revisedLimitUtilized }) => {
         console.log("🎉 Tx Hash:", txHash);
         console.log("🚀 Tx Receipt:", receipt);
         dispatch(readName({ address: receipt.from }));
+        toast.success("NFT Bought Successfully")
         setToggle(!toggle)
         setLoading(false)
       },
