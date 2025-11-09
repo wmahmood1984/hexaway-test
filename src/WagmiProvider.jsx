@@ -1,51 +1,43 @@
+import React, { useEffect } from 'react'
 import { createAppKit } from '@reown/appkit/react'
-
 import { WagmiProvider } from 'wagmi'
-import { arbitrum, bscTestnet, mainnet, opBNBTestnet } from '@reown/appkit/networks'
+import { bscTestnet } from '@reown/appkit/networks'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 
-// 0. Setup queryClient
 const queryClient = new QueryClient()
-
-// 1. Get projectId from https://cloud.reown.com
 const projectId = 'b925b1972c5b791221c0f873204ebe63'
 
-// 2. Create a metadata object - optional
 const metadata = {
-  name: 'AppKit',
+  name: 'Hexaway',
   description: 'AppKit Example',
-  url: 'https://hexaway.netlify.app/', // origin must match your domain & subdomain
-  icons: ['https://avatars.githubusercontent.com/u/179229932']
+  url: 'https://hexaway.netlify.app/',
+  icons: ['https://avatars.githubusercontent.com/u/179229932'],
 }
 
-// 3. Set the networks
-const networks = [
-  // mainnet
-  // , arbitrum , 
-  bscTestnet, 
-  // opBNBTestnet
-]
+const networks = [bscTestnet]
 
-// 4. Create Wagmi Adapter
 const wagmiAdapter = new WagmiAdapter({
   networks,
   projectId,
-  ssr: true
+  ssr: false,
 })
 
-// 5. Create modal
-createAppKit({
-  adapters: [wagmiAdapter],
-  networks,
-  projectId,
-  metadata,
-  features: {
-    analytics: true // Optional - defaults to your Cloud configuration
-  }
-})
+export default function AppKitProvider({ children }) {
+  useEffect(() => {
+    const initAppKit = async () => {
+      await new Promise((r) => setTimeout(r, 300))
+      createAppKit({
+        adapters: [wagmiAdapter],
+        networks,
+        projectId,
+        metadata,
+        features: { analytics: true },
+      })
+    }
+    initAppKit()
+  }, [])
 
-export function AppKitProvider({ children }) {
   return (
     <WagmiProvider config={wagmiAdapter.wagmiConfig}>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
