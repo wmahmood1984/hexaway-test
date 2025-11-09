@@ -113,6 +113,7 @@ export default function Create() {
                 name,
                 description: description,
                 image: imageURI,
+                creator:address,
                 attributes: [],
             };
 

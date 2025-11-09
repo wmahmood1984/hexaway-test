@@ -1,7 +1,9 @@
 import { formatEther } from 'ethers';
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux';
 import { NFT } from './NFT2';
+import { helperAbi, helperAddress, web3 } from '../config';
+import { useAppKitAccount } from '@reown/appkit/react';
 
 export default function Asset() {
     const { Package, myNFTs, packages, downlines, registered, admin, allowance, NFTQueBalance, limitUtilized, NFTque
@@ -9,122 +11,249 @@ export default function Asset() {
         , levelIncome,
         referralIncome,
         totalIncome,
-        tradingIncome, walletBalance,nftListed,
+        tradingIncome, walletBalance, nftListed,
         status, error
     } = useSelector((state) => state.contract);
 
-    const totalWei = myNFTs.reduce((acc, nft) => acc + BigInt(nft.price || 0), 0n);
 
-// convert to Ether
-const totalEth = formatEther(totalWei);
+
+
+    const [allNFTs, setAllNFTs] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [filter,setFilter]= useState("All NFTs")
+    // ✅ Replace with your own Redux selector for NFTs
+
+    const { address } = useAppKitAccount();
+
+
+    const helperContract = new web3.eth.Contract(helperAbi, helperAddress);
+
+    useEffect(() => {
+        const fetchAllNFTs = async () => {
+            try {
+                setLoading(true);
+
+                // --- 1️⃣ Fetch NFTused from chain ---
+                const nftUsedRaw = await helperContract.methods.getNFTused().call();
+
+                // --- 2️⃣ Combine all NFTs sources ---
+                const combined = [
+                    ...myNFTs.map((n) => ({ ...n, source: "market" })),
+                    ...nftUsedRaw.map((n) => ({ ...n, source: "used" })),
+                ];
+
+
+
+                // --- 3️⃣ Resolve all URIs concurrently ---
+                const resolved = await Promise.all(
+                    combined.map(async (nft) => {
+                        try {
+                            const res = await fetch(nft.uri);
+                            if (!res.ok) throw new Error(`Failed to fetch ${nft.uri}`);
+                            const meta = await res.json();
+
+                            return {
+                                id: nft.id,
+                                name: meta.name || "Unnamed NFT",
+                                description: meta.description || "",
+                                image: meta.image || "",
+                                price: nft.price ? formatEther(nft.price.toString()) : "0",
+                                premium: nft.premium || false,
+                                creator: meta.creator || "Unknown",
+                                owner: nft._owner || "Unknown",
+                                uri: nft.uri,
+                                source: nft.source,
+                                nftObject: nft,
+                            };
+                        } catch (err) {
+                            console.error("Error fetching metadata for", nft.uri, err);
+                            return null;
+                        }
+                    })
+                );
+
+
+
+                // --- 4️⃣ Clean and mark status ---
+                const filtered = resolved.filter(e => e.owner.toLowerCase() == address.toLocaleLowerCase()).map((nft) => {
+                    let status;
+                    if (
+                        nft.source === "used"
+
+                    ) {
+                        status = "burn"; // Burned NFTs only if owned by current address
+                    } else if (nft.creator?.toLowerCase() === address?.toLowerCase()) {
+                        status = "created"; // Creator is current user
+                    } else if (nft.source === "market") {
+                        status = "purchased"; // Others in marketplace
+                    } else {
+                        status = "other";
+                    }
+
+                    return { ...nft, status };
+                });
+
+
+
+                // --- 5️⃣ Store in state ---
+                setAllNFTs(filtered);
+            } catch (err) {
+                console.error("Error fetching NFTs:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        // if (myNFTs.length) 
+        fetchAllNFTs();
+    }, [myNFTs, address]);
+
+    if (loading) return <p>Loading NFTs...</p>;
+
+    // ✅ Filter logic for UI
+    const createdNFTs = allNFTs.filter((n) => n.status === "created");
+    const purchasedNFTs = allNFTs.filter((n) => n.status === "purchased");
+    const burnedNFTs = allNFTs.filter((n) => n.status === "burn");
+
+
+
+const filteredNFTs = allNFTs.filter((nft) => {
+  switch (filter) {
+    case "Burn":
+      return nft.status === "burn";
+    case "Created":
+      return nft.status === "created";
+    case "Purchased":
+      return nft.status === "purchased";
+    case "All NFTs":
+    default:
+      return true; // show everything
+  }
+});
+
+
+    console.log("my nft", allNFTs);
+
+    const totalWei = allNFTs.reduce(
+        (acc, nft) => acc + Number(nft.price), 0
+    );
+    const totalEth = Number(totalWei).toFixed(0);
+
+
+
+
 
     return (
         <div>
 
-            <div id="assets-page" class="page">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
-                        <div class="mb-4 sm:mb-0">
-                            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold font-display text-gray-900 mb-1 sm:mb-2">My Collection</h2>
-                            <p class="text-sm sm:text-lg lg:text-xl text-gray-600">Manage and showcase your digital assets</p>
-                        </div>
-                        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-                            {/* <button onclick="showPage('create')" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 font-medium shadow-lg text-sm sm:text-base"> Mint NFT </button> <button class="bg-white border border-gray-300 text-gray-700 px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl hover:bg-gray-50 transition-colors font-medium text-sm sm:text-base"> Import NFT </button> */}
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
-                        <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-3 sm:p-6 border border-gray-100">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <div class="text-xl sm:text-2xl lg:text-3xl font-bold text-indigo-600">
-                                        {myNFTs.length}
-                                    </div>
-                                    <div class="text-gray-600 font-medium text-xs sm:text-sm lg:text-base">
-                                        Total NFTs
-                                    </div>
+            <main class="min-h-screen py-8 sm:py-12">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <header class="text-center mb-8 sm:mb-12">
+                        <h2 id="page-title" class="text-3xl sm:text-4xl lg:text-5xl font-bold font-display text-gray-900 mb-3">My Assets</h2>
+                        <p id="page-subtitle" class="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">Track Your NFT Portfolio</p>
+                    </header>
+                    <section class="bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl border border-white/20 p-6 sm:p-8 mb-8 sm:mb-12">
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
+                            <div class="text-center p-4 sm:p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200 shadow-sm hover:shadow-lg transition-all">
+                                <div class="text-3xl sm:text-4xl lg:text-5xl font-bold text-green-600 mb-2">
+                                    {createdNFTs.length}
                                 </div>
-                                <div class="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-indigo-100 rounded-lg sm:rounded-xl flex items-center justify-center">
-                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-indigo-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                                    </svg>
+                                <div class="text-sm sm:text-base text-gray-700 font-semibold">
+                                    Created
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">
+                                    Listed
+                                </div>
+                            </div>
+                            <div class="text-center p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200 shadow-sm hover:shadow-lg transition-all">
+                                <div class="text-3xl sm:text-4xl lg:text-5xl font-bold text-blue-600 mb-2">
+                                    {purchasedNFTs.length}
+                                </div>
+                                <div class="text-sm sm:text-base text-gray-700 font-semibold">
+                                    Purchased
+                                </div>
+                            </div>
+                            <div class="text-center p-4 sm:p-6 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl border border-orange-200 shadow-sm hover:shadow-lg transition-all">
+                                <div class="text-3xl sm:text-4xl lg:text-5xl font-bold text-orange-600 mb-2">
+                                    {burnedNFTs.length}
+                                </div>
+                                <div class="text-sm sm:text-base text-gray-700 font-semibold">
+                                    Burn
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">
+                                    In Processing
+                                </div>
+                            </div>
+                            <div class="text-center p-4 sm:p-6 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl border border-indigo-200 shadow-sm hover:shadow-lg transition-all">
+                                <div class="text-3xl sm:text-4xl lg:text-5xl font-bold text-indigo-600 mb-2">
+                                    {allNFTs.length}
+                                </div>
+                                <div class="text-sm sm:text-base text-gray-700 font-semibold">
+                                    Total NFTs
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">
+                                    Your collection
+                                </div>
+                            </div>
+                            <div class="text-center p-4 sm:p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200 shadow-sm hover:shadow-lg transition-all">
+                                <div class="text-3xl sm:text-4xl lg:text-5xl font-bold text-purple-600 mb-2">
+                                    ${totalEth}
+                                </div>
+                                <div class="text-sm sm:text-base text-gray-700 font-semibold">
+                                    Total Value
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">
+                                    USDT
                                 </div>
                             </div>
                         </div>
-                        <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-3 sm:p-6 border border-gray-100">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <div class="text-lg sm:text-2xl lg:text-3xl font-bold text-green-600">
-                                        ${totalEth}
-                                    </div>
-                                    <div class="text-gray-600 font-medium text-xs sm:text-sm lg:text-base">
-                                        Total Value
-                                    </div>
-                                </div>
-                                <div class="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-green-100 rounded-lg sm:rounded-xl flex items-center justify-center">
-                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-                                    </svg>
-                                </div>
+                    </section>
+                    <section class="mb-6">
+                        <div class="flex flex-wrap items-center justify-center gap-3">
+                            <button id="filter-all"
+                                onClick={(e)=>{setFilter("All NFTs")}}
+                                class="filter-btn px-6 py-2.5 rounded-xl font-semibold transition-all bg-indigo-600 text-white shadow-lg hover:bg-indigo-700">
+                                All NFTs </button>
+                            <button id="filter-created"
+                                                            onClick={(e)=>{setFilter("Created")}}
+                                class="filter-btn px-6 py-2.5 rounded-xl font-semibold transition-all bg-white text-gray-700 border-2 border-gray-200 hover:border-green-500 hover:text-green-600">
+                                Created </button>
+                            <button id="filter-purchased"
+                                                            onClick={(e)=>{setFilter("Purchased")}}
+                                class="filter-btn px-6 py-2.5 rounded-xl font-semibold transition-all bg-white text-gray-700 border-2 border-gray-200 hover:border-blue-500 hover:text-blue-600">
+                                Purchased </button>
+                            <button id="filter-burn"
+                                                            onClick={(e)=>{setFilter("Burn")}}
+                                class="filter-btn px-6 py-2.5 rounded-xl font-semibold transition-all bg-white text-gray-700 border-2 border-gray-200 hover:border-orange-500 hover:text-orange-600">
+                                Burn </button>
+                        </div>
+                    </section>
+                    <section class="bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl border border-white/20 p-6 sm:p-8">
+                        <div class="flex items-center justify-between mb-6 sm:mb-8">
+                            <h3 class="text-2xl sm:text-3xl font-bold text-gray-900">Your NFT Portfolio</h3>
+                            <div class="flex items-center space-x-2 text-sm text-gray-600">
+                                <div class="w-2 h-2 bg-green-500 rounded-full pulse-animation"></div><span>Live Prices</span>
                             </div>
                         </div>
-                        <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-3 sm:p-6 border border-gray-100">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <div class="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-600">
-                                        {nftListed.length}
-                                    </div>
-                                    <div class="text-gray-600 font-medium text-xs sm:text-sm lg:text-base">
-                                        Listed
-                                    </div>
-                                </div>
-                                <div class="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-purple-100 rounded-lg sm:rounded-xl flex items-center justify-center">
-                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-purple-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                        {/* <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-3 sm:p-6 border border-gray-100">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <div class="text-lg sm:text-2xl lg:text-3xl font-bold text-orange-600">
-                                        ${totalIncome}
-                                    </div>
-                                    <div class="text-gray-600 font-medium text-xs sm:text-sm lg:text-base">
-                                        Earned
-                                    </div>
-                                </div>
-                                <div class="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-orange-100 rounded-lg sm:rounded-xl flex items-center justify-center">
-                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-orange-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div> */}
-                    </div>
-                    {/* <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8 border border-gray-100">
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-                            <div class="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
-                                <div class="flex items-center space-x-2"><label class="text-xs sm:text-sm font-medium text-gray-700">Filter:</label> <select class="px-2 sm:px-3 py-1.5 sm:py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs sm:text-sm flex-1 sm:flex-none"> <option>All Items</option> <option>Listed</option> <option>Owned</option> <option>Sold</option> </select>
-                                </div>
+                        <div id="nft-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {filteredNFTs.map((v, e) => {
+                                return (
+                                    <NFT 
+                                    
+                                    name={v.name}
+                                    description={v.description}
+                                    image={v.image}
+                                    price={v.price}
+                                    status={v.status}
+                                    
+                                    index={e}></NFT>
+                                )
+                            })}
 
-                            </div>
                         </div>
-                        <div class="flex items-center justify-end space-x-2 sm:space-x-3"><button class="p-1.5 sm:p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-                            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
-                            </svg></button> <button class="p-1.5 sm:p-2 bg-indigo-100 rounded-lg">
-                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
-                                </svg></button>
-                        </div>
-                    </div> */}
+                    </section>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                    {myNFTs.map((v,e)=>{return(
-                    <NFT nft={v} index={e}></NFT>
-                    )})}
-                    
-
-
-                </div>
-                <div class="text-center mt-8 sm:mt-12"><button class="bg-gray-100 text-gray-700 px-6 sm:px-8 py-2 sm:py-3 rounded-lg sm:rounded-xl hover:bg-gray-200 transition-colors font-medium text-sm sm:text-base"> Load More NFTs </button>
-                </div>
-            </div>
+            </main>
         </div>
     )
 }

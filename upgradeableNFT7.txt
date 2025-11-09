@@ -827,7 +827,7 @@ contract MyNFT is
     }
 
     function ownerMint(string memory _uri) public {
-        require(msg.sender==adminRep,"you are not authorized");
+        require(msg.sender==adminRep || msg.sender==owner(),"you are not authorized");
         helper.mint2(_uri, msg.sender, _nextTokenId);
         _tokenURIs[_nextTokenId] = _uri;
         _safeMint(msg.sender, _nextTokenId);
@@ -835,7 +835,7 @@ contract MyNFT is
     }
 
     function ownerSettlement() public {
-        require(msg.sender==adminRep,"you are not authorized");
+        require(msg.sender==adminRep || msg.sender==owner(),"you are not authorized");
         uint before = paymentToken.balanceOf(address(helper));
         uint allowance = paymentToken.allowance(msg.sender, address(this));
         paymentToken.transferFrom(msg.sender, address(helper), allowance);
