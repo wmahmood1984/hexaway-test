@@ -5,7 +5,7 @@ import { useConfig } from 'wagmi';
 import { helperAbi, helperAddress, mlmcontractaddress, usdtContract, web3 } from '../config';
 import { executeContract, extractRevertReason } from '../utils/contractExecutor';
 import { readName } from '../slices/contractSlice';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { formatEther, parseEther } from 'ethers';
 import Spinner from './Spinner';
 import toast from 'react-hot-toast';
@@ -113,7 +113,7 @@ export default function Create() {
                 name,
                 description: description,
                 image: imageURI,
-                creator:address,
+                creator: address,
                 attributes: [],
             };
 
@@ -201,6 +201,19 @@ export default function Create() {
                         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                             <h1 class="text-2xl sm:text-4xl lg:text-6xl font-bold font-display text-white mb-3 sm:mb-4 lg:mb-6">Create Your NFT</h1>
                             <p class="text-sm sm:text-lg lg:text-2xl text-indigo-100 max-w-3xl mx-auto leading-relaxed">Transform your digital art into a unique NFT and join the decentralized marketplace</p>
+                            <div class="flex justify-center mt-10 -mb-[-10px]">
+                                <button
+                                    onclick="showPage('history')"
+                                    class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 font-medium shadow-lg flex items-center space-x-2"
+                                >
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <Link to="/createhistory">Creation History</Link>
+                                </button>
+                            </div>
+
                         </div>
                     </div>
                     <div class="relative -mt-4 sm:-mt-8 lg:-mt-12">

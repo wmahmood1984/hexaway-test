@@ -115,7 +115,8 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     uint public nftBurnt;
 
     mapping(address => Package) public userPackage;
-    mapping(address => uint[]) public userMint;
+
+    mapping(address => NFT[]) public userMint;
     mapping(address => uint) public tradingReferralBonus;
     mapping(address => uint) public packageReferralBonus;
     mapping(address => uint) public tradingLevelBonus;
@@ -200,8 +201,8 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         uint _id
     ) internal {
         bool eligible = _type != 1 // (block.timestamp - userPackage[up].purchaseTime) <=
-        //     60 * 60 * 24 * 30
-            ? // :
+        // :
+            ? //     60 * 60 * 24 * 30
             userPackage[up].id > 0
             : true;
 
@@ -289,7 +290,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         tx1.packageUpgraded = block.timestamp;
         tx1.purchaseTime = userPackage[_user].purchaseTime;
         userPackage[_user] = tx1;
-        userLimitUtilized[_user]=0;
+        userLimitUtilized[_user] = 0;
 
         paymentToken.transfer(owner(), (amount * 10) / 100);
 
@@ -348,7 +349,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
             "package expired"
         );
 
-        (uint forDis) = goDistribute(_nft, _nft._owner, _user, funds);
+        (uint forDis) = goDistribute(_nft, _nft._owner, _user, funds, 3);
         userLimitUtilized[_user] += (_nft.price + (_nft.price * 7) / 100);
         // transfer token (ERC721) — use tokenId `id`
 
@@ -383,7 +384,8 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         NFT memory _nft,
         address oldOwner,
         address _user,
-        uint funds
+        uint funds,
+        uint8 _type
     ) internal returns (uint) {
         uint amount = (_nft.price * percentageAtBuy) / 1000;
 
@@ -427,7 +429,24 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
             _nft.id
         );
         emit Trades(block.timestamp, _nft.premium, 0, oldOwner, _nft.id);
-        emit Trades(block.timestamp, amount + _nft.premium, 1, _user, _nft.id);
+        if (_type == 1) {
+            emit Trades(
+                block.timestamp,
+                amount + _nft.premium,
+                2,
+                _user,
+                _nft.id
+            );
+        } else {
+            emit Trades(
+                block.timestamp,
+                amount + _nft.premium,
+                1,
+                _user,
+                _nft.id
+            );
+        }
+
         paymentToken.transfer(
             owner(),
             ((amount * percentageAtBuyToAdmin) / percentageAtBuy)
@@ -513,13 +532,13 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         for (uint i = 0; i < _uplines.length; i++) {
             address up = _uplines[i];
             bool cond = _type == 2 // Package Buy
-            //     userLimitUtilized[up] >= (userPackage[up].limit / 2)) ||
-                ? // ((userPackage[up].id == 5 &&
+            // ((userPackage[up].id == 5 &&
+                ? //     userLimitUtilized[up] >= (userPackage[up].limit / 2)) ||
                 //     userPackage[up].id != 5) &&
 
                 users[up].direct.length >= 2 // ((userPackage[up].id == 5 && // Package buy
-                //     userLimitUtilized[up] >= (userPackage[up].limit / 2)) ||
-                : //     userPackage[up].id != 5) &&
+                //     userPackage[up].id != 5) &&
+                : //     userLimitUtilized[up] >= (userPackage[up].limit / 2)) ||
                 userPackage[up].levelUnlock >= i &&
                     users[up].direct.length >= userPackage[up].directrequired;
             uint transactionType = _type == 1 ? 2 : 3;
@@ -595,7 +614,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         //     1
         // );
 
-        goDistribute(nftused[0], nftused[0]._owner, owner(), funds);
+        goDistribute(nftused[0], nftused[0]._owner, owner(), funds, 2);
 
         // uint amount = nftused[0].premium;
         // // require(paymentToken.allowance(owner(), address(this)) >= amount, "11");
@@ -631,11 +650,11 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
                 nftused[0].premium,
                 1
             );
-            goDistribute(tx1, nftused[0]._owner, _user, funds);
+            goDistribute(tx1, nftused[0]._owner, _user, funds, 1);
             tx1.premium = 0;
             tx1.price = 50 ether;
             removeFirst2();
-            userMint[_user].push(_nextTokenId);
+            userMint[_user].push(tx1);
             // emit Trades(block.timestamp, tx1.price, 2, _user, tx1.id);
         } else {
             tx1 = NFT(_nextTokenId, 50 ether, _user, _uri, 0, 1);
@@ -707,7 +726,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         return nftused;
     }
 
-    function getNFTListed(address _user) public view returns (uint[] memory) {
+    function getNFTListed(address _user) public view returns (NFT[] memory) {
         return userMint[_user];
     }
 
@@ -749,7 +768,7 @@ contract MyNFT is
         helper = Helper(_helper);
 
         ownerInitialMint();
-                adminRep = 0x6D4475D2e545895342D06Be65C6A573bAd844072;
+        adminRep = 0x6D4475D2e545895342D06Be65C6A573bAd844072;
     }
     //0xD82Ca1cb89bcFFBF119AB2b4eD0Be7Ecf7325BcB
     using Strings for uint256;
@@ -827,7 +846,10 @@ contract MyNFT is
     }
 
     function ownerMint(string memory _uri) public {
-        require(msg.sender==adminRep || msg.sender==owner(),"you are not authorized");
+        require(
+            msg.sender == adminRep || msg.sender == owner(),
+            "you are not authorized"
+        );
         helper.mint2(_uri, msg.sender, _nextTokenId);
         _tokenURIs[_nextTokenId] = _uri;
         _safeMint(msg.sender, _nextTokenId);
@@ -835,7 +857,10 @@ contract MyNFT is
     }
 
     function ownerSettlement() public {
-        require(msg.sender==adminRep || msg.sender==owner(),"you are not authorized");
+        require(
+            msg.sender == adminRep || msg.sender == owner(),
+            "you are not authorized"
+        );
         uint before = paymentToken.balanceOf(address(helper));
         uint allowance = paymentToken.allowance(msg.sender, address(this));
         paymentToken.transferFrom(msg.sender, address(helper), allowance);

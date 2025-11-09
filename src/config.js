@@ -93,11 +93,11 @@ export const tradeKeys = [
 		class: "w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-lg flex items-center justify-center",
 		svg: "M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
 	},
-	// {
-	// 	name: "NFT Creation",
-	// 	class: "w-12 h-12 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg flex items-center justify-center",
-	// 	svg: "M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-	// }
+	{
+		name: "NFT Creation",
+		class: "w-12 h-12 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg flex items-center justify-center",
+		svg: "M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+	}
 
 
 ]
@@ -1377,9 +1377,41 @@ export const helperAbi = [
 		"name": "getNFTListed",
 		"outputs": [
 			{
-				"internalType": "uint256[]",
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "price",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "_owner",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "uri",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "premium",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "utilized",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct Helper.NFT[]",
 				"name": "",
-				"type": "uint256[]"
+				"type": "tuple[]"
 			}
 		],
 		"stateMutability": "view",
@@ -2222,7 +2254,32 @@ export const helperAbi = [
 		"outputs": [
 			{
 				"internalType": "uint256",
-				"name": "",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "price",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "_owner",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "uri",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "premium",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "utilized",
 				"type": "uint256"
 			}
 		],
@@ -2378,9 +2435,9 @@ export const helperAbi = [
 	}
 ]
 
-export const helperAddress = "0x6E3196D91bC43b030048912E24057767BF8Bc271"
+export const helperAddress = "0x559f10c363354fAA1B6F36c2B3EcB369484dBFa3"
 
-export const mlmcontractaddress = "0xc8b805100dee9a192ce4a8550249A035193dD90F";
+export const mlmcontractaddress = "0xBa810535e5e5f40D17af2dbCF690abF9A9Bf6654";
 
 export const mlmcontractaddressImplementation =
 	"0xB9605fAe41F3D602e576a5Fa30dfCa810A35B76E";
