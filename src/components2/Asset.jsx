@@ -154,7 +154,7 @@ const filteredNFTs = allNFTs.filter((nft) => {
                     </header>
                     <section class="bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl border border-white/20 p-6 sm:p-8 mb-8 sm:mb-12">
                         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
-                            <div class="text-center p-4 sm:p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200 shadow-sm hover:shadow-lg transition-all">
+                            {/* <div class="text-center p-4 sm:p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200 shadow-sm hover:shadow-lg transition-all">
                                 <div class="text-3xl sm:text-4xl lg:text-5xl font-bold text-green-600 mb-2">
                                     {createdNFTs.length}
                                 </div>
@@ -164,7 +164,7 @@ const filteredNFTs = allNFTs.filter((nft) => {
                                 <div class="text-xs text-gray-500 mt-1">
                                     Listed
                                 </div>
-                            </div>
+                            </div> */}
                             <div class="text-center p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200 shadow-sm hover:shadow-lg transition-all">
                                 <div class="text-3xl sm:text-4xl lg:text-5xl font-bold text-blue-600 mb-2">
                                     {purchasedNFTs.length}
@@ -214,10 +214,10 @@ const filteredNFTs = allNFTs.filter((nft) => {
                                 onClick={(e)=>{setFilter("All NFTs")}}
                                 class="filter-btn px-6 py-2.5 rounded-xl font-semibold transition-all bg-indigo-600 text-white shadow-lg hover:bg-indigo-700">
                                 All NFTs </button>
-                            <button id="filter-created"
+                            {/* <button id="filter-created"
                                                             onClick={(e)=>{setFilter("Created")}}
                                 class="filter-btn px-6 py-2.5 rounded-xl font-semibold transition-all bg-white text-gray-700 border-2 border-gray-200 hover:border-green-500 hover:text-green-600">
-                                Created </button>
+                                Created </button> */}
                             <button id="filter-purchased"
                                                             onClick={(e)=>{setFilter("Purchased")}}
                                 class="filter-btn px-6 py-2.5 rounded-xl font-semibold transition-all bg-white text-gray-700 border-2 border-gray-200 hover:border-blue-500 hover:text-blue-600">
