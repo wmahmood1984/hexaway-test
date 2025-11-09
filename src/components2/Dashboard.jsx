@@ -141,19 +141,40 @@ export default function Dashboard() {
 
             <div id="dashboard-page" class="page">
                 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+                    {/* <div class="bg-gradient-to-r from-indigo-600 to-purple-600 py-8 sm:py-12">
+                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">Dashboard</h1>
+                            <p class="text-indigo-100 text-sm sm:text-base">Manage your NFT portfolio and earnings</p>
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+                                <button onclick="showPage('history')" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 font-medium shadow-lg flex items-center space-x-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg><Link
+                                        to={"/history"}
+                                    >Transaction History</Link> </button>
+                            </div>
+                        </div>
+                    </div> */}
                     <div class="bg-gradient-to-r from-indigo-600 to-purple-600 py-8 sm:py-12">
                         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                             <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">Dashboard</h1>
                             <p class="text-indigo-100 text-sm sm:text-base">Manage your NFT portfolio and earnings</p>
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-                                            <button onclick="showPage('history')" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 font-medium shadow-lg flex items-center space-x-2">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                    </svg><Link
-                                                        to={"/history"}
-                                                    >Transaction History</Link> </button>
-                                            </div>
+
+
+                            <div class="flex justify-center mt-10 -mb-[-10px]">
+                                <button
+                                    onclick="showPage('history')"
+                                    class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 font-medium shadow-lg flex items-center space-x-2"
+                                >
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <Link to="/history">Transaction History</Link>
+                                </button>
+                            </div>
                         </div>
                     </div>
+
                     <div class="relative -mt-6 sm:-mt-8">
                         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12">
                             <div class="bg-white/95 backdrop-blur-sm border border-white/20 rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
