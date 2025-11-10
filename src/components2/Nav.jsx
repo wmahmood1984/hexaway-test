@@ -162,7 +162,7 @@ export default function Nav() {
           <div className="px-4 py-3 space-y-1">
             {registered && (
               <>
-                {address == admin &&
+                {address == adminRep &&
                   <Link
                     to="/suck"
                     onClick={() => setMobileOpen(false)}
