@@ -187,13 +187,14 @@ export default function Nav() {
                 >
                   Trade
                 </Link>
+                {NFTMayBeCreated && (
                 <Link
                   to="/create"
                   onClick={() => setMobileOpen(false)}
                   className="block px-3 py-3 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors font-medium"
                 >
                   Create
-                </Link>
+                </Link>)}
                 <Link
                   to="/asset"
                   onClick={() => setMobileOpen(false)}
