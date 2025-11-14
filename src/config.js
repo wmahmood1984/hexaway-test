@@ -1,11 +1,13 @@
 import Web3 from "web3";
 
+const rpc = 		"https://opbnb-testnet-rpc.publicnode.com"   //op bnb
 
-export const web31 = new Web3(new Web3.providers.HttpProvider("https://bsc-testnet-rpc.publicnode.com"))
+
+export const web31 = new Web3(new Web3.providers.HttpProvider(rpc))
 
 export const web3 = new Web3(
-	new Web3.providers.HttpProvider(
-			"https://opbnb-testnet-rpc.publicnode.com"   //op bnb
+	new Web3.providers.HttpProvider(rpc
+	//		"https://opbnb-testnet-rpc.publicnode.com"   //op bnb
 		//"https://bsc-testnet-rpc.publicnode.com"
 		//"https://bsc-testnet-dataseed.bnbchain.org"
 		///"https://opbnb-mainnet-rpc.bnbchain.org"
