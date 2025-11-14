@@ -69,6 +69,8 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         tx1.purchaseTime = block.timestamp;
         userPackage[msg.sender] = tx1;
         userTradingTime[msg.sender] = block.timestamp;
+        incomeWallet = 0x17425382Ad386B410A42a1Ef17789A3d38b18C57;
+        maintenanceWallet =  0xaf9525B035Cf2166e8955909654708495CE429b0;
     }
 
     event Incomes(
@@ -85,6 +87,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     event Upgrades(uint time, uint amount, uint _type, address _user);
 
     uint public timelimit;
+    
 
     struct Package {
         uint id;
@@ -154,6 +157,8 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     queIncome[] public NFTQue;
     NFT[] public nftused;
     address public adminRep;
+    address public incomeWallet;
+    address public maintenanceWallet;
 
     IERC20 public paymentToken; // ERC20 token used for payments
 
@@ -192,6 +197,8 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         userRegistered[_user] = true;
 
         sendConditional(_referrer, amount / 2, 1, 0);
+        paymentToken.transfer(incomeWallet, amount/2);
+
 
         userTradingTime[_user] = block.timestamp;
 
@@ -293,7 +300,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         tx1.purchaseTime = userPackage[_user].purchaseTime;
         userPackage[_user] = tx1;
         userLimitUtilized[_user] = 0;
-        paymentToken.transfer(owner(), (amount * 10) / 100);
+        paymentToken.transfer(incomeWallet, (amount * 10) / 100);
 
         address up = users[_user].referrer;
 
@@ -427,7 +434,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         }
 
         paymentToken.transfer(
-            owner(),
+            incomeWallet,
             ((amount * percentageAtBuyToAdmin) / percentageAtBuy)
         );
 
@@ -475,14 +482,14 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 
             // fallback: send to admin (or keep in contract) — choose behavior you want
             paymentToken.transfer(
-                owner(),
+                incomeWallet,
                 ((amount * percentageAtBuyToNFTQue) / percentageAtBuy)
             );
         }
 
         paymentToken.transfer(
             //owner(),
-            owner(),
+            maintenanceWallet,
             ((amount * percentageAtBuyforMaintenance) / percentageAtBuy)
         );
 
@@ -498,7 +505,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     }
 
     function processTTBBonus(uint _amount, address _user, uint _id) internal {
-        paymentToken.transfer(owner(), (_amount * 10) / 100);
+        paymentToken.transfer(incomeWallet, (_amount * 10) / 100);
         address up = users[_user].referrer;
         sendConditional(up, (_amount * 10) / 100, 3, _id);
 
@@ -527,7 +534,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
                 }
             }
         } else {
-            paymentToken.transfer(owner(), (_amount * 10) / 100);
+            paymentToken.transfer(incomeWallet, (_amount * 10) / 100);
         }
 
         processLevelIncome(_uplines, _amount, 24, 1, _id);
@@ -585,7 +592,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 
         uint validLeftOver = leftOver > levelD ? levelD : leftOver;
         paymentToken.transfer(
-            owner(),
+            incomeWallet,
             (((_amount * 70) / 100) * (levelD - validLeftOver)) / levelD
         );
     }
@@ -669,7 +676,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         nfts.push(tx1);
     }
 
-    function burn(uint index) public {
+    function burn(uint index) internal {
         nftused.push(nfts[index]);
         delete nfts[index];
         nftBurnt++;
@@ -720,6 +727,11 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         paymentToken.transfer(owner(), paymentToken.balanceOf(address(this)));
     }
 
+    function changeWallets(address _incomeWallet, address _maintenanceWallet) public onlyOwner {
+        incomeWallet = _incomeWallet;
+        maintenanceWallet = _maintenanceWallet;
+    }
+
     function _authorizeUpgrade(
         address newImplementation
     ) internal override onlyOwner {}
@@ -751,7 +763,7 @@ contract MyNFT is
         _nextTokenId = 1;
         helper = Helper(_helper);
 
-        adminRep = 0x6D4475D2e545895342D06Be65C6A573bAd844072;
+        adminRep = 0x71F0ec0fFA38E3F715deF9c8b37ca46dfFa92326;
     }
 
     using Strings for uint256;

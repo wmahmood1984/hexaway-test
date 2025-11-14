@@ -5,9 +5,9 @@ export const web31 = new Web3(new Web3.providers.HttpProvider("https://bsc-testn
 
 export const web3 = new Web3(
 	new Web3.providers.HttpProvider(
-		//	"https://opbnb-testnet-rpc.publicnode.com"   //op bnb
+			"https://opbnb-testnet-rpc.publicnode.com"   //op bnb
 		//"https://bsc-testnet-rpc.publicnode.com"
-		"https://bsc-testnet-dataseed.bnbchain.org"
+		//"https://bsc-testnet-dataseed.bnbchain.org"
 		///"https://opbnb-mainnet-rpc.bnbchain.org"
 	)
 );
@@ -2482,9 +2482,9 @@ export const helperAbi = [
 	}
 ]
 
-export const helperAddress = "0xaA992A7Dc99f7d3ECdc6c9aac1f911205F955934"
+export const helperAddress = "0xa65e3709d529754FEeE71411f37a19F0630a30f3"
 
-export const mlmcontractaddress = "0x3DC446A3fE3705ae844cE81001C2459eF298dd40";
+export const mlmcontractaddress = "0x12914BCfDC1F37728F6f39d47ac5203f73103E27";
 
 export const mlmcontractaddressImplementation =
 	"0xB9605fAe41F3D602e576a5Fa30dfCa810A35B76E";
