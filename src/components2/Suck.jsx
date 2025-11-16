@@ -18,7 +18,7 @@ export default function Suck() {
 
     const [create, setCreate] = useState(false);
 
-    const { myNFTs,
+    const { myNFTs,walletBalance,
 
         status, error
     } = useSelector((state) => state.contract);
@@ -44,6 +44,8 @@ export default function Suck() {
     //   pinataApiKey: import.meta.env.VITE_PINATA_API_KEY,
     //   pinataSecretApiKey: import.meta.env.VITE_PINATA_SECRET,
     // });
+
+    
 
     const helperContract = new web3.eth.Contract(helperAbi, helperAddress)
 
@@ -278,6 +280,11 @@ export default function Suck() {
         // } else {
 
         const value = Number(formatEther(nftused[0].price) * .07) + Number(formatEther(nftused[0].premium))
+
+        if (walletBalance < value) {
+            toast.error("Insufficient USDT balance.")
+
+        } else {
         await executeContract({
             config,
             functionName: "approve",
@@ -291,7 +298,7 @@ export default function Suck() {
         });
         //}
 
-
+    }
     };
 
     // Compute sorted NFTs without mutating the original array

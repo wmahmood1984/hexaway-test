@@ -70,6 +70,12 @@ export default function Dashboard() {
 
 
     const handleUpdate = async (pkg) => {
+    console.log("object",walletBalance >= formatEther(pkg.price));
+        if (walletBalance < formatEther(pkg.price)) {
+            toast.error("Insufficient USDT balance.")
+
+        } else {
+        
         setLoading(true)
         // if (allowance >= pkg.price) {
         //     handleUpdate2(pkg.id)
@@ -87,7 +93,7 @@ export default function Dashboard() {
             contract: usdtContract
         });
         //}
-
+    }
 
     };
 

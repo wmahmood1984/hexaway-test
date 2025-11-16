@@ -23,7 +23,7 @@ export const NFT = ({ nft, index, toggle, setToggle,revisedLimitUtilized }) => {
     , levelIncome,
     referralIncome,
     tradingIncome, walletBalance, packageExpiryLimit,
-    status, error
+    status, error, 
   } = useSelector((state) => state.contract);
 
   const now = new Date().getTime() / 1000
@@ -55,6 +55,13 @@ export const NFT = ({ nft, index, toggle, setToggle,revisedLimitUtilized }) => {
       return {
         cond: false,
         msg: "Your trade limit is exceeding.",
+      };
+    }
+
+    if (walletBalance < nftValue) {
+      return {
+        cond: false,
+        msg: "Insufficient USDT Balance.",
       };
     }
 

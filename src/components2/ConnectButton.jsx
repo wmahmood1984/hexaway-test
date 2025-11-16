@@ -3,11 +3,12 @@ import { executeContract, extractRevertReason } from "../utils/contractExecutor"
 import { useConfig } from "wagmi";
 import { useEffect, useState } from "react";
 import { helperAbi, helperAddress, mlmcontractaddress, usdtContract, web3 } from "../config";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { readName } from "../slices/contractSlice";
 import { useNavigate } from "react-router-dom";
 import Spinner from "./Spinner";
 import toast from "react-hot-toast";
+import { formatEther } from "ethers";
 
 export default function ConnectButton({ referrer }) {
     const { open } = useAppKit()
@@ -19,6 +20,12 @@ export default function ConnectButton({ referrer }) {
     const [packages, setPackages] = useState([])
     const dispatch = useDispatch()
     const [loading, setLoading] = useState(false);
+
+        const { Package, myNFTs, downlines, registered,  allowance, NFTQueBalance, limitUtilized, NFTque
+
+        , walletBalance, tradingReferralBonus, packageReferralBonus, tradingLevelBonus, packageLevelBonus, selfTradingProfit, nftPurchaseTime, incomeBlockTime,
+        status, error, totalIncome, timeLimit, packageExpiryLimit, nftQueIndex
+    } = useSelector((state) => state.contract);
 
     const contract = new web3.eth.Contract(helperAbi, helperAddress)
 
@@ -65,11 +72,12 @@ export default function ConnectButton({ referrer }) {
 
     const handleRegister = async (e) => {
         e.preventDefault(); // stop form submission
-        setLoading(true)
-        // if (allowance >= packages[0].price) {
-        //     handleRegister2()
-        // } else {
+        console.log("object",walletBalance >= formatEther(packages[0].price));
+        if (walletBalance < formatEther(packages[0].price)) {
+            toast.error("Insufficient USDT balance.")
 
+        } else {
+        setLoading(true)
         await executeContract({
             config,
             functionName: "approve",
@@ -85,7 +93,7 @@ export default function ConnectButton({ referrer }) {
             },
             contract: usdtContract
         });
-
+    }
         // handleRegister2()
     }
 

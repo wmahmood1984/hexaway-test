@@ -1,6 +1,6 @@
 import { useAppKitAccount } from '@reown/appkit/react';
 import React, { useEffect, useRef, useState } from 'react'
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useConfig } from 'wagmi';
 import { helperAbi, helperAddress, mlmcontractaddress, usdtContract, web3 } from '../config';
 import { executeContract, extractRevertReason } from '../utils/contractExecutor';
@@ -28,6 +28,12 @@ export default function Create() {
     //   pinataApiKey: import.meta.env.VITE_PINATA_API_KEY,
     //   pinataSecretApiKey: import.meta.env.VITE_PINATA_SECRET,
     // });
+
+            const { Package, myNFTs, downlines, registered,  allowance, NFTQueBalance, limitUtilized, NFTque
+
+        , walletBalance, tradingReferralBonus, packageReferralBonus, tradingLevelBonus, packageLevelBonus, selfTradingProfit, nftPurchaseTime, incomeBlockTime,
+        status, error, totalIncome, timeLimit, packageExpiryLimit, nftQueIndex
+    } = useSelector((state) => state.contract);
 
     const helperContract = new web3.eth.Contract(helperAbi, helperAddress)
 
@@ -213,6 +219,11 @@ export default function Create() {
         //     handleMint()
         // } else {
         const value = Number(formatEther(nftused[0].price) * .07) + Number(formatEther(nftused[0].premium))
+        if (walletBalance < value) {
+            toast.error("Insufficient USDT balance.")
+
+        } else {
+        
 
         console.log("value", value.toString())
         await executeContract({
@@ -228,7 +239,7 @@ export default function Create() {
             contract: usdtContract
         });
         // }
-
+    }
 
     };
 
