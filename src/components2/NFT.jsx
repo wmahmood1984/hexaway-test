@@ -114,7 +114,7 @@ export const NFT = ({ nft, index, toggle, setToggle,revisedLimitUtilized }) => {
       onError: (err) => {
         setLoading(false)
         let reason = extractRevertReason(err)
-        toast.error("Transaction failed:", reason)
+        toast.error("This Trade is not available", reason)
       },
     });
   }
