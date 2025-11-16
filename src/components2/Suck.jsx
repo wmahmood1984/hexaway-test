@@ -281,10 +281,10 @@ export default function Suck() {
 
         const value = Number(formatEther(nftused[0].price) * .07) + Number(formatEther(nftused[0].premium))
 
-        if (walletBalance < value) {
-            toast.error("Insufficient USDT balance.")
+        // if (walletBalance < value) {
+        //     toast.error("Insufficient USDT balance.")
 
-        } else {
+        // } else {
         await executeContract({
             config,
             functionName: "approve",
@@ -298,7 +298,7 @@ export default function Suck() {
         });
         //}
 
-    }
+//    }
     };
 
     // Compute sorted NFTs without mutating the original array

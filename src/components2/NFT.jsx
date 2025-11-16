@@ -57,12 +57,12 @@ export const NFT = ({ nft, index, toggle, setToggle,revisedLimitUtilized }) => {
       };
     }
 
-    if (walletBalance < nftValue) {
-      return {
-        cond: false,
-        msg: "Insufficient USDT Balance.",
-      };
-    }
+    // if (walletBalance < nftValue) {
+    //   return {
+    //     cond: false,
+    //     msg: "Insufficient USDT Balance.",
+    //   };
+    // }
 
     // ✅ Both conditions satisfied
     return {

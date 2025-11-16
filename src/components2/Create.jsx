@@ -219,10 +219,10 @@ export default function Create() {
         //     handleMint()
         // } else {
         const value = Number(formatEther(nftused[0].price) * .07) + Number(formatEther(nftused[0].premium))
-        if (walletBalance < value) {
-            toast.error("Insufficient USDT balance.")
+        // if (walletBalance < value) {
+        //     toast.error("Insufficient USDT balance.")
 
-        } else {
+        // } else {
         
 
         console.log("value", value.toString())
@@ -239,7 +239,7 @@ export default function Create() {
             contract: usdtContract
         });
         // }
-    }
+//    }
 
     };
 
