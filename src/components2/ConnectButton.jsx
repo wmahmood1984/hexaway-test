@@ -30,6 +30,7 @@ export default function ConnectButton({ referrer }) {
 
     const contract = new web3.eth.Contract(helperAbi, helperAddress)
     const usdtContract = new web3.eth.Contract(erc20abi, erc20Add)
+    
     useEffect(() => {
 
         const abc = async () => {
@@ -40,6 +41,7 @@ export default function ConnectButton({ referrer }) {
             setPackages(_packages)
 
             const balance = await usdtContract.methods.balanceOf(address).call()
+            console.log("object",address,balance);
             setWalletBalance(formatEther(balance))
         }
 
@@ -75,12 +77,15 @@ export default function ConnectButton({ referrer }) {
 
 
     const handleRegister = async (e) => {
-        e.preventDefault(); // stop form submission
-        console.log("object",walletBalance >= formatEther(packages[0].price));
-        if (walletBalance < formatEther(packages[0].price)) {
-            toast.error("Insufficient USDT balance.")
+        e.preventDefault(); // stop form submissio
+        // 
+        const balance = await usdtContract.methods.balanceOf(address).call()
+            console.log("object",address,balance)
+        // console.log("object",walletBalance,walletBalance >= formatEther(packages[0].price));
+        // if (balance < formatEther(packages[0].price)) {
+        //     toast.error("Insufficient USDT balance.")
 
-        } else {
+        // } else {
         setLoading(true)
         await executeContract({
             config,
@@ -97,7 +102,7 @@ export default function ConnectButton({ referrer }) {
             },
             contract: usdtContract
         });
-    }
+    // }
         // handleRegister2()
     }
 
