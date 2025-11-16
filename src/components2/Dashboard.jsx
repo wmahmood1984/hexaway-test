@@ -6,7 +6,7 @@ import { executeContract, extractRevertReason, formatAddress, formatWithCommas }
 import { formatEther } from 'ethers';
 import toast from 'react-hot-toast';
 import { init, readName } from '../slices/contractSlice';
-import { mlmcontractaddress, packageKeys, usdtContract } from '../config';
+import { erc20abi, erc20Add, mlmcontractaddress, packageKeys, usdtContract, web3 } from '../config';
 import CountdownTimer from './Timer';
 import Spinner from './Spinner';
 import HexawayPackages from './HexawayPackages';
@@ -70,11 +70,21 @@ export default function Dashboard() {
 
 
     const handleUpdate = async (pkg) => {
-    console.log("object",walletBalance >= formatEther(pkg.price));
+
         // if (walletBalance < formatEther(pkg.price)) {
         //     toast.error("Insufficient USDT balance.")
 
         // } else {
+
+
+                   const contract = new web3.eth.Contract(erc20abi, erc20Add)
+                   const balance = await contract.methods.balanceOf(address).call();
+                        console.log("object",balance); 
+                   if(formatEther(balance) < formatEther(packages[0].price)){
+                    toast.error("Insufficient USDT balance.")
+                    setLoading(false)
+                    return
+                   }
         
         setLoading(true)
         // if (allowance >= pkg.price) {

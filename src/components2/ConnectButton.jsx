@@ -3,7 +3,7 @@ import { executeContract, extractRevertReason } from "../utils/contractExecutor"
 import { useConfig } from "wagmi";
 import { useEffect, useState } from "react";
 import { erc20abi, erc20Add, helperAbi, helperAddress, mlmcontractaddress, usdtContract, web3 } from "../config";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { readName } from "../slices/contractSlice";
 import { useNavigate } from "react-router-dom";
 import Spinner from "./Spinner";
@@ -17,20 +17,12 @@ export default function ConnectButton({ referrer }) {
     const config = useConfig()
     const { isConnected,address } = useAppKitAccount()
     const [admin, setAdmin] = useState()
-    const [walletBalance, setWalletBalance] = useState(0)
     const [packages, setPackages] = useState([])
     const dispatch = useDispatch()
     const [loading, setLoading] = useState(false);
 
-        const { Package, myNFTs, downlines, registered,  allowance, NFTQueBalance, limitUtilized, NFTque
-
-        , tradingReferralBonus, packageReferralBonus, tradingLevelBonus, packageLevelBonus, selfTradingProfit, nftPurchaseTime, incomeBlockTime,
-        status, error, totalIncome, timeLimit, packageExpiryLimit, nftQueIndex
-    } = useSelector((state) => state.contract);
-
     const contract = new web3.eth.Contract(helperAbi, helperAddress)
-    const usdtContract = new web3.eth.Contract(erc20abi, erc20Add)
-    
+
     useEffect(() => {
 
         const abc = async () => {
@@ -39,14 +31,10 @@ export default function ConnectButton({ referrer }) {
             setAdmin(_admin)
             const _packages = await contract.methods.getPackages().call()
             setPackages(_packages)
-
-            const balance = await usdtContract.methods.balanceOf(address).call()
-            console.log("object",address,balance);
-            setWalletBalance(formatEther(balance))
         }
 
         abc()
-    }, [address])
+    }, [])
 
 
     const handleRegister2 = async () => {
@@ -58,7 +46,7 @@ export default function ConnectButton({ referrer }) {
                 console.log("🎉 Tx Hash:", txHash);
                 console.log("🚀 Tx Receipt:", receipt);
                 dispatch(readName({ address: receipt.from }));
-                toast.success("Registration successful done!")
+                toast.success("Registration successful!")
                 navigate("/")
                 setLoading(false)
             },
@@ -77,16 +65,19 @@ export default function ConnectButton({ referrer }) {
 
 
     const handleRegister = async (e) => {
-        e.preventDefault(); // stop form submissio
-        // 
-        const balance = await usdtContract.methods.balanceOf(address).call()
-            console.log("object",address,balance)
-        // console.log("object",walletBalance,walletBalance >= formatEther(packages[0].price));
-        // if (balance < formatEther(packages[0].price)) {
-        //     toast.error("Insufficient USDT balance.")
-
-        // } else {
+        e.preventDefault(); // stop form submission
         setLoading(true)
+       const contract = new web3.eth.Contract(erc20abi, erc20Add)
+       const balance = await contract.methods.balanceOf(address).call();
+
+       if(formatEther(balance) < formatEther(packages[0].price)){
+        toast.error("Insufficient USDT balance.")
+        setLoading(false)
+        return
+       }
+       
+       console.log("object",balance);
+
         await executeContract({
             config,
             functionName: "approve",
@@ -102,7 +93,7 @@ export default function ConnectButton({ referrer }) {
             },
             contract: usdtContract
         });
-    // }
+
         // handleRegister2()
     }
 

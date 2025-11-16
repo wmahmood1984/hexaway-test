@@ -16,7 +16,7 @@ export const web3 = new Web3(
 );
 
 export const url = 
-			"https://testnet.opbnb.bscscan.com/tx"
+			"https://opbnb-testnet.bscscan.com//tx"
 		//"https://opbnb.bscscan.com/tx"
 
 export const incomeKeys = [
