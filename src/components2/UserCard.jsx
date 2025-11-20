@@ -7,7 +7,7 @@ export default function UserCard({
     wallet,
     joined,
     referredBy,
-    tags,
+    tags,key,
     teamCount,
 }) {
 
@@ -53,7 +53,7 @@ export default function UserCard({
         );
     }
 
-    console.log("object", userPackage);
+    console.log("object", number);
 
     return (
         <div

@@ -196,6 +196,7 @@ export default function Teamtree() {
                             {filteredLevels.length > 0 && filteredLevels.map((lvl,i)=> (
                             <UserCard
                                 key={i}
+                                number={i+1}
                                 address={selected=="direct"? lvl:lvl.address}
                                 tags={[
                                     { label: "Welcome", icon: "📦", color: "#6366F1" },
