@@ -56,3 +56,15 @@ export function formatWithCommas(value) {
 export function formatDate(dat) {
   return `${new Date(dat * 1000).getDate()}-${new Date(dat * 1000).getMonth()+1}-${new Date(dat * 1000).getFullYear()}`
 }
+
+export     function shuffleArray(arr) {
+        // make a shallow copy so we can safely modify
+        const array = [...arr];
+
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+
+        return array;
+    }

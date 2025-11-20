@@ -6,6 +6,7 @@ import { helperAbi, helperAddress, web3 } from '../config';
 import { NFT } from './NFT';
 import { Link } from 'react-router-dom';
 import { useAppKitAccount } from '@reown/appkit/react';
+import TradingLimitTimer from './Timer4';
 
 export default function Trade() {
 
@@ -16,35 +17,28 @@ export default function Trade() {
         tradingIncome, walletBalance, userTradingTime, timeLimit,
         status, error
     } = useSelector((state) => state.contract);
-  const { address } = useAppKitAccount();
+    const { address } = useAppKitAccount();
 
-    function shuffleArray(arr) {
-        // make a shallow copy so we can safely modify
-        const array = [...arr];
 
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-
-        return array;
-    }
 
 
     const [nfts, setNFTs] = useState()
     const [toggle, setToggle] = useState(false)
+    const [userTradingLimitTime, setUserTradingLimitTime] = useState(0)
     const helperContract = new web3.eth.Contract(helperAbi, helperAddress)
 
     useEffect(() => {
 
 
         const abc = async () => {
+            const _userTradingLimitTime = await helperContract.methods.userTradingLimitTime(address).call()
+            setUserTradingLimitTime(_userTradingLimitTime)
             const _nfts = await helperContract.methods.getNFTs().call()
             const _filteredNFTs = _nfts.filter(v => v._owner != "0x0000000000000000000000000000000000000000" &&
                 v._owner.toLowerCase() !== address.toLowerCase()
             )
 
-    console.log("nn", _nfts);
+            console.log("nn", _nfts);
             const resolved = await Promise.all(
                 _filteredNFTs.map(async (nft) => {
                     try {
@@ -81,7 +75,7 @@ export default function Trade() {
         abc()
 
 
-    }, [toggle,address])
+    }, [toggle, address])
 
 
     const isLoading = !nfts || !Package
@@ -100,14 +94,15 @@ export default function Trade() {
 
     const now = new Date().getTime() / 1000
 
-    const revisedLimitUtilized = now - Number(userTradingTime) > 60 * 60 * 24 ? 0 : limitUtilized
+    const revisedLimitUtilized = 
+    now - Number(userTradingLimitTime) > 60 * 60 * 24 ? 0 : limitUtilized
 
     const randomeNFTs = nfts
-  ? [...nfts].sort((a, b) => a.purchasedTime - b.purchasedTime)
-  : [];//nfts && shuffleArray(nfts)
+        ? [...nfts].sort((a, b) => a.purchasedTime - b.purchasedTime)
+        : [];//nfts && shuffleArray(nfts)
 
 
-console.log("object",randomeNFTs);
+    console.log("object", randomeNFTs);
 
 
 
@@ -186,18 +181,19 @@ console.log("object",randomeNFTs);
                             </div>
                         </div>
                     </div>
+                    <TradingLimitTimer durationInSeconds={Number(userTradingLimitTime) + 60 * 60 * 24 - now} />
                     <div class="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
                         {randomeNFTs.map((v, e) => {
                             if (e < 15) {
                                 return (
-                                    <NFT 
-                                    nft={v}
-                                    image={v.image}
-                                    name={v.name} 
-                                    index={v.id}
-                                    toggle={toggle}
-                                    setToggle={setToggle}
-                                    revisedLimitUtilized={revisedLimitUtilized} />
+                                    <NFT
+                                        nft={v}
+                                        image={v.image}
+                                        name={v.name}
+                                        index={v.id}
+                                        toggle={toggle}
+                                        setToggle={setToggle}
+                                        revisedLimitUtilized={revisedLimitUtilized} />
                                     //     <div class="nft-card bg-white/95 backdrop-blur-md border border-blue-200 rounded-xl shadow-lg overflow-hidden">
                                     //     <div class="h-48 bg-gradient-to-br from-purple-900 via-blue-900 to-cyan-900 relative">
                                     //         <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
