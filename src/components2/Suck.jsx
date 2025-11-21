@@ -17,8 +17,9 @@ export default function Suck() {
 
 
     const [create, setCreate] = useState(false);
+    const [usersArray, setusersArray] = useState([]);
 
-    const { myNFTs,walletBalance,
+    const { myNFTs, walletBalance,
 
         status, error
     } = useSelector((state) => state.contract);
@@ -26,11 +27,13 @@ export default function Suck() {
 
 
     const [nftused, setNFTUsed] = useState()
+    const [totalTradingLimit, setTotalTradingLimit] = useState(0)
     const [nftBurnt, setNFTBurnt] = useState(0)
     const [nfts, setNFTs] = useState()
     const [sortType, setSortType] = useState("All")
     const { address } = useAppKitAccount();
     const [name, setName] = useState("NFT");
+    const [ownerSucked, setOwnerSucked] = useState(0);
     const [description, setDescription] = useState("Exclusive digital piece");
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -45,7 +48,7 @@ export default function Suck() {
     //   pinataSecretApiKey: import.meta.env.VITE_PINATA_SECRET,
     // });
 
-    
+
 
     const helperContract = new web3.eth.Contract(helperAbi, helperAddress)
 
@@ -61,13 +64,38 @@ export default function Suck() {
 
             const _nftsBurnt = await helperContract.methods.nftBurnt().call()
             setNFTBurnt(_nftsBurnt)
+
+            const _usersArray = await helperContract.methods.getusers().call()
+            setusersArray(_usersArray)
+
+            const _ownerSucked = await helperContract.methods.ownerSucked().call()
+            setOwnerSucked(_ownerSucked)
+
+            const resolved = await Promise.all(
+                _usersArray.map(async (_user) => {
+                    try {
+                        const _package = await helperContract.methods.userPackages(_user).call();
+       
+
+                        return formatEther(_package.limit)
+                            
+                        ;
+                    } catch (err) {
+                        console.error("Error fetching metadata for", err);
+                        return null;
+                    }
+                })
+            );
+             const sum = resolved.reduce((a, b) => a + b, 0);
+                setTotalTradingLimit(sum);
+
         }
 
         abc()
 
 
     }, [loading])
-
+    console.log("suck", totalTradingLimit);
 
     const handleUpdate1 = async (uri, add) => {
         await executeContract({
@@ -114,12 +142,12 @@ export default function Suck() {
             const gore = result.gore || {};
             const nsfwScore =
                 Math.max(nudity.sexual_activity,
-                nudity.sexual_display,
-                nudity.erotica,
-                gore.prob,
-                0);
+                    nudity.sexual_display,
+                    nudity.erotica,
+                    gore.prob,
+                    0);
 
-            console.log("nsfw",nsfwScore);
+            console.log("nsfw", nsfwScore);
 
             if (nsfwScore > 0.15) {
                 toast.error("This image may contain NSFW content. Please upload a safe image.");
@@ -173,7 +201,7 @@ export default function Suck() {
                 name,
                 description: description,
                 image: imageURI,
-                creator:address,
+                creator: address,
                 attributes: [],
             };
 
@@ -237,7 +265,7 @@ export default function Suck() {
         // });
         // // }
 
-        handleMint()   
+        handleMint()
 
 
     };
@@ -298,7 +326,7 @@ export default function Suck() {
         });
         //}
 
-//    }
+        //    }
     };
 
     // Compute sorted NFTs without mutating the original array
@@ -325,7 +353,7 @@ export default function Suck() {
     }, [myNFTs, sortType]);
 
     ;
-    console.log("suck", nftBurnt);
+
 
     return (
         <div>
@@ -504,7 +532,7 @@ export default function Suck() {
                                     </div>
                                     <p class="text-sm text-gray-600">Create your own NFTs or browse the marketplace</p>
                                 </div>
-                                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+                                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
                                     <div class="text-center p-3 sm:p-4 bg-white/70 backdrop-blur-sm rounded-xl border border-white/50">
                                         <div id="total-nfts" class="text-xl sm:text-2xl lg:text-3xl font-bold text-indigo-600">
                                             {nfts && nfts.length}
@@ -521,17 +549,17 @@ export default function Suck() {
                                             Total Burned
                                         </div>
                                     </div>
-                                    {/* <div class="text-center p-3 sm:p-4 bg-white/70 backdrop-blur-sm rounded-xl border border-white/50">
+                                    <div class="text-center p-3 sm:p-4 bg-white/70 backdrop-blur-sm rounded-xl border border-white/50">
                                         <div id="burning-process" class="text-xl sm:text-2xl lg:text-3xl font-bold text-orange-600">
-                                            {nfts && nfts.length}
+                                            {usersArray.length}
                                         </div>
                                         <div class="text-xs sm:text-sm text-gray-600 font-medium">
-                                            Total Created
+                                            Total Users
                                         </div>
-                                    </div> */}
+                                    </div>
                                     <div class="text-center p-3 sm:p-4 bg-white/70 backdrop-blur-sm rounded-xl border border-white/50">
                                         <div id="in-marketplace" class="text-xl sm:text-2xl lg:text-3xl font-bold text-green-600">
-                                            {nfts && nfts.length-nftBurnt}
+                                            {nfts && nfts.length - nftBurnt}
                                         </div>
                                         <div class="text-xs sm:text-sm text-gray-600 font-medium">
                                             In Marketplace
@@ -543,6 +571,31 @@ export default function Suck() {
                                         </div>
                                         <div class="text-xs sm:text-sm text-gray-600 font-medium">
                                             In Burning Process
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center p-3 sm:p-4 bg-white/70 backdrop-blur-sm rounded-xl border border-white/50">
+                                        <div id="total-created" class="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-600">
+                                            {ownerSucked}
+                                        </div>
+                                        <div class="text-xs sm:text-sm text-gray-600 font-medium">
+                                            Buy / Burn
+                                        </div>
+                                    </div>
+                                    <div class="text-center p-3 sm:p-4 bg-white/70 backdrop-blur-sm rounded-xl border border-white/50">
+                                        <div id="total-created" class="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-600">
+                                            {ownerSucked}
+                                        </div>
+                                        <div class="text-xs sm:text-sm text-gray-600 font-medium">
+                                            Total Trading Volume
+                                        </div>
+                                    </div>
+                                    <div class="text-center p-3 sm:p-4 bg-white/70 backdrop-blur-sm rounded-xl border border-white/50">
+                                        <div id="total-created" class="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-600">
+                                            {totalTradingLimit}
+                                        </div>
+                                        <div class="text-xs sm:text-sm text-gray-600 font-medium">
+                                            Total Trading Limit
                                         </div>
                                     </div>
                                 </div>

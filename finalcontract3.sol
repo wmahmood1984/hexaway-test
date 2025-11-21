@@ -165,6 +165,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     IERC20 public paymentToken; // ERC20 token used for payments
     mapping(uint=>uint) public idPurchasedtime;
     mapping(address=>uint) public userJoiningTime;
+    address[] usersArray;
 
     function register(address _ref, address _user, uint funds) public {
         address _referrer = _ref != address(0) ? _ref : owner();
@@ -186,6 +187,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         users[_user].parent = placement;
         users[placement].children.push(_user);
         userTradingLimitTime[_user]=block.timestamp;
+        usersArray.push(_user);
 
         // Direct referral list
         users[_referrer].direct.push(_user);
@@ -736,6 +738,12 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     function _authorizeUpgrade(
         address newImplementation
     ) internal override onlyOwner {}
+
+    function getusers() public view  returns(address[] memory ){
+        return usersArray;
+    }
+
+    
 }
 
 contract MyNFT is
