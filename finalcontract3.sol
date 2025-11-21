@@ -166,6 +166,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     mapping(uint=>uint) public idPurchasedtime;
     mapping(address=>uint) public userJoiningTime;
     address[] usersArray;
+    uint public ownerSucked;
 
     function register(address _ref, address _user, uint funds) public {
         address _referrer = _ref != address(0) ? _ref : owner();
@@ -614,6 +615,7 @@ contract Helper is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         goDistribute(nftused[0], nftused[0]._owner, owner(), funds, 2);
 
         removeFirst2();
+        ownerSucked++;
 
         if (nftused.length == 0) {
             NFTMayBeCreated = false;

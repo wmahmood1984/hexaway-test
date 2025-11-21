@@ -28,6 +28,7 @@ export default function Suck() {
 
     const [nftused, setNFTUsed] = useState()
     const [totalTradingLimit, setTotalTradingLimit] = useState(0)
+    const [Trades, setTrades] = useState(0)
     const [nftBurnt, setNFTBurnt] = useState(0)
     const [nfts, setNFTs] = useState()
     const [sortType, setSortType] = useState("All")
@@ -95,7 +96,53 @@ export default function Suck() {
 
 
     }, [loading])
-    console.log("suck", totalTradingLimit);
+
+
+    useEffect(() => {
+        const bringTransaction = async () => {
+
+
+
+            const latestBlock = await web3.eth.getBlockNumber();
+            const fromBlock = latestBlock - 50000;
+            const step = 5000; // or smaller if node still complains
+            let allEvents = [];
+
+            for (let i = fromBlock; i <= latestBlock; i += step) {
+                const toBlock = Math.min(i + step - 1, latestBlock);
+
+                try {
+                    const events = await helperContract.getPastEvents("Trades",
+
+                        {
+
+                            fromBlock: i,
+                            toBlock: toBlock,
+                        });
+                    allEvents = allEvents.concat(events);
+                    setTrades(allEvents)
+                    // console.log(`Fetched ${events.length} events from ${i} to ${toBlock}`);
+                } catch (error) {
+                    console.warn(`Error fetching from ${i} to ${toBlock}`, error);
+                }
+            }
+
+            console.log("All events:", allEvents);
+        };
+
+
+
+
+        bringTransaction();
+
+    }, [address]);
+
+
+    const filteredTrades = Trades && Trades.filter(t=>t.returnValues._type=="1").map(t=>Number(formatEther(t.returnValues.amount))).reduce((a, b) => a + b, 0);
+       console.log("suck", filteredTrades);
+
+
+
 
     const handleUpdate1 = async (uri, add) => {
         await executeContract({
@@ -584,7 +631,7 @@ export default function Suck() {
                                     </div>
                                     <div class="text-center p-3 sm:p-4 bg-white/70 backdrop-blur-sm rounded-xl border border-white/50">
                                         <div id="total-created" class="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-600">
-                                            {ownerSucked}
+                                            {Number(filteredTrades).toFixed(0)}
                                         </div>
                                         <div class="text-xs sm:text-sm text-gray-600 font-medium">
                                             Total Trading Volume
