@@ -15,7 +15,7 @@ export default function ConnectButton({ referrer }) {
     const navigate = useNavigate()
     // const { disconnect } = useDisconnect()
     const config = useConfig()
-    const { isConnected,address } = useAppKitAccount()
+    const { isConnected, address } = useAppKitAccount()
     const [admin, setAdmin] = useState()
     const [packages, setPackages] = useState([])
     const dispatch = useDispatch()
@@ -67,19 +67,25 @@ export default function ConnectButton({ referrer }) {
     const handleRegister = async (e) => {
         e.preventDefault(); // stop form submission
         setLoading(true)
-       const contract = new web3.eth.Contract(erc20abi, erc20Add)
-       const balance = await contract.methods.balanceOf(address).call();
-      console.log("object",formatEther(balance),formatEther(packages[0].price),formatEther(balance) < formatEther(packages[0].price));
-      const bal = BigInt(balance);            // raw units
-const price = BigInt(packages[0].price); 
+        const contract = new web3.eth.Contract(erc20abi, erc20Add)
+        const balance = await contract.methods.balanceOf(address).call();
+        console.log("object", formatEther(balance), formatEther(packages[0].price), formatEther(balance) < formatEther(packages[0].price));
+        const bal = BigInt(balance);            // raw units
+        const price = BigInt(packages[0].price);
 
-if (bal < price) {
-        toast.error("Insufficient USDT balance.")
-        setLoading(false)
-        return
-       }
-       
- 
+        if (bal < price) {
+            toast.error("Insufficient USDT balance.")
+            setLoading(false)
+            return
+        }
+
+        if(!referrer){
+            toast.error("Referrer address is required.")
+            setLoading(false)
+            return
+        }
+
+
 
         await executeContract({
             config,

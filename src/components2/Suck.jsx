@@ -521,14 +521,14 @@ export default function Suck() {
                                             Total Burned
                                         </div>
                                     </div>
-                                    <div class="text-center p-3 sm:p-4 bg-white/70 backdrop-blur-sm rounded-xl border border-white/50">
+                                    {/* <div class="text-center p-3 sm:p-4 bg-white/70 backdrop-blur-sm rounded-xl border border-white/50">
                                         <div id="burning-process" class="text-xl sm:text-2xl lg:text-3xl font-bold text-orange-600">
                                             {nfts && nfts.length}
                                         </div>
                                         <div class="text-xs sm:text-sm text-gray-600 font-medium">
                                             Total Created
                                         </div>
-                                    </div>
+                                    </div> */}
                                     <div class="text-center p-3 sm:p-4 bg-white/70 backdrop-blur-sm rounded-xl border border-white/50">
                                         <div id="in-marketplace" class="text-xl sm:text-2xl lg:text-3xl font-bold text-green-600">
                                             {nfts && nfts.length-nftBurnt}
