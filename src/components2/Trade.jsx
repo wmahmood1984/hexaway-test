@@ -77,82 +77,82 @@ export default function Trade() {
 
     // }, [toggle, address])
 
-useEffect(() => {
+    useEffect(() => {
 
-    const processInBatches = async (items, batchSize, callback) => {
-        const results = [];
+        const processInBatches = async (items, batchSize, callback) => {
+            const results = [];
 
-        for (let i = 0; i < items.length; i += batchSize) {
-            const batch = items.slice(i, i + batchSize);
+            for (let i = 0; i < items.length; i += batchSize) {
+                const batch = items.slice(i, i + batchSize);
 
-            const batchResults = await Promise.all(
-                batch.map(item => callback(item))
-            );
+                const batchResults = await Promise.all(
+                    batch.map(item => callback(item))
+                );
 
-            results.push(...batchResults);
+                results.push(...batchResults);
 
-            // small wait so RPC does NOT rate-limit
-            await new Promise(r => setTimeout(r, 200));
-        }
+                // small wait so RPC does NOT rate-limit
+                await new Promise(r => setTimeout(r, 200));
+            }
 
-        return results;
-    };
+            return results;
+        };
 
-    const abc = async () => {
-        try {
-            const _userTradingLimitTime =
-                await helperContract.methods.userTradingLimitTime(address).call();
+        const abc = async () => {
+            try {
+                const _userTradingLimitTime =
+                    await helperContract.methods.userTradingLimitTime(address).call();
 
-            setUserTradingLimitTime(_userTradingLimitTime);
+                setUserTradingLimitTime(_userTradingLimitTime);
 
-            const _nfts = await helperContract.methods.getNFTs().call();
+                const _nfts = await helperContract.methods.getNFTs().call();
 
-            const _filteredNFTs = _nfts.filter(
-                v =>
-                    v._owner !== "0x0000000000000000000000000000000000000000" &&
-                    v._owner.toLowerCase() !== address.toLowerCase()
-            );
+                const _filteredNFTs = _nfts.filter(
+                    v =>
+                        v._owner !== "0x0000000000000000000000000000000000000000" &&
+                        v._owner.toLowerCase() !== address.toLowerCase()
+                );
 
-            console.log("nn", _nfts);
+                console.log("nn", _nfts);
 
-            const resolved = await processInBatches(_filteredNFTs, 5, async (nft) => {
-                try {
-                    const res = await fetch(nft.uri);
-                    if (!res.ok) throw new Error(`Failed to fetch ${nft.uri}`);
+                const resolved = await processInBatches(_filteredNFTs, 5, async (nft) => {
+                    try {
+                        const res = await fetch(nft.uri);
+                        if (!res.ok) throw new Error(`Failed to fetch ${nft.uri}`);
 
-                    const meta = await res.json();
-                    const _purchasedTime =
-                        await helperContract.methods.idPurchasedtime(nft.id).call();
+                        const meta = await res.json();
+                        const _purchasedTime =
+                            await helperContract.methods.idPurchasedtime(nft.id).call();
 
-                    return {
-                        id: nft.id,
-                        name: meta.name || "Unnamed NFT",
-                        description: meta.description || "",
-                        image: meta.image || "",
-                        price: nft.price ? formatEther(nft.price.toString()) : "0",
-                        premium: nft.premium || false,
-                        creator: meta.creator || "Unknown",
-                        owner: nft._owner || "Unknown",
-                        uri: nft.uri,
-                        source: nft.source,
-                        nftObject: nft,
-                        purchasedTime: _purchasedTime
-                    };
-                } catch (err) {
-                    console.error("Error fetching metadata for", nft.uri, err);
-                    return null;
-                }
-            });
+                        return {
+                            id: nft.id,
+                            name: meta.name || "Unnamed NFT",
+                            description: meta.description || "",
+                            image: meta.image || "",
+                            price: nft.price ? formatEther(nft.price.toString()) : "0",
+                            premium: nft.premium || false,
+                            creator: meta.creator || "Unknown",
+                            owner: nft._owner || "Unknown",
+                            uri: nft.uri,
+                            source: nft.source,
+                            nftObject: nft,
+                            purchasedTime: _purchasedTime
+                        };
+                    } catch (err) {
+                        console.error("Error fetching metadata for", nft.uri, err);
+                        return null;
+                    }
+                });
 
-            setNFTs(resolved);
-        } catch (error) {
-            console.error("Error in abc()", error);
-        }
-    };
+                setNFTs(resolved);
+            } catch (error) {
+                console.error("Error in abc()", error);
+            }
+        };
 
-    abc();
+        abc();
 
-}, [toggle, address]);
+    }, [toggle, address]);
 
     const isLoading = !nfts || !Package
 
@@ -163,15 +163,15 @@ useEffect(() => {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-center">
                 <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mb-4"></div>
-                <p className="text-gray-600 text-lg font-medium">Loading your data...</p>
+                <p className="text-gray-600 text-lg font-medium">Loading your data...<br />Page will open in a minute as of now<br />Work is underway on the Trade page from the backend. The Trade page would be running smoothly soon</p>
             </div>
         );
     }
 
     const now = new Date().getTime() / 1000
 
-    const revisedLimitUtilized = 
-    now - Number(userTradingLimitTime) > 60 * 60 * 24 ? 0 : limitUtilized
+    const revisedLimitUtilized =
+        now - Number(userTradingLimitTime) > 60 * 60 * 24 ? 0 : limitUtilized
 
     const randomeNFTs = nfts
         ? [...nfts].sort((a, b) => a.purchasedTime - b.purchasedTime)
@@ -257,7 +257,7 @@ useEffect(() => {
                             </div>
                         </div>
                     </div>
-                    <TradingLimitTimer durationInSeconds={Number(userTradingLimitTime) + 60 * 60 * 24 - now >0?Number(userTradingLimitTime) + 60 * 60 * 24 - now :0} />
+                    <TradingLimitTimer durationInSeconds={Number(userTradingLimitTime) + 60 * 60 * 24 - now > 0 ? Number(userTradingLimitTime) + 60 * 60 * 24 - now : 0} />
                     <div class="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
                         {randomeNFTs.map((v, e) => {
                             if (e < 15) {
