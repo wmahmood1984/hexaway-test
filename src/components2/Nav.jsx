@@ -61,7 +61,7 @@ export default function Nav({setCreateActive, createActive}) {
   // }, [registered, navigate]);
 
   const handleClick = async () => {
-    console.log("nav", registered);
+
     if (isConnected) {
       await disconnect();
       dispatch(setRegisteredFalse());

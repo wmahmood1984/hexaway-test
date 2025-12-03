@@ -8,7 +8,7 @@ import { helperAbi, helperAddress, web3 } from '../config';
 import toast from 'react-hot-toast';
 
 
-export default function Auth({setCreateActive, createActive}) {
+export default function Auth({ setCreateActive, createActive }) {
     const { id } = useParams()
     const navigate = useNavigate()
 
@@ -20,11 +20,11 @@ export default function Auth({setCreateActive, createActive}) {
 
     const {
 
-        //address, 
+        address,
 
         isConnected } = useAppKitAccount()
 
-    const address = "0x1424B89D40AA6b72597b9bB994b1D70D5d0DE78c"
+    //    const address = "0x1424B89D40AA6b72597b9bB994b1D70D5d0DE78c"
 
 
 
@@ -40,9 +40,7 @@ export default function Auth({setCreateActive, createActive}) {
 
     useEffect(() => {
 
-        if (registered && isConnected) {
-            navigate("/");
-        }
+
 
         if (address) {
 
@@ -93,13 +91,15 @@ export default function Auth({setCreateActive, createActive}) {
                         console.log("Invalid option");
                 }
 
-                if (registered && isConnected &&  timeDiff >= requiredDiff) {
-                     setCreateActive(true);
-                     navigate("/create");
-                     toast.success("Please create an NFT before proceeding.");
+                if (registered && isConnected && timeDiff >= requiredDiff) {
+                    setCreateActive(true);
+                    navigate("/create");
+                    toast.success("Please create an NFT before proceeding.");
+                } else if (registered && isConnected) {
+                    navigate("/");
                 }
 
-                                   console.log("nav", timeDiff);
+                console.log("nav", timeDiff);
 
 
 
@@ -111,17 +111,6 @@ export default function Auth({setCreateActive, createActive}) {
             abc()
 
         }
-
-
-
-
-
-
-
-
-
-
-
     }, [registered, navigate, isConnected, address]);
 
 
