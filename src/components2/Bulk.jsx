@@ -84,7 +84,9 @@ console.log("array",arrayFromContract);
     <div className="p-4 border rounded-md w-full max-w-lg mx-auto">
       <h2 className="text-xl font-bold mb-3">Bulk IPFS Uploader</h2>
 
-      <input type="file" multiple onChange={handleFileChange} className="mb-4" />
+      <input 
+      style={{cursor:"pointer"}}
+      type="file" multiple onChange={handleFileChange} className="mb-4" />
 
       <button
         onClick={processUpload}
