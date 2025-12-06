@@ -2871,7 +2871,7 @@ export const mlmcontractaddressImplementation =
 
 export const bulkContractAdd = "0xa37a7B10D9FACD5fE221Dec482CbcaA187af494D"
 
-export const bulkAdd = "0x54b831bd978891c140636143D7EC36796a36595E"
+export const bulkAdd = "0x71F0ec0fFA38E3F715deF9c8b37ca46dfFa92326"
 export const erc20abi = [
 	{
 		anonymous: false,
