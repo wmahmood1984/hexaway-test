@@ -4,7 +4,7 @@ import { useAppKitAccount, useDisconnect } from '@reown/appkit/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { formatAddress } from '../utils/contractExecutor';
 import { init, readName, setRegisteredFalse } from '../slices/contractSlice';
-import { mlmabi, mlmcontractaddress, web3 } from '../config';
+import { bulkAdd, mlmabi, mlmcontractaddress, web3 } from '../config';
 
 export default function Nav({setCreateActive, createActive}) {
   const { disconnect } = useDisconnect();
@@ -105,6 +105,7 @@ export default function Nav({setCreateActive, createActive}) {
             {registered  && (
               <>
                 {address == adminRep && <Link to="/suck" className="text-gray-600 hover:text-indigo-600 font-medium transition-colors text-sm xl:text-base">Suck</Link>}
+                {address == bulkAdd && <Link to="/bulk" className="text-gray-600 hover:text-indigo-600 font-medium transition-colors text-sm xl:text-base">Bulk Upload</Link>}
                 <Link to="/dashboard" className="text-gray-600 hover:text-indigo-600 font-medium transition-colors text-sm xl:text-base">Dashboard</Link>
                 <Link to="/trade" className="text-gray-600 hover:text-indigo-600 font-medium transition-colors text-sm xl:text-base">Trade</Link>
                 {NFTMayBeCreated && (
@@ -173,6 +174,17 @@ export default function Nav({setCreateActive, createActive}) {
                     className="block px-3 py-3 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors font-medium"
                   >
                     Suck
+                  </Link>
+
+                }
+
+                {address == bulkAdd &&
+                  <Link
+                    to="/bulk"
+                    onClick={() => setMobileOpen(false)}
+                    className="block px-3 py-3 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors font-medium"
+                  >
+                    Bulk Upload
                   </Link>
 
                 }

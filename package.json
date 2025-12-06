@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@cloudinary/react": "^1.14.3",
+    "@cloudinary/url-gen": "^1.22.0",
     "@pinata/sdk": "^2.1.0",
     "@reduxjs/toolkit": "^2.9.0",
     "@reown/appkit": "^1.8.6",

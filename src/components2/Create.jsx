@@ -2,7 +2,7 @@ import { useAppKitAccount } from '@reown/appkit/react';
 import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useConfig } from 'wagmi';
-import { helperAbi, helperAddress, mlmcontractaddress, usdtContract, web3 } from '../config';
+import { bulkAddAbi, bulkContractAdd, helperAbi, helperAddress, mlmcontractaddress, testweb3, usdtContract, web3 } from '../config';
 import { executeContract, extractRevertReason } from '../utils/contractExecutor';
 import { readName } from '../slices/contractSlice';
 import { Link, useNavigate } from 'react-router-dom';
@@ -22,6 +22,20 @@ export default function Create() {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const [preview, setPreview] = useState(null);
+
+        const contract = new testweb3.eth.Contract(bulkAddAbi, bulkContractAdd);  
+        const [arrayFromContract, setArrayFromContract] = useState([]);
+
+        useEffect(() => {
+            const abc = async () => {
+                const web3Hashes = await contract.methods.getArray().call();
+                setArrayFromContract(web3Hashes);
+            }
+        
+            abc();
+        
+        }, [loading]);
+
     // ⚠️ SECURITY: Do NOT expose Pinata keys in frontend production apps!
     // Instead, build a small Express backend that signs requests.
     // const pinata = new pinataSDK({

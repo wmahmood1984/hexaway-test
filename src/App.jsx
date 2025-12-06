@@ -17,6 +17,7 @@ import Suck from './components2/Suck'
 import CreateHistory from './components2/CreateHistory'
 import NFTCreationDetails from './components2/NFTCreationDetails'
 import Teamtree from './components2/Teamtree'
+import Bulk from './components2/Bulk'
 
 export default function App() {
 
@@ -75,8 +76,7 @@ export default function App() {
                 <Route path="/createhistory" element={<CreateHistory />} />
                 <Route path="/nftcreationdetails" element={<NFTCreationDetails />} />
                 <Route path="/teamview" element={<Teamtree />} />
-
-                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/bulk" element={<Bulk />} />
             </Routes>
 
 

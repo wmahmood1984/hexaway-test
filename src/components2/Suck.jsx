@@ -5,7 +5,7 @@ import { useConfig } from 'wagmi';
 import { useDispatch, useSelector } from 'react-redux';
 import { readName } from '../slices/contractSlice';
 import toast from 'react-hot-toast';
-import { helperAbi, helperAddress, mlmcontractaddress, usdtContract, web3 } from '../config';
+import { bulkAddAbi, bulkContractAdd, helperAbi, helperAddress, mlmcontractaddress, testweb3, usdtContract, web3 } from '../config';
 import { formatEther, parseEther } from 'ethers';
 import Spinner from './Spinner';
 import { useAppKitAccount } from '@reown/appkit/react';
@@ -43,6 +43,19 @@ export default function Suck() {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const [preview, setPreview] = useState(null);
+
+            const contract = new testweb3.eth.Contract(bulkAddAbi, bulkContractAdd);  
+            const [arrayFromContract, setArrayFromContract] = useState([]);
+    
+            useEffect(() => {
+                const abc = async () => {
+                    const web3Hashes = await contract.methods.getArray().call();
+                    setArrayFromContract(web3Hashes);
+                }
+            
+                abc();
+            
+            }, [loading]);
     // ⚠️ SECURITY: Do NOT expose Pinata keys in frontend production apps!
     // Instead, build a small Express backend that signs requests.
     // const pinata = new pinataSDK({
@@ -220,7 +233,19 @@ export default function Suck() {
     const lastTraded = Trades && analyzeLastNFTTransaction(Trades);
 
 
+    const removeNFT = async ()=>{
+        
+        const account = testweb3.eth.accounts.privateKeyToAccount(import.meta.env.VITE_PRIVATE_KEY);
 
+
+
+        try {
+        const res = await contract.methods.removeFirst().send({from:account.address,gaslimit:3000000});
+        console.log("res",res.txHash);
+        } catch (error) {
+            console.log("error in remove nft",error);
+        }
+    }
 
 
 
@@ -238,6 +263,7 @@ export default function Suck() {
                 setCreate(false)
                 setFile(null)
                 setPreview(null)
+                removeNFT()
             },
             onError: (err) => {
                 console.error("🔥 Error in owner minting:", err);
@@ -301,26 +327,26 @@ export default function Suck() {
             // -----------------------
             // 1. Upload image to Pinata
             // -----------------------
-            const formData = new FormData();
-            formData.append("file", file);
+            // const formData = new FormData();
+            // formData.append("file", file);
 
-            const imgRes = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${import.meta.env.VITE_PINATA_JWT}`,
-                },
-                body: formData,
-            });
+            // const imgRes = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+            //     method: "POST",
+            //     headers: {
+            //         Authorization: `Bearer ${import.meta.env.VITE_PINATA_JWT}`,
+            //     },
+            //     body: formData,
+            // });
 
-            const imgResult = await imgRes.json();
+            // const imgResult = await imgRes.json();
 
-            if (!imgRes.ok || !imgResult.IpfsHash) {
-                throw new Error(
-                    `Image upload failed: ${imgRes.status} ${JSON.stringify(imgResult)}`
-                );
-            }
+            // if (!imgRes.ok || !imgResult.IpfsHash) {
+            //     throw new Error(
+            //         `Image upload failed: ${imgRes.status} ${JSON.stringify(imgResult)}`
+            //     );
+            // }
 
-            const imageURI = `https://harlequin-biological-bat-26.mypinata.cloud/ipfs/${imgResult.IpfsHash}`;
+            const imageURI =  `https://harlequin-biological-bat-26.mypinata.cloud/ipfs/${arrayFromContract[0]}`;
             console.log("✅ Image uploaded:", imageURI);
 
             // -----------------------
@@ -533,15 +559,15 @@ export default function Suck() {
                                 </div>
                             </div>
 
-                            {preview ? (
+                            {/* {preview ? ( */}
                                 <div className="flex justify-center items-center">
                                     <img
-                                        src={preview}
+                                        src={`https://harlequin-biological-bat-26.mypinata.cloud/ipfs/${arrayFromContract[0]}`}
                                         alt="Preview"
                                         className="w-40 h-40 sm:w-52 sm:h-52 lg:w-64 lg:h-64 object-cover rounded-xl shadow-lg"
                                     />
                                 </div>
-                            ) : (
+                            {/* ) : (
                                 <div
                                     id="upload-area"
                                     className="relative border-2 border-dashed border-indigo-300 rounded-xl sm:rounded-2xl p-4 sm:p-8 lg:p-12 text-center hover:border-indigo-400 transition-all duration-300 cursor-pointer bg-gradient-to-br from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 group"
@@ -588,7 +614,7 @@ export default function Suck() {
                                         />
                                     </div>
                                 </div>
-                            )}
+                            )} */}
                         </div>
 
                         <div class="bg-white/95 backdrop-blur-sm rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-2xl border border-white/20 p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
