@@ -1,9 +1,9 @@
 import Web3 from "web3";
 
 const rpc = //	"https://opbnb-testnet-rpc.publicnode.com"   //op bnb
-			//"https://opbnb-mainnet-rpc.bnbchain.org"	
+			"https://opbnb-mainnet-rpc.bnbchain.org"	
 			//"https://api-opbnb-testnet.n.dwellir.com/cd3616b6-aa41-42c2-a71a-6c87168622db" // opbnb testnet
-			"https://api-opbnb-mainnet.n.dwellir.com/cd3616b6-aa41-42c2-a71a-6c87168622db"	// opbnb mainnet	
+			//"https://api-opbnb-mainnet.n.dwellir.com/cd3616b6-aa41-42c2-a71a-6c87168622db"	// opbnb mainnet	
 
 
 export const web31 = new Web3(new Web3.providers.HttpProvider(rpc))
@@ -2684,13 +2684,31 @@ export const fetcherAbi = [
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "_helper",
+				"name": "newOwner",
 				"type": "address"
 			}
 		],
-		"name": "updateHelper",
+		"name": "transferOwnership",
 		"outputs": [],
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newImplementation",
+				"type": "address"
+			},
+			{
+				"internalType": "bytes",
+				"name": "data",
+				"type": "bytes"
+			}
+		],
+		"name": "upgradeToAndCall",
+		"outputs": [],
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -2745,11 +2763,11 @@ export const fetcherAbi = [
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "newOwner",
+				"name": "_helper",
 				"type": "address"
 			}
 		],
-		"name": "transferOwnership",
+		"name": "updateHelper",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -2766,24 +2784,6 @@ export const fetcherAbi = [
 		],
 		"name": "Upgraded",
 		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "newImplementation",
-				"type": "address"
-			},
-			{
-				"internalType": "bytes",
-				"name": "data",
-				"type": "bytes"
-			}
-		],
-		"name": "upgradeToAndCall",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
 	},
 	{
 		"inputs": [
@@ -2806,10 +2806,60 @@ export const fetcherAbi = [
 	},
 	{
 		"inputs": [],
+		"name": "getNFTs",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "price",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "_owner",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "uri",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "premium",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "utilized",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "purchasedTime",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct DataFetcherUpgradeable.NFTInfo[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "helper",
 		"outputs": [
 			{
-				"internalType": "contract IHelper",
+				"internalType": "contract Helper",
 				"name": "",
 				"type": "address"
 			}

@@ -9,7 +9,7 @@ import { useAppKitAccount } from '@reown/appkit/react';
 import TradingLimitTimer from './Timer4';
 import toast from 'react-hot-toast';
 
-export default function Trade({setCreateActive}) {
+export default function Trade({ setCreateActive }) {
 
     const { Package, myNFTs, packages, downlines, registered, admin, allowance, NFTQueBalance, limitUtilized, NFTque
 
@@ -79,234 +79,261 @@ export default function Trade({setCreateActive}) {
 
     // }, [toggle, address])
 
-// useEffect(() => {
+    // useEffect(() => {
 
-//     const processInBatches = async (items, batchSize, callback) => {
-//         const results = [];
+    //     const processInBatches = async (items, batchSize, callback) => {
+    //         const results = [];
 
-//         for (let i = 0; i < items.length; i += batchSize) {
-//             const batch = items.slice(i, i + batchSize);
+    //         for (let i = 0; i < items.length; i += batchSize) {
+    //             const batch = items.slice(i, i + batchSize);
 
-//             const batchResults = await Promise.all(
-//                 batch.map(item => callback(item))
-//             );
+    //             const batchResults = await Promise.all(
+    //                 batch.map(item => callback(item))
+    //             );
 
-//             results.push(...batchResults);
+    //             results.push(...batchResults);
 
-//             // small wait so RPC does NOT rate-limit
-//             await new Promise(r => setTimeout(r, 200));
-//         }
+    //             // small wait so RPC does NOT rate-limit
+    //             await new Promise(r => setTimeout(r, 200));
+    //         }
 
-//         return results;
-//     };
+    //         return results;
+    //     };
 
-//     const abc = async () => {
-//         try {
-//             const _userTradingLimitTime =
-//                 await helperContract.methods.userTradingLimitTime(address).call();
+    //     const abc = async () => {
+    //         try {
+    //             const _userTradingLimitTime =
+    //                 await helperContract.methods.userTradingLimitTime(address).call();
 
-//             setUserTradingLimitTime(_userTradingLimitTime);
+    //             setUserTradingLimitTime(_userTradingLimitTime);
 
-//             const _nfts = await helperContract.methods.getNFTs().call();
+    //             const _nfts = await helperContract.methods.getNFTs().call();
 
-//             const _filteredNFTs = _nfts.filter(
-//                 v =>
-//                     v._owner !== "0x0000000000000000000000000000000000000000" &&
-//                     v._owner.toLowerCase() !== address.toLowerCase()
-//             );
+    //             const _filteredNFTs = _nfts.filter(
+    //                 v =>
+    //                     v._owner !== "0x0000000000000000000000000000000000000000" &&
+    //                     v._owner.toLowerCase() !== address.toLowerCase()
+    //             );
 
-//             console.log("nn", _nfts);
+    //             console.log("nn", _nfts);
 
-//             const resolved = await processInBatches(_filteredNFTs, 5, async (nft) => {
-//                 try {
-//                     const res = await fetch(nft.uri);
-//                     if (!res.ok) throw new Error(`Failed to fetch ${nft.uri}`);
+    //             const resolved = await processInBatches(_filteredNFTs, 5, async (nft) => {
+    //                 try {
+    //                     const res = await fetch(nft.uri);
+    //                     if (!res.ok) throw new Error(`Failed to fetch ${nft.uri}`);
 
-//                     const meta = await res.json();
-//                     const _purchasedTime =
-//                         await helperContract.methods.idPurchasedtime(nft.id).call();
+    //                     const meta = await res.json();
+    //                     const _purchasedTime =
+    //                         await helperContract.methods.idPurchasedtime(nft.id).call();
 
-//                     return {
-//                         id: nft.id,
-//                         name: meta.name || "Unnamed NFT",
-//                         description: meta.description || "",
-//                         image: meta.image || "",
-//                         price: nft.price ? formatEther(nft.price.toString()) : "0",
-//                         premium: nft.premium || false,
-//                         creator: meta.creator || "Unknown",
-//                         owner: nft._owner || "Unknown",
-//                         uri: nft.uri,
-//                         source: nft.source,
-//                         nftObject: nft,
-//                         purchasedTime: _purchasedTime
-//                     };
-//                 } catch (err) {
-//                     console.error("Error fetching metadata for", nft.uri, err);
-//                     return null;
-//                 }
-//             });
+    //                     return {
+    //                         id: nft.id,
+    //                         name: meta.name || "Unnamed NFT",
+    //                         description: meta.description || "",
+    //                         image: meta.image || "",
+    //                         price: nft.price ? formatEther(nft.price.toString()) : "0",
+    //                         premium: nft.premium || false,
+    //                         creator: meta.creator || "Unknown",
+    //                         owner: nft._owner || "Unknown",
+    //                         uri: nft.uri,
+    //                         source: nft.source,
+    //                         nftObject: nft,
+    //                         purchasedTime: _purchasedTime
+    //                     };
+    //                 } catch (err) {
+    //                     console.error("Error fetching metadata for", nft.uri, err);
+    //                     return null;
+    //                 }
+    //             });
 
-//             setNFTs(resolved);
-//         } catch (error) {
-//             console.error("Error in abc()", error);
-//         }
-//     };
+    //             setNFTs(resolved);
+    //         } catch (error) {
+    //             console.error("Error in abc()", error);
+    //         }
+    //     };
 
-//     abc();
+    //     abc();
 
-// }, [toggle, address]);
-
-
-useEffect(() => {
-    if (!address) return;
-
-    const concurrencyLimit = 10;
-
-    const runWithConcurrency = async (items, limit, task) => {
-        const results = [];
-        let index = 0;
-
-        const workers = Array(limit).fill(null).map(async () => {
-            while (index < items.length) {
-                const i = index++;
-                try {
-                    results[i] = await task(items[i], i);
-                } catch (e) {
-                    console.error(e);
-                    results[i] = null;
-                }
-            }
-        });
-
-        await Promise.all(workers);
-        return results;
-    };
-
-    const abc = async () => {
-        
+    // }, [toggle, address]);
 
 
-                let CreateList = await helperContract.methods.getNFTListed(address).call()
+    useEffect(()=>{
+        const abc = async () => {
+            const _nfts = await fetcherContract.methods.getNFTs().call()
 
-
-                let lastCreateTime
-                if (CreateList.length === 0) {
-
-                    lastCreateTime = Package.packageUpgraded//await helperContract.methods.userJoiningTime(address).call();
-                } else {
-                    let lastCreate = CreateList[CreateList.length - 1];
-                    lastCreateTime = await helperContract.methods.idPurchasedtime(lastCreate.id).call();
-                }
-
-
-
-                const currentTime = Math.floor(Date.now() / 1000);
-                const timeDiff = currentTime - lastCreateTime;
-                let requiredDiff;
-
-
-
-
-
-                switch (Package.id) {   // <-- The condition goes here
-                    case "1":         // checks if option === 1
-                        requiredDiff = 9 * 24 * 60 * 60; // 7 days in seconds
-                        break;
-                    case "2":         // checks if option === 2
-                        requiredDiff = 6 * 24 * 60 * 60; // 7 days in seconds
-                        break;
-                    case "3":         // checks if option === 3
-                        requiredDiff = 5 * 24 * 60 * 60; // 7 days in seconds
-                        break;
-                    case "4":         // checks if option === 3
-                        requiredDiff = 2 * 24 * 60 * 60; // 7 days in seconds
-                        break;
-                    case "5":         // checks if option === 3
-                        requiredDiff = 1 * 24 * 60 * 60; // 7 days in seconds
-                        break;
-                    default:        // runs if none of the above match
-                        console.log("Invalid option");
-                }
-
-                                console.log("TimeDiff",timeDiff, "RequiredDiff", requiredDiff, "Package.id", Package.id,
-                                    "Last create time", lastCreateTime,"nft list", CreateList,"current time", currentTime
-                                    ,"package purchase time", Package.packageUpgraded
-                                );    
-
-                if ( timeDiff >= requiredDiff && Package.id!="0") {
-                    setCreateActive(true);
-                    navigate("/create");
-                    toast.success("Please create an NFT before proceeding.");
-                    return 
-                }
-        
-        
-        
-        
-        
-        try {
-            // 1️⃣ User limit time
-            const _userTradingLimitTime =
-                await helperContract.methods.userTradingLimitTime(address).call();
-            setUserTradingLimitTime(_userTradingLimitTime);
-
-            // 2️⃣ Get NFTs
-            const _nfts = await helperContract.methods.getNFTs().call();
-
-            const _filteredNFTs = _nfts.filter(
-                v =>
-                    v._owner !== "0x0000000000000000000000000000000000000000" &&
-                    v._owner.toLowerCase() !== address.toLowerCase()
-            );
-
-            // 3️⃣ Prepare IDs array
-            const ids = _filteredNFTs.map(n => n.id);
-
-            // 4️⃣ Single RPC call to Fetcher contract 🚀
-            const allPurchasedTimes = await fetcherContract.methods
-                .getAllPurchasedTimes(ids)
-                .call();
-
-            // 5️⃣ Fetch metadata with concurrency limit (fast)
-            const resolved = await runWithConcurrency(
-                _filteredNFTs,
-                concurrencyLimit,
-                async (nft, i) => {
-                    try {
-                        const res = await fetch(nft.uri);
-                        const meta = await res.json();
-
-                        return {
-                            id: nft.id,
-                            name: meta?.name || "Unnamed NFT",
-                            description: meta?.description || "",
-                            image: meta?.image || "",
-                            price: nft.price ? formatEther(nft.price.toString()) : "0",
-                            premium: nft.premium || false,
-                            creator: meta?.creator || "Unknown",
-                            owner: nft._owner || "Unknown",
-                            uri: nft.uri,
-                            source: nft.source,
-                            nftObject: nft,
-                            purchasedTime: allPurchasedTimes[i] ?? "0"
-                        };
-                    } catch (err) {
-                        console.error("Failed metadata", nft.uri, err);
-                        return null;
-                    }
-                }
-            );
-
-            setNFTs(resolved.filter(Boolean));
-
-        } catch (error) {
-            console.error("Error in abc()", error);
+            const sorted = [..._nfts].sort((a, b) => Number(a.purchasedTime) - Number(b.purchasedTime))
+            const first15 = sorted.slice(0, 15);
+            setNFTs(first15);
+            console.log("nfts",first15);
         }
-    };
 
-    abc();
+        abc()
+    },[])
 
-}, [toggle, address]);
+
+    useEffect(() => {
+        if (!address) return;
+
+        const concurrencyLimit = 10;
+
+        // const runWithConcurrency = async (items, limit, task) => {
+        //     const results = [];
+        //     let index = 0;
+
+        //     const workers = Array(limit).fill(null).map(async () => {
+        //         while (index < items.length) {
+        //             const i = index++;
+        //             try {
+        //                 results[i] = await task(items[i], i);
+        //             } catch (e) {
+        //                 console.error(e);
+        //                 results[i] = null;
+        //             }
+        //         }
+        //     });
+
+        //     await Promise.all(workers);
+        //     return results;
+        // };
+
+        const abc = async () => {
+
+
+
+            let CreateList = await helperContract.methods.getNFTListed(address).call()
+
+
+            let lastCreateTime
+            if (CreateList.length === 0) {
+
+                lastCreateTime = Package.packageUpgraded//await helperContract.methods.userJoiningTime(address).call();
+            } else {
+                let lastCreate = CreateList[CreateList.length - 1];
+                lastCreateTime = await helperContract.methods.idPurchasedtime(lastCreate.id).call();
+            }
+
+
+
+            const currentTime = Math.floor(Date.now() / 1000);
+            const timeDiff = currentTime - lastCreateTime;
+            let requiredDiff;
+
+
+
+
+
+            switch (Package.id) {   // <-- The condition goes here
+                case "1":         // checks if option === 1
+                    requiredDiff = 9 * 24 * 60 * 60; // 7 days in seconds
+                    break;
+                case "2":         // checks if option === 2
+                    requiredDiff = 6 * 24 * 60 * 60; // 7 days in seconds
+                    break;
+                case "3":         // checks if option === 3
+                    requiredDiff = 5 * 24 * 60 * 60; // 7 days in seconds
+                    break;
+                case "4":         // checks if option === 3
+                    requiredDiff = 2 * 24 * 60 * 60; // 7 days in seconds
+                    break;
+                case "5":         // checks if option === 3
+                    requiredDiff = 1 * 24 * 60 * 60; // 7 days in seconds
+                    break;
+                default:        // runs if none of the above match
+                    console.log("Invalid option");
+            }
+
+
+            if (timeDiff >= requiredDiff && Package.id != "0") {
+                setCreateActive(true);
+                navigate("/create");
+                toast.success("Please create an NFT before proceeding.");
+                return
+            }
+
+
+
+
+
+            try {
+                // 1️⃣ User limit time
+                const _userTradingLimitTime =
+                    await helperContract.methods.userTradingLimitTime(address).call();
+                setUserTradingLimitTime(_userTradingLimitTime);
+
+                                // 2️⃣ Get NFTs
+                
+                // const _nfts = []//await fetcherContract.methods.getNFTs().call();
+                // console.log("object",_nfts);
+
+                // const _filteredNFTs = _nfts.filter(
+                //     v =>
+                //         v._owner !== "0x0000000000000000000000000000000000000000" &&
+                //         v._owner.toLowerCase() !== address.toLowerCase()
+                // );
+
+                // // 3️⃣ Prepare IDs array
+                // const ids = _filteredNFTs.map(n => n.id);
+
+                // // 4️⃣ Single RPC call to Fetcher contract 🚀
+                // const allPurchasedTimes = await fetcherContract.methods
+                //     .getAllPurchasedTimes(ids)
+                //     .call();
+
+                // const resolved = _filteredNFTs.map((nft, i) => {
+                //     return ({
+                //         id: nft.id,
+                //         price: nft.price ? formatEther(nft.price.toString()) : "0",
+                //         premium: nft.premium || false,
+                //         owner: nft._owner || "Unknown",
+                //         uri: nft.uri,
+                //         source: nft.source,
+                //         nftObject: nft,
+                //         purchasedTime: allPurchasedTimes[i] ?? "0"
+                //     })
+                // })
+
+                // 5️⃣ Fetch metadata with concurrency limit (fast)
+                // const resolved = await runWithConcurrency(
+                //     _filteredNFTs,
+                //     concurrencyLimit,
+                //     async (nft, i) => {
+                //         try {
+                //             const res = await fetch(nft.uri);
+                //             const meta = await res.json();
+
+                //             return {
+                //                 id: nft.id,
+                //                 name: meta?.name || "Unnamed NFT",
+                //                 description: meta?.description || "",
+                //                 image: meta?.image || "",
+                //                 price: nft.price ? formatEther(nft.price.toString()) : "0",
+                //                 premium: nft.premium || false,
+                //                 creator: meta?.creator || "Unknown",
+                //                 owner: nft._owner || "Unknown",
+                //                 uri: nft.uri,
+                //                 source: nft.source,
+                //                 nftObject: nft,
+                //                 purchasedTime: allPurchasedTimes[i] ?? "0"
+                //             };
+                //         } catch (err) {
+                //             console.error("Failed metadata", nft.uri, err);
+                //             return null;
+                //         }
+                //     }
+                // );
+
+//                setNFTs(resolved);
+
+            } catch (error) {
+                console.error("Error in abc()", error);
+            }
+        };
+
+        abc();
+
+    }, [toggle, address]);
+
+
 
 
     const isLoading = !nfts || !Package
@@ -325,8 +352,8 @@ useEffect(() => {
 
     const now = new Date().getTime() / 1000
 
-    const revisedLimitUtilized = 
-    now - Number(userTradingLimitTime) > 60 * 60 * 24 ? 0 : limitUtilized
+    const revisedLimitUtilized =
+        now - Number(userTradingLimitTime) > 60 * 60 * 24 ? 0 : limitUtilized
 
     const randomeNFTs = nfts
         ? [...nfts].sort((a, b) => a.purchasedTime - b.purchasedTime)
@@ -412,15 +439,15 @@ useEffect(() => {
                             </div>
                         </div>
                     </div>
-                    <TradingLimitTimer durationInSeconds={Number(userTradingLimitTime) + 60 * 60 * 24 - now >0?Number(userTradingLimitTime) + 60 * 60 * 24 - now :0} />
+                    <TradingLimitTimer durationInSeconds={Number(userTradingLimitTime) + 60 * 60 * 24 - now > 0 ? Number(userTradingLimitTime) + 60 * 60 * 24 - now : 0} />
                     <div class="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
                         {randomeNFTs.map((v, e) => {
-                            if (e < 15) {
+                            
                                 return (
                                     <NFT
                                         nft={v}
-                                        image={v.image}
-                                        name={v.name}
+                                        // image={v.image}
+                                        // name={v.name}
                                         index={v.id}
                                         toggle={toggle}
                                         setToggle={setToggle}
@@ -443,7 +470,7 @@ useEffect(() => {
                                     //     </div>
                                     // </div>
                                 )
-                            }
+                            
                         })
 
 

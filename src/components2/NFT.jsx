@@ -11,10 +11,10 @@ import toast from "react-hot-toast";
 import Spinner from "./Spinner";
 
 
-export const NFT = ({ nft, index, toggle, setToggle,revisedLimitUtilized,image,name }) => {
+export const NFT = ({ nft, index, toggle, setToggle,revisedLimitUtilized }) => {
   const config = useConfig()
-  // const [image, setImage] = useState()
-  // const [name, setName] = useState()
+  const [image, setImage] = useState()
+  const [name, setName] = useState()
   // const {  nfts  } = useSelector((state) => state.contract);
   const { address } = useAppKitAccount();
   const [loading, setLoading] = useState(false);
@@ -77,23 +77,23 @@ export const NFT = ({ nft, index, toggle, setToggle,revisedLimitUtilized,image,n
 
 
   const dispatch = useDispatch()
-  // useEffect(() => {
-  //   const abc = async () => {
+  useEffect(() => {
+    const abc = async () => {
 
 
-  //     const res = await axios.get(nft.uri)
+      const res = await axios.get(nft.uri)
 
 
-  //     if (nft._owner != "0x0000000000000000000000000000000000000000") {
-  //       setImage(res.data.image)
-  //       setName(res.data.name)
-  //     }
+      if (nft._owner != "0x0000000000000000000000000000000000000000") {
+        setImage(res.data.image)
+        setName(res.data.name)
+      }
 
-  //   }
+    }
 
-  //   abc()
+    abc()
 
-  // }, [])
+  }, [])
 
 
   const handleBuy2 = async (id) => {
@@ -193,7 +193,7 @@ export const NFT = ({ nft, index, toggle, setToggle,revisedLimitUtilized,image,n
           </div>
 
           <div className="text-2xl font-bold text-blue-600 mb-3">
-            ${Number(nft.price * 1.07).toFixed(2)}
+            ${Number(formatEther(nft.price) * 1.07).toFixed(2)}
           </div>
         </div>
 
