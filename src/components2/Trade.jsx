@@ -164,7 +164,7 @@ export default function Trade({ setCreateActive }) {
             const sorted = [..._nfts].sort((a, b) => Number(a.purchasedTime) - Number(b.purchasedTime))
             const first15 = sorted.slice(0, 15);
             setNFTs(first15);
-            console.log("nfts",first15);
+
         }
 
         abc()
@@ -354,6 +354,8 @@ export default function Trade({ setCreateActive }) {
 
     const revisedLimitUtilized =
         now - Number(userTradingLimitTime) > 60 * 60 * 24 ? 0 : limitUtilized
+
+
 
     const randomeNFTs = nfts
         ? [...nfts].sort((a, b) => a.purchasedTime - b.purchasedTime)
