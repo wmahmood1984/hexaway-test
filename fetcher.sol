@@ -15,7 +15,7 @@ interface IHelper {
         uint256 price;
         address _owner;
         string uri;
-        bool premium;
+        uint premium;
         uint256 utilized;
     }
 
@@ -32,7 +32,7 @@ contract DataFetcherUpgradeable is Initializable, UUPSUpgradeable, OwnableUpgrad
         uint256 price;
         address _owner;
         string uri;
-        bool premium;
+        uint premium;
         uint256 utilized;
         uint256 purchasedTime;
     }

@@ -2916,7 +2916,7 @@ export const mlmcontractaddress = //"0x431322e00c4F877F4B58D3e20b791b27b2E1BEd8"
 
 
 export const fetcherAddress = //"0x93e4A68CEDD7f7676C7e933eBE61F6416344D61E" // implementation 
-"0x944bEe12afb25E63bA8851649f3ac05d5AC35E44"
+"0xA40f05bEa6C7CA6559152EdE6119687c7960cE69"
 export const mlmcontractaddressImplementation =
 	"0x6337B82a7F7fdff5EDA67521d61827fc067E505F";
 

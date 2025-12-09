@@ -160,7 +160,7 @@ export default function Trade({ setCreateActive }) {
     useEffect(()=>{
         const abc = async () => {
             const _nfts = await fetcherContract.methods.getNFTs().call()
-
+            console.log("nfts",_nfts);
             const sorted = [..._nfts].sort((a, b) => Number(a.purchasedTime) - Number(b.purchasedTime))
             const first15 = sorted.slice(0, 15);
             setNFTs(first15);
