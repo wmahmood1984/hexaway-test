@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { init, readName } from '../slices/contractSlice';
 import { useAppKitAccount } from '@reown/appkit/react';
 import { useNavigate } from 'react-router-dom';
+import TawkChat from './Tawkchat';
 
 export default function Home() {
 
@@ -221,7 +222,8 @@ const { address } = useAppKitAccount();
                         </a>
                     </div>
                 </div>
-            </section>
+                <TawkChat/>
+           </section>
         </div ></div>
     )
 }
