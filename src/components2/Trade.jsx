@@ -13,7 +13,7 @@ export default function Trade({ setCreateActive }) {
 
     const { Package, myNFTs, packages, downlines, registered, admin, allowance, NFTQueBalance, limitUtilized, NFTque
 
-        , levelIncome,
+        , levelIncome,NFTMayBeCreated,
         referralIncome,
         tradingIncome, walletBalance, userTradingTime, timeLimit,
         status, error
@@ -243,7 +243,7 @@ export default function Trade({ setCreateActive }) {
             }
 
 
-            if (timeDiff >= requiredDiff && Package.id != "0") {
+            if (NFTMayBeCreated &&  timeDiff >= requiredDiff && Package.id != "0") {
                 setCreateActive(true);
                 navigate("/create");
                 toast.success("Please create an NFT before proceeding.");
