@@ -494,7 +494,7 @@ export default function Dashboard() {
                                             Number(formatEther(User.data.packageLevelBonus)) +
                                             Number(formatEther(User.data.tradingReferralBonus)) +
                                             Number(formatEther(User.data.packageReferralBonus)) +
-                                            Number(formatEther(User.data.selfTradingProfit)))
+                                            Number(formatEther(User.data.selfTradingProfit))/3)
                                         }
                                     </div>
                                 </div>
