@@ -163,8 +163,12 @@ export default function Dashboard() {
 
     const durationInSeconds = Math.max(
         0,
-        Number(User.data.packageUpgraded) + Number(packageExpiryLimit) - Math.floor(Date.now() / 1000)
+        Number(User.data.packageUpgraded) + Number(60*60*24*45) - Math.floor(Date.now() / 1000)
     )
+
+        console.log("dashboard", {
+        durationInSeconds, User:User.data.packageUpgraded, packageExpiryLimit
+    });
 
     const pendingTrades = tickets && tickets.filter(t => !t.filled)
 
@@ -184,9 +188,7 @@ export default function Dashboard() {
             ? 1
             : "Not in Queue";
 
-    console.log("dashboard", {
-        User
-    });
+
 
 
 
