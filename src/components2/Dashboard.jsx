@@ -477,7 +477,7 @@ export default function Dashboard() {
                                     </div>
                                     <h4 class="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Self Trading Profit</h4>
                                     <div id="referral-income" class="text-xl sm:text-2xl font-bold text-purple-600">
-                                        Hexa {formatWithCommas(formatEther(User.data.selfTradingProfit))}
+                                        Hexa {formatWithCommas(formatEther(User.data.selfTradingProfit)/3)}
                                     </div>
                                 </div>
                                 <div class="bg-white/95 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl p-4 sm:p-6 text-center">
