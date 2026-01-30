@@ -6,13 +6,73 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+interface Ihelper {
+    struct UserDetails {
+        uint userJoiningTime;
+        uint userTradingTime;
+        uint userTradingLimitTime;
+        uint userLimitUtilized;
+        uint tradingLevelBonus;
+        uint packageLevelBonus;
+        uint tradeXHours;
+        uint tradingReferralBonus;
+        uint packageReferralBonus;
+        uint selfTradingProfit;
+        uint packageUpgraded;
+        uint future1;
+        uint future2;
+        uint tradeYHours;
+    }
+
+    struct User {
+        address referrer;
+        address parent;
+        address[] children;
+        address[] indirect;
+        address[] direct;
+        bool registered;
+        UserDetails data;
+    }
+
+    struct NFT {
+        uint256 id;
+        uint256 price;
+        address _owner;
+        string uri;
+        uint premium;
+        uint256 utilized;
+    }
+
+    struct Package {
+       uint id;
+        uint price;
+        uint time;
+        uint team;
+        uint limit;
+        uint levelUnlock;
+        uint8 future;
+    }
+
+    function userPackage(address user) external view returns (Package memory);
+    function getUser(address _user) external view returns (User memory);
+    function getUplines(address user) external view returns (address[] memory);
+}
+
+interface IpriceOracle {
+    function price() external view returns (uint256);
+}
+
 contract Staking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     IERC20 public HEXA;
     IERC20 public USDT;
+    IpriceOracle public priceOracle;
+    Ihelper public helperv2;
     uint public APR;
     uint public stakeAmount;
     uint public stakeDone;
     uint public stakeDoneTime;
+    address public incomeWallet;
+    address public buySale;
 
     struct Stake {
         uint id;
@@ -36,19 +96,34 @@ contract Staking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     uint public claimIndex;
     uint public totalStaked;
     uint public totalEarned;
+    address public feeder;
+ 
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
 
-    function initialize(address _hexa, address _usdt) public initializer {
+    function initialize(
+        address _hexa,
+        address _usdt,
+        address _priceOracle,
+        address _incomeWallet,
+        address _helperv2,
+        address _buySale
+
+    ) public initializer {
         __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
         HEXA = IERC20(_hexa);
         USDT = IERC20(_usdt);
         stakeAmount = 50 ether;
         APR = 100;
+        priceOracle = IpriceOracle(_priceOracle);
+        incomeWallet = _incomeWallet;
+        helperv2 = Ihelper(_helperv2);
+        feeder = address(this);
+        buySale = _buySale;
     }
 
     function _authorizeUpgrade(
@@ -59,8 +134,6 @@ contract Staking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         APR = _apr;
         stakeAmount = _stakeAmount;
     }
-
-    
 
     function stake() public {
         if (block.timestamp > stakeDoneTime + 24 hours) {
@@ -76,26 +149,107 @@ contract Staking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
             USDT.allowance(msg.sender, address(this)) >= stakeAmount,
             "Invalid stake amount"
         );
-        USDT.transferFrom(msg.sender, address(this), stakeAmount);
+
+        uint hexaConverted = stakeAmount *10**18  / priceOracle.price();
+        USDT.transferFrom(msg.sender, buySale, stakeAmount * 70/100);
+        USDT.transferFrom(msg.sender, incomeWallet, stakeAmount * 30/100);
         stakeMapping[stakeIndex] = Stake({
             id: stakeIndex,
             user: msg.sender,
-            amount: stakeAmount,
+            amount: hexaConverted,
             time: block.timestamp,
             lastClaimTime: block.timestamp,
             claimable: 0,
             amountClaimed: 0
         });
 
+        uint amount = hexaConverted * 10/100;
+
+        HEXA.transfer(incomeWallet, (amount * 20) / 100);
+
+        Ihelper.User memory user = helperv2.getUser(msg.sender);
+        address up = user.referrer;
+        Ihelper.User memory Referrer = helperv2.getUser(up);
+
+
+
+        if (
+           incomeEligible(Referrer, up)
+
+            ) {
+            HEXA.transfer(up, (amount * 20) / 100);
+        }
+
+        address[] memory uplines = helperv2.getUplines(msg.sender);
+
+        processLevelIncome(uplines, amount * 60 /100);
+
         stakeIndex++;
-        totalStaked+=stakeAmount;
+        totalStaked += stakeAmount;
+    }
+
+    function incomeEligible(
+        Ihelper.User memory _user,
+        address _up
+    ) public view returns (bool) {
+        return
+            block.timestamp - _user.data.packageUpgraded <= 60 *60*24*  45 &&
+            helperv2.userPackage(_up).id > 0 &&
+            block.timestamp - _user.data.userTradingTime <= 60 * 60 * 24*30;
+    }
+
+    function processLevelIncome(
+        address[] memory _uplines,
+        uint _amount
+    ) internal {
+        uint paidCount = 0;
+        uint perLevelAmount = _amount / 25;
+
+        for (uint i = 0; i < _uplines.length; i++) {
+            address up = _uplines[i];
+            Ihelper.User memory upline = helperv2.getUser(up);
+            // Level number is 1-based
+
+            // Cache active directs (important for gas + correctness)
+
+            // Level unlocked via active directs
+            bool eligible = upline.direct.length >= 2;
+
+            if (eligible && incomeEligible(upline, up)) {
+                HEXA.transfer(up, perLevelAmount);
+
+                paidCount++;
+            }
+        }
+
+        // Remaining amount goes to admin
+
+        uint adminAmount = _amount - (perLevelAmount * paidCount);
+
+        if (adminAmount > 0) {
+            HEXA.transfer(incomeWallet, adminAmount);
+        }
+    }
+
+    function checkActive(
+        address[] memory _users
+    ) public view returns (uint count) {
+        for (uint i = 0; i < _users.length; i++) {
+            Ihelper.User memory user = helperv2.getUser(_users[i]);
+            if (
+                block.timestamp - user.data.packageUpgraded <= 60  * 45
+            ) {
+                count++;
+            }
+        }
     }
 
     function getAmounts(uint _id) public view returns (uint claimable) {
         uint amount = stakeMapping[_id].amount;
-        uint daysPassed = (block.timestamp - stakeMapping[_id].time) /
-            (60 * 60 * 24) > 150 ? 150 : (block.timestamp - stakeMapping[_id].time) /
-            (60 * 60 * 24);
+        uint daysPassed = (block.timestamp - stakeMapping[_id].time) / (60*60*24) >
+            150
+            ? 150
+            : (block.timestamp - stakeMapping[_id].time) / (60*60*24);
         claimable = (amount * APR * daysPassed) / 10000;
     }
 
@@ -115,7 +269,7 @@ contract Staking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         claimMapping[claimIndex] = (Claim(block.timestamp, user, claimable));
         stakeMapping[_id].lastClaimTime = block.timestamp;
         claimIndex++;
-        totalEarned+=amount;
+        totalEarned += amount;
     }
 
     function getTicketsByUser(
@@ -178,4 +332,7 @@ contract Staking is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
         return userStake;
     }
+
+
+
 }

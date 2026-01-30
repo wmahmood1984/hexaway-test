@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { stakingContractV2, stakinvV2ContractR, USDTContractR } from '../../config'
+import { HexaContract, stakingContractV2, stakingV2Add, stakinvV2ContractR, USDTContract, USDTContractR } from '../../config'
 import { useSelector } from 'react-redux'
 import { executeContract, formatWithCommas, secondsToDHMSDiff, secondsToDMY } from '../../utils/contractExecutor'
 import { formatEther, parseEther } from 'ethers'
@@ -17,6 +17,7 @@ export default function Staking() {
     const [totalStaked, setTotalStaked] = useState(0)
     const [totalEarned, setTotalEarned] = useState(0)
     const [mystake, setMyStake] = useState()
+    const [stakeAmount, setStakeAmount] = useState(0)
     const [loading, setLoading] = useState(false)
 
     const [myClaims, setMyClaims] = useState()
@@ -47,20 +48,66 @@ export default function Staking() {
         const _myClaims = await stakinvV2ContractR.methods.getClaimsByUser(address).call()
         setMyStake(_mystake)
         setMyClaims(_myClaims)
+
+        const _stakeAmount = await stakinvV2ContractR.methods.stakeAmount().call()
+        setStakeAmount(formatWithCommas(formatEther(_stakeAmount)))
     }
 
 
-    const { stake, stakeSimError } = useStake(parseEther("50"))
+        const onStakeClick = async (trade, id) => {
+            const stakeAmount = 50
 
-    const onStakeClick = async () => {
-        try {
-            await stake()
-            toast.success("Stake successful")
-            abc()
-        } catch (err) {
-            toast.error(err.shortMessage || err.message || stakeSimError)
+            if (
+                Number(USDTBalance) < stakeAmount
+            ) {
+                toast.error("Insufficient USDT Balance")
+                return
+            }
+
+            try {
+                setLoading(true);
+                await executeContract({
+                    config,
+                    functionName: "approve",
+                    args: [stakingV2Add, parseEther(stakeAmount.toString())],
+                    contract: USDTContract,
+                    onSuccess: () => onStakeClick1(),
+                    onError: () => {
+                        setLoading(false);
+                        toast.error("Approval failed");
+                    }
+                });
+
+            } catch (err) {
+                setLoading(false);
+                toast.error("Unexpected error occurred");
+                console.error(err);
+            }
+        };
+
+
+
+
+        const onStakeClick1 = async () => {
+            await executeContract({
+                config,
+                functionName: "stake",
+                args: [],
+                onSuccess: (txHash, receipt) => {
+                    console.log("🎉 Tx Hash:", txHash);
+                    console.log("🚀 Tx Receipt:", receipt);
+                    toast.success("Stake done successfully")
+                    abc()
+                    setLoading(false)
+                },
+                contract: stakingContractV2,
+                onError: (err) => {
+                    console.error("🔥 Error in register:", err);
+                    toast.error("Transaction failed:", reason)
+                    setLoading(false)
+                },
+            });
         }
-    }
 
 
     const handleClaim = async (id) => {
@@ -72,8 +119,8 @@ export default function Staking() {
             onSuccess: (txHash, receipt) => {
                 console.log("🎉 Tx Hash:", txHash);
                 console.log("🚀 Tx Receipt:", receipt);
-                toast.success("Package Bought Succes")
-
+                toast.success("Claim Succesful")
+                abc()
                 setLoading(false)
             },
             contract: stakingContractV2,
@@ -106,7 +153,7 @@ export default function Staking() {
         );
     }
 
-    console.log("staked", mystake)
+    console.log("staked", myClaims)
 
     return (
         <div>
@@ -231,7 +278,7 @@ export default function Staking() {
                                     <div style={{ background: "#ffffff", padding: "12px", borderRadius: "12px", marginBottom: "16px" }}>
                                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
                                             <span style={{ fontSize: "clamp(11px, 2.5vw, 12px)", color: "#0f172a", opacity: 0.7 }}>Stake:</span>
-                                            <span style={{ fontSize: "clamp(12px, 3vw, 14px)", color: "#0f172a", fontWeight: 700 }}>5000 HEXA</span>
+                                            <span style={{ fontSize: "clamp(12px, 3vw, 14px)", color: "#0f172a", fontWeight: 700 }}>{stakeAmount / hexaPrice} HEXA</span>
                                         </div>
                                         {/* <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
                                             <span style={{ fontSize: "clamp(11px, 2.5vw, 12px)", color: "#0f172a", opacity: 0.7 }}>Duration:</span>
@@ -282,10 +329,10 @@ export default function Staking() {
                                                         <span style={{ fontSize: "32px" }}>{icon}</span>
                                                         <div>
                                                             <div style={{ fontSize: "16px", color: "#0f172a", fontWeight: "900" }}>
-                                                                $ {formatWithCommas(formatEther(v.amount))} Staking
+                                                                $ {formatWithCommas(formatEther(v.amount) * hexaPrice)} Staking
                                                             </div>
                                                             <div style={{ fontSize: "12px", color: "#0f172a", opacity: "0.7" }}>
-                                                                {150} days 
+                                                                {150} days
                                                             </div>
                                                         </div>
                                                     </div>
@@ -401,11 +448,11 @@ export default function Staking() {
                                                 </div>
                                                 <div style={{ textAlign: "right", marginTop: "8px" }}>
                                                     <div style={{ fontSize: "18px", color: "#06b6d4", fontWeight: 900 }}>
-                                                        +${formatWithCommas(formatEther(v.amountClaimed))} HEXA
+                                                        +{formatWithCommas(formatEther(v.amountClaimed))} HEXA
                                                     </div>
-                                                    <div style={{ fontSize: "12px", color: "${statusColor}", fontWeight: 700 }}>
+                                                    {/* <div style={{ fontSize: "12px", color: "${statusColor}", fontWeight: 700 }}>
                                                         ${"statusText"}
-                                                    </div>
+                                                    </div> */}
                                                 </div>
                                             </div>
                                             <div style={{ fontSize: "10px", color: "#0f172a", opacity: 0.6 }}>
