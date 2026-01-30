@@ -166,8 +166,8 @@ export default function Dashboard() {
         Number(User.data.packageUpgraded) + Number(60*60*24*45) - Math.floor(Date.now() / 1000)
     )
 
-        console.log("dashboard", {
-        durationInSeconds, User:User.data.packageUpgraded, packageExpiryLimit
+console.log("dashboard", {
+        tickets
     });
 
     const pendingTrades = tickets && tickets.filter(t => !t.filled)
@@ -176,7 +176,7 @@ export default function Dashboard() {
         tickets
             ? pendingTrades
                 .filter(t => t.user.toLowerCase() === address.toLowerCase())
-                .sort((a, b) => Number(b.id) - Number(a.id)) // latest first
+                .sort((a, b) => Number(a.id) - Number(b.id)) // latest first
             : [];
 
     const latestTrade = tickets &&  sortedPositions.length > 0 ? sortedPositions[0] : null;

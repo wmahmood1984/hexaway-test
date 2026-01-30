@@ -2228,7 +2228,7 @@ contract Helperv2 is
 
         emit Incomes(block.timestamp, (amount * 25) / 1000, 0, referrer, 0, 0);
         users[referrer].data.tradingReferralBonus += (amount * 25) / 1000;
-        users[msg.sender].data.userLimitUtilized++;
+
         users[msg.sender].data.userTradingTime = block.timestamp;
         users[msg.sender].data.tradeXHours += amount;
 
@@ -2246,10 +2246,11 @@ contract Helperv2 is
         }
 
         require(
-            users[msg.sender].data.userLimitUtilized <=
+            users[msg.sender].data.userLimitUtilized <
                 userPackage[msg.sender].limit,
             "2"
         );
+                users[msg.sender].data.userLimitUtilized++;
         address[] memory _uplines = getUplines(msg.sender);
 
         if (_uplines.length == 25) {
