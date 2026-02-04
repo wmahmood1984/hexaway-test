@@ -68,6 +68,8 @@ export default function Trade({ setCreateActive }) {
         // 1️⃣ Check package expiry
         const packageValid = nowSec - Number(User.data.packageUpgraded) <= Package.time;
 
+
+
         // 2️⃣ Calculate remaining trading limit
         const remainingLimit = Number(Package.limit) - Number(revisedLimitUtilized);
 
@@ -75,12 +77,12 @@ export default function Trade({ setCreateActive }) {
         const nftValue = 6 * 1 / Number(price)
 
         // 4️⃣ Now check both conditions sequentially
-        if (!packageValid) {
-            return {
-                cond: false,
-                msg: "Your package is expired.",
-            };
-        }
+        // if (!packageValid) {
+        //     return {
+        //         cond: false,
+        //         msg: "Your package is expired.",
+        //     };
+        // }
         console.log("object", walletBalance, nftValue, price);
 
 
