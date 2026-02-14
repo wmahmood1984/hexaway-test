@@ -233,17 +233,18 @@ export default function User() {
 
     
     const handleCancel = async (id, type) => {
-        console.log("cancel",id)
+        console.log("cancel",id,type)
+        var _id = type? Number(id)-1 : Number(id)-2
         await executeContract({
             config,
             functionName: "cancelOrder",
-            args: [Number(id), type],
+            args: [Number(_id), type],
             onSuccess: (txHash, receipt) => {
                 console.log("🎉 Tx Hash:", txHash);
                 console.log("🚀 Tx Receipt:", receipt);
                 dispatch(readName({ address: receipt.from }));
                 toast.success("Order Cancelled Successfully")
-                setLoading(false)
+                setLoading(prev=> !prev)
             },
             contract: P2PContract,
             onError: (err) => {
