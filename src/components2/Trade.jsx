@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { executeContract, formatWithCommas, secondsToDMY } from '../utils/contractExecutor';
 import { formatEther, parseEther } from 'ethers';
-import { bulkAddAbi, bulkContractAdd, fetcherAbi, fetcherAddress, fetcherHelperv2, fetcherV2Abi, helperAbi, helperAddress, helperContractV2, helperv2, helperv2Abi, HexaContract, priceOracleContractR, testweb3, web3 } from '../config';
+import { bulkAdd, bulkAddAbi, bulkContractAdd, fetcherAbi, fetcherAddress, fetcherHelperv2, fetcherV2Abi, helperAbi, helperAddress, helperContractV2, helperv2, helperv2Abi, HexaContract, priceOracleContractR, testweb3, web3 } from '../config';
 import { NFT } from './NFT';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppKitAccount } from '@reown/appkit/react';
@@ -87,7 +87,7 @@ export default function Trade({ setCreateActive }) {
 
 
 
-        if (remainingLimit == 0) {
+        if (remainingLimit == 0 && address.toLowerCase() != bulkAdd.toLowerCase()) {
             return {
                 cond: false,
                 msg: "Your trade limit is exceeding.",
