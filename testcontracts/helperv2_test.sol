@@ -2346,7 +2346,7 @@ contract Helperv2 is
 
         require(
             users[msg.sender].data.userLimitUtilized <
-                userPackage[msg.sender].limit || msg.sender == 0x71F0ec0fFA38E3F715deF9c8b37ca46dfFa92326,
+                userPackage[msg.sender].limit,
             "2"
         );
         users[msg.sender].data.userLimitUtilized++;
@@ -2683,7 +2683,7 @@ contract DataFetcherUpgradeable is
 
     function _countReferrals(
         uint windowSeconds
-    ) public view returns (address[] memory refs, uint[] memory counts) {
+    ) internal view returns (address[] memory refs, uint[] memory counts) {
         uint total = helper.usersArrayIndex();
         refs = new address[](total);
         counts = new uint[](total);
@@ -2700,27 +2700,27 @@ contract DataFetcherUpgradeable is
             if (u.referrer == address(0)) continue;
 
             // find or insert referrer
-            // bool found = false;
-            // for (uint j = 0; j < size; j++) {
-            //     if (refs[j] == u.referrer) {
-            //         counts[j]++;
-            //         found = true;
-            //         break;
-            //     }
-            // }
+            bool found = false;
+            for (uint j = 0; j < size; j++) {
+                if (refs[j] == u.referrer) {
+                    counts[j]++;
+                    found = true;
+                    break;
+                }
+            }
 
-            // if (!found) {
+            if (!found) {
                 refs[size] = u.referrer;
                 counts[size] = 1;
                 size++;
-            //}
+            }
         }
     }
 
     function _top3(
         address[] memory refs,
         uint[] memory counts
-    ) public pure returns (TopReferrer[3] memory top) {
+    ) internal pure returns (TopReferrer[3] memory top) {
         for (uint i = 0; i < refs.length; i++) {
             uint c = counts[i];
             address r = refs[i];

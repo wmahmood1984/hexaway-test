@@ -6,7 +6,7 @@ import { executeContract, extractRevertReason, formatAddress, formatWithCommas }
 import { formatEther } from 'ethers';
 import toast from 'react-hot-toast';
 import { init, readName } from '../slices/contractSlice';
-import { erc20abi, erc20Add, fetcherHelperv2, fetcherV2Abi, helperContractV2, helperv2, helperv2Abi, HexaContract, hexaTokenAdd, mlmcontractaddress, packageKeys, usdtContract, web3 } from '../config';
+import { erc20abi, erc20Add, fetcherHelperv2, fetcherV2Abi, gameContractR, helperContractV2, helperv2, helperv2Abi, HexaContract, hexaTokenAdd, mlmcontractaddress, packageKeys, usdtContract, web3 } from '../config';
 import CountdownTimer from './Timer';
 import Spinner from './Spinner';
 import HexawayPackages from './HexawayPackages';
@@ -14,6 +14,7 @@ import CountdownTimer2 from './Timer2';
 import CountdownTimer3 from './Timer3';
 import IncomeBlockTimer from './Timer3';
 import { Link } from 'react-router-dom';
+import SchemeIncomes from './SchemeIncomes';
 
 export default function Dashboard() {
 
@@ -31,6 +32,20 @@ export default function Dashboard() {
     const [activeTicketIndex, setActiveTicketIndex] = useState(0);
     const fetcherContract = new web3.eth.Contract(fetcherV2Abi, fetcherHelperv2)
     const helperV2Contract = new web3.eth.Contract(helperv2Abi, helperv2)
+    
+    const [dailyStarSponsorReward, setDailyStarSponsorReward] = useState(0);
+    const [weeklyStarSponsorReward, setWeeklyStarSponsorReward] = useState(0);
+    const [monthlyStarSponsorReward, setMonthlyStarSponsorReward] = useState(0);
+    const [dailyProTraderReward, setDailyProTraderReward] = useState(0);
+    const [weeklyProTraderReward, setWeeklyProTraderReward] = useState(0);
+    const [monthlyProTraderReward, setMonthlyProTraderReward] = useState(0);
+
+    const [dailyReferralInfo, setDailyReferralInfo] = useState();
+    const [weeklyReferralInfo, setWeeklyReferralInfo] = useState();
+    const [monthlyReferralInfo, setMonthlyReferralInfo] = useState({});
+    const [dailyBidderInfo, setDailyBidderInfo] = useState();
+    const [weeklyBidderInfo, setWeeklyBidderInfo] = useState();
+    const [monthlyBidderInfo, setMonthlyBidderInfo] = useState();
 
     useEffect(() => {
 
@@ -40,6 +55,33 @@ export default function Dashboard() {
 
             const _activeTicketIndex = await helperV2Contract.methods.activeTicketIndex().call()
             setActiveTicketIndex(_activeTicketIndex)
+
+            const _dailyStarSponsorReward = await gameContractR.methods.userRewardTypeAmount(address,4).call()
+            setDailyStarSponsorReward(_dailyStarSponsorReward)
+            const _weeklyStarSponsorReward = await gameContractR.methods.userRewardTypeAmount(address,5).call()
+            setWeeklyStarSponsorReward(_weeklyStarSponsorReward)
+            const _monthlyStarSponsorReward = await gameContractR.methods.userRewardTypeAmount(address,6).call()
+            setMonthlyStarSponsorReward(_monthlyStarSponsorReward)
+            const _dailyProTraderReward = await gameContractR.methods.userRewardTypeAmount(address,1).call()
+            setDailyProTraderReward(_dailyProTraderReward)
+            const _weeklyProTraderReward = await gameContractR.methods.userRewardTypeAmount(address,2).call()
+            setWeeklyProTraderReward(_weeklyProTraderReward)
+            const _monthlyProTraderReward = await gameContractR.methods.userRewardTypeAmount(address,3).call()
+            setMonthlyProTraderReward(_monthlyProTraderReward)
+
+            const _dailyBidderInfo = await gameContractR.methods.rewardInfo(1).call()
+            setDailyBidderInfo(_dailyBidderInfo)
+            const _weeklyBidderInfo = await gameContractR.methods.rewardInfo(2).call()
+            setWeeklyBidderInfo(_weeklyBidderInfo)
+            const _monthlyBidderInfo = await gameContractR.methods.rewardInfo(3).call()
+            setMonthlyBidderInfo(_monthlyBidderInfo)
+            const _dailyReferralInfo = await gameContractR.methods.rewardInfo(4).call()
+            setDailyReferralInfo(_dailyReferralInfo)
+            const _weeklyReferralInfo = await gameContractR.methods.rewardInfo(5).call()
+            setWeeklyReferralInfo(_weeklyReferralInfo)
+            const _monthlyReferralInfo = await gameContractR.methods.rewardInfo(6).call()
+            setMonthlyReferralInfo(_monthlyReferralInfo)
+
         }
 
         abc()
@@ -90,7 +132,7 @@ export default function Dashboard() {
 
         const contract = new web3.eth.Contract(erc20abi, hexaTokenAdd)
         const balance = await contract.methods.balanceOf(address).call();
-        const eligible = await helperV2Contract.methods.checkEligibility(address,pkg.id).call()
+        const eligible = await helperV2Contract.methods.checkEligibility(address, pkg.id).call()
         const User = await helperV2Contract.methods.getUser(address).call()
         console.log("object", formatEther(balance), formatEther(pkg.price));
         if (Number(formatEther(balance)) < Number(formatEther(pkg.price) * 100)) {
@@ -141,8 +183,13 @@ export default function Dashboard() {
 
     const now = new Date().getTime()
 
+       console.log("dashboard", {
+        Package, User, packages
+    });
 
-    const isLoading = !Package || !User || !packages;
+
+    const isLoading = !Package || !User || !packages 
+  
 
     const levelBlockSeconds = Number(incomeBlockTime) + 60 * 60 * 48 - now / 1000 < 0 ? 0 : Number(incomeBlockTime) + 60 * 60 * 48 - now / 1000
 
@@ -163,12 +210,8 @@ export default function Dashboard() {
 
     const durationInSeconds = Math.max(
         0,
-        Number(User.data.packageUpgraded) + Number(60*60*24*45) - Math.floor(Date.now() / 1000)
+        Number(User.data.packageUpgraded) + Number(packageExpiryLimit) - Math.floor(Date.now() / 1000)
     )
-
-console.log("dashboard", {
-        tickets
-    });
 
     const pendingTrades = tickets && tickets.filter(t => !t.filled)
 
@@ -176,19 +219,19 @@ console.log("dashboard", {
         tickets
             ? pendingTrades
                 .filter(t => t.user.toLowerCase() === address.toLowerCase())
-                .sort((a, b) => Number(a.id) - Number(b.id)) // latest first
+                .sort((a, b) => Number(b.id) - Number(a.id)) // latest first
             : [];
 
-    const latestTrade = tickets &&  sortedPositions.length > 0 ? sortedPositions[0] : null;
+    const latestTrade = tickets && sortedPositions.length > 0 ? sortedPositions[0] : null;
 
-    const position = tickets && 
+    const position = tickets &&
         latestTrade && Number(latestTrade.id) > Number(activeTicketIndex)
-            ? Number(latestTrade.id) - Number(activeTicketIndex)
-            : Number(latestTrade?.id) == Number(activeTicketIndex)
+        ? Number(latestTrade.id) - Number(activeTicketIndex)
+        : Number(latestTrade?.id) == Number(activeTicketIndex)
             ? 1
             : "Not in Queue";
 
-
+ 
 
 
 
@@ -204,35 +247,36 @@ console.log("dashboard", {
                             <p class="text-indigo-100 text-sm sm:text-base">Manage your NFT portfolio and earnings</p>
 
 
-<div className="flex justify-center mt-10">
-  <div className="flex items-center gap-x-14 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-4 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 font-medium shadow-lg">
+                            <div className="flex justify-center mt-10">
+                                <div className="flex items-center gap-x-14 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-4 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 font-medium shadow-lg">
 
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-    <Link to="/history" className="whitespace-nowrap">
-      Transaction History
-    </Link>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <Link to="/history" className="whitespace-nowrap">
+                                        Transaction History
+                                    </Link>
 
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-    <Link to="/tree" className="whitespace-nowrap">
-      Team Tree
-    </Link>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <Link to="/tree" className="whitespace-nowrap">
+                                        Team Tree
+                                    </Link>
 
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-    <Link to="/teamview" className="whitespace-nowrap">
-      Team View
-    </Link>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <Link to="/teamview" className="whitespace-nowrap">
+                                        Team View
+                                    </Link>
 
-  </div>
-</div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
@@ -494,7 +538,7 @@ console.log("dashboard", {
                                     </div>
                                     <h4 class="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Self Trading Profit</h4>
                                     <div id="referral-income" class="text-xl sm:text-2xl font-bold text-purple-600">
-                                        Hexa {formatWithCommas(formatEther(User.data.selfTradingProfit)/3)}
+                                        Hexa {formatWithCommas(formatEther(User.data.selfTradingProfit))}
                                     </div>
                                 </div>
                                 <div class="bg-white/95 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl p-4 sm:p-6 text-center">
@@ -511,8 +555,82 @@ console.log("dashboard", {
                                             Number(formatEther(User.data.packageLevelBonus)) +
                                             Number(formatEther(User.data.tradingReferralBonus)) +
                                             Number(formatEther(User.data.packageReferralBonus)) +
-                                            Number(formatEther(User.data.selfTradingProfit))/3)
+                                            Number(formatEther(User.data.selfTradingProfit)))
                                         }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                                <div class="bg-white/95 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl p-4 sm:p-6 text-center">
+                                    <div class="flex justify-center mb-2">
+                                        <img
+                                            src="tradingprofit.png"
+                                            alt="Self Trading"
+                                            class="w-8 sm:w-10"
+                                        />
+                                    </div>
+                                    <h4 class="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Daily star Sponsor Reward</h4>
+                                    <div id="group-trading-bonus" class="text-xl sm:text-2xl font-bold text-green-600">
+                                        Hexa {formatWithCommas(formatEther(dailyStarSponsorReward))}
+                                    </div>
+                                </div>
+                                <div class="bg-white/95 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl p-4 sm:p-6 text-center">
+                                    <div class="text-2xl sm:text-3xl mb-2">
+                                        💰
+                                    </div>
+                                    <h4 class="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Weekly star Sponsor Reward</h4>
+                                    <div id="level-income" class="text-xl sm:text-2xl font-bold text-blue-600">
+                                        Hexa {formatWithCommas(formatEther(weeklyStarSponsorReward))}
+                                    </div>
+                                </div>
+                                <div class="bg-white/95 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl p-4 sm:p-6 text-center">
+                                    <div class="text-2xl sm:text-3xl mb-2">
+                                        📈
+                                    </div>
+                                    <h4 class="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Monthly star Sponsor Reward</h4>
+                                    <div id="referral-income" class="text-xl sm:text-2xl font-bold text-purple-600">
+                                        Hexa {formatWithCommas(formatEther(monthlyStarSponsorReward))}
+                                    </div>
+                                </div>
+                                <div class="bg-white/95 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl p-4 sm:p-6 text-center">
+                                    <div class="flex justify-center mb-2">
+                                        <img
+                                            src="SelfTrading.jpeg"
+                                            alt="Self Trading"
+                                            class="w-24 sm:w-28"
+                                        />
+                                    </div>
+                                    <h4 class="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Daily Pro Trader Reward</h4>
+                                    <div id="referral-income" class="text-xl sm:text-2xl font-bold text-purple-600">
+                                        Hexa {formatWithCommas(formatEther(dailyProTraderReward))}
+                                    </div>
+                                </div>
+                                <div class="bg-white/95 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl p-4 sm:p-6 text-center">
+                                    <div class="flex justify-center mb-2">
+                                        <img
+                                            src="NFTCreation.jpeg"
+                                            alt="Self Trading"
+                                            class="w-24 sm:w-28"
+                                        />
+                                    </div>
+                                    <h4 class="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Weekly Pro Trader Reward</h4>
+                                    <div id="referral-income" class="text-xl sm:text-2xl font-bold text-purple-600">
+                                        Hexa {formatWithCommas(formatEther(weeklyProTraderReward))}
+                                    </div>
+                                </div>
+                                <div class="bg-white/95 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl p-4 sm:p-6 text-center">
+                                    <div class="flex justify-center mb-2">
+                                        <img
+                                            src="TotalIncome.jpeg"
+                                            alt="Self Trading"
+                                            class="w-24 sm:w-28"
+                                        />
+                                    </div>
+                                    <h4 class="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Monthly Pro Trader Reward</h4>
+                                    <div id="referral-income" class="text-xl sm:text-2xl font-bold text-purple-600">
+                                        Hexa {formatWithCommas(Number(formatEther(monthlyProTraderReward)))}
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -619,6 +737,18 @@ console.log("dashboard", {
                             </div>
                         </div>
                     </div>
+
+ {
+   dailyReferralInfo && 
+                    <SchemeIncomes
+                    dailyBidderInfo={dailyBidderInfo}
+                    weeklyBidderInfo={weeklyBidderInfo}
+                    monthlyBidderInfo={monthlyBidderInfo}
+                    dailyReferralInfo={dailyReferralInfo}
+                    weeklyReferralInfo={weeklyReferralInfo}
+                    monthlyReferralInfo={monthlyReferralInfo}
+                    
+                    />}
                 </div>
             </div>
         </div>

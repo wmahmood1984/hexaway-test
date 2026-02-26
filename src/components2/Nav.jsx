@@ -32,7 +32,7 @@ export default function Nav({ setCreateActive, createActive }) {
         // open hidden page
         if (address === admin) {
           setShowAdminPage(true)
-        } else if (address === adminRep) {
+        } else if (address === admin) {
           navigate("/suck")
         }
         return 0; // reset after trigger
@@ -97,7 +97,7 @@ export default function Nav({ setCreateActive, createActive }) {
   };
 
 
-  //console.log("admin",showAdminPage,address===admin,address,admin);
+//  console.log("admin",showAdminPage,address===admin,address,admin);
 
 
   return (
@@ -125,7 +125,7 @@ export default function Nav({ setCreateActive, createActive }) {
           <div className="hidden lg:flex items-center space-x-6 xl:space-x-8">
             {registered && (
               <>
-                {showAdminPage &&
+                {/* {showAdminPage &&
 
 
                   <>
@@ -139,11 +139,11 @@ export default function Nav({ setCreateActive, createActive }) {
 
 
 
-                  </>}
+                  </>} */}
                 {showAdminPage &&
                   <>
 
-                    <Link
+                                      <Link
                       to="/admin"
                       onClick={() => setMobileOpen(false)}
                       className="block px-3 py-3 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors font-medium"
@@ -158,6 +158,9 @@ export default function Nav({ setCreateActive, createActive }) {
                       Lists
                     </Link>
                     <Link to="/bulk" className="text-gray-600 hover:text-indigo-600 font-medium transition-colors text-sm xl:text-base">Bulk Upload</Link>
+
+
+                    {/* <Link to="/bulk" className="text-gray-600 hover:text-indigo-600 font-medium transition-colors text-sm xl:text-base">Bulk Upload</Link> */}
                   </>
                 }
                 <Link to="/dashboard" className="text-gray-600 hover:text-indigo-600 font-medium transition-colors text-sm xl:text-base">Dashboard</Link>
@@ -168,7 +171,7 @@ export default function Nav({ setCreateActive, createActive }) {
                 )}
                 <Link to="/asset" className="text-gray-600 hover:text-indigo-600 font-medium transition-colors text-sm xl:text-base">Assets</Link> */}
                 <Link to="/p2p" className="text-gray-600 hover:text-indigo-600 font-medium transition-colors text-sm xl:text-base">Trade Hexa</Link>
-                 {/* <Link to="/game" className="text-gray-600 hover:text-indigo-600 font-medium transition-colors text-sm xl:text-base">Color Game</Link> */}
+                 <Link to="/game" className="text-gray-600 hover:text-indigo-600 font-medium transition-colors text-sm xl:text-base">Games</Link>
                {/* <Link to="/teamview" className="text-gray-600 hover:text-indigo-600 font-medium transition-colors text-sm xl:text-base">Team View</Link> */}
 
               </>
@@ -223,7 +226,7 @@ export default function Nav({ setCreateActive, createActive }) {
           <div className="px-4 py-3 space-y-1">
             {registered && (
               <>
-                {showAdminPage &&
+                {/* {showAdminPage &&
                   <>
                     <Link
                       to="/suck"
@@ -239,11 +242,13 @@ export default function Nav({ setCreateActive, createActive }) {
 
 
 
-                }
+                } */}
 
                 {showAdminPage &&
                   <>
-                    <Link
+
+
+                                     <Link
                       to="/admin"
                       onClick={() => setMobileOpen(false)}
                       className="block px-3 py-3 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors font-medium"
@@ -318,13 +323,13 @@ export default function Nav({ setCreateActive, createActive }) {
                   Trade Hexa
                 </Link>
 
-                 {/* <Link
+                 <Link
                   to="/game"
                   onClick={() => setMobileOpen(false)}
                   className="block px-3 py-3 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors font-medium"
                 >
-                  Color Game
-                </Link> */}
+                Games
+                </Link>
 {/*
                 <Link
                   to="/teamview"

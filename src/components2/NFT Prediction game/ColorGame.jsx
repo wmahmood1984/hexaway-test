@@ -1,0 +1,348 @@
+import React, { useState } from 'react'
+import './ColorGame.css'
+import RoundCountdown from './Countdown2'
+import toast from 'react-hot-toast'
+import { formatEther } from 'ethers'
+import { formatAddress, secondsToDMY } from '../../utils/contractExecutor'
+import DepositModal from './Modal'
+import { gameContract, resultKeys } from '../../config'
+import { all } from 'axios'
+
+
+export default function ColorGame({ colors, depositHistory, onSuccess, allResults, config, executeContract, hexaBalance, showDeposit, price, myBids, time, setShowDeposit, depositBalance, remaining, serverStatus, setTime, amount, setAmount, handleClick }) {
+    const [page, setPage] = useState(1)
+    const [showLive, setShowLive] = useState(false)
+    const [showList, setShowList] = useState("my")
+    const pageSize = 5;
+
+
+    const pending = myBids.filter(bid => !bid.settled).filter(b=>(time == 1 && b.gameId=="0") ||(time == 3 && b.gameId=="1") );
+    const isDisabled = remaining <= 10;
+    const reversed = [...myBids].reverse().filter(b=>(time == 1 && b.gameId=="0") ||(time == 3 && b.gameId=="1") );
+        const totalPages = showList == "my" ? Math.ceil(reversed.length / pageSize) : Math.ceil(allResults.length / pageSize)
+
+
+    const allResultsReversed = [...allResults].reverse();
+    return (
+        <div>
+            <div className="game-wrapper">
+
+                <div style={{ marginBottom: "12px", textAlign: "center" }}>
+                    <h1 style={{ fontSize: "32px", fontWeight: 900, letterSpacing: "-1px", color: "#1e293b" }}>
+                        <span style={{ color: "#8b5cf6" }}>COLOUR</span> GAME
+                    </h1>
+                    <p style={{ color: "#0891b2", fontWeight: 600, fontSize: "12px" }}><i className="fas fa-bolt"></i> instant bid · 2x win</p>
+
+                </div>
+
+
+                <div className="deposit-wallet-row">
+                    <button
+                        onClick={() => setShowDeposit(true)}
+                        id="depositBtn" className="deposit-btn">
+                        <i className="fas fa-plus-circle"></i> Deposit
+                    </button>
+                    <div className="hexa-wallet">
+                        <span className="hexa-label"><i className="fas fa-gem"></i> HEXA</span>
+                        <span className="hexa-balance" id="walletHexaBalance">{depositBalance}</span>
+                    </div>
+                </div>
+
+
+                <div className="light-card">
+
+                    <RoundCountdown seconds={remaining} serverStatus={serverStatus} />
+
+
+                    <div className="time-selector">
+                        <button
+                            onClick={() => { setTime(1) }}
+                            id="time60Btn" className={time == 1 ? "time-option active" : "time-option"}>1 min</button>
+                        <button
+                            onClick={() => { setTime(3) }}
+                            id="time180Btn" className={time == 3 ? "time-option active" : "time-option"}>3 min</button>
+                    </div>
+
+
+                    <div style={{ marginBottom: "20px" }}>
+                        <div style={{ color: "#475569", fontWeight: 600, marginBottom: "8px" }}>
+                            <i className="fas fa-coins"></i> wager
+                        </div>
+
+                        <div className="wager-control">
+                            {/* Decrease Button */}
+                            <button
+                                id="decreaseWagerBtn"
+                                className="wager-btn"
+                                onClick={() => {
+                                    const num = parseFloat(amount);
+
+                                    if (isNaN(num) || num <= 0.1) {
+                                        toast.error("Cannot set below 0.1 HEXA");
+                                        setAmount("0.10");
+                                    } else {
+                                        setAmount((num - 0.1).toFixed(2));
+                                    }
+                                }}
+                            >
+                                −
+                            </button>
+
+                            {/* Input Field */}
+                            <input
+                                type="number"
+                                id="wagerInput"
+                                className="wager-input"
+                                value={amount}
+                                step="0.1"
+                                min="0.1"
+                                max="100"
+                                onChange={(e) => {
+                                    setAmount(e.target.value);
+                                }}
+                                onBlur={() => {
+                                    let num = parseFloat(amount);
+
+                                    if (isNaN(num) || num < 0.1) num = 0.1;
+
+
+                                    setAmount(num.toFixed(2));
+                                }}
+                            />
+
+                            {/* Increase Button */}
+                            <button
+                                id="increaseWagerBtn"
+                                className="wager-btn"
+                                onClick={() => {
+                                    const num = parseFloat(amount);
+
+                                    if (isNaN(num)) {
+                                        setAmount("0.10");
+                                        return;
+                                    }
+
+                                    if (num >= 100) {
+                                        toast.error("Cannot set above 100 HEXA");
+                                    } else {
+                                        setAmount((num + 0.1).toFixed(2));
+                                    }
+                                }}
+                            >
+                                +
+                            </button>
+                        </div>
+
+                        {/* Bottom Info */}
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                marginTop: "8px",
+                                padding: "0 8px",
+                            }}
+                        >
+                            <span style={{ color: "#64748b", fontSize: "13px" }}>
+                                <i
+                                    className="fas fa-gem"
+                                    style={{ color: "#8b5cf6" }}
+                                ></i>{" "}
+                                <span id="hexaAmount">
+                                    {Number((parseFloat(amount) || 0) / price).toFixed(0)}
+                                </span>{" "}
+                                HEXA
+                            </span>
+
+                            <span style={{ color: "#8b5cf6", fontSize: "13px" }}>
+                                1.8x win
+                            </span>
+                        </div>
+                    </div>
+
+
+                    <div>
+                        <div style={{ color: "#475569", fontWeight: 600, marginBottom: "8px" }}><i className="fas fa-palette"></i> tap colour</div>
+                        <div className="slots-grid">
+                            <div
+                                disabled={remaining <= 10}
+                                onClick={!isDisabled ? () => handleClick("Red") : undefined}
+                                className="color-slot slot-red" id="nft-slot-0">
+                                <div className="slot-emoji">🔴</div>
+                                <div className="slot-label">RED</div>
+                                <div className="slot-number">1</div>
+                            </div>
+                            <div
+                                disabled={remaining <= 10}
+                                onClick={!isDisabled ? () => handleClick("Green") : undefined}
+                                className="color-slot slot-green" id="nft-slot-1">
+                                <div className="slot-emoji">🟢</div>
+                                <div className="slot-label">GREEN</div>
+                                <div className="slot-number">2</div>
+                            </div>
+                            <div disabled={remaining <= 10}
+                                onClick={!isDisabled ? () => handleClick("Purple") : undefined}
+                                className="color-slot slot-purple" id="nft-slot-2">
+                                <div className="slot-emoji">🟣</div>
+                                <div className="slot-label">PURPLE</div>
+                                <div className="slot-number">3</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div style={{ display: "flex", justifyContent: "flex-end", margin: "6px 0 8px" }}>
+                    <button
+                        onClick={() => setShowLive(!showLive)}
+                        id="toggleLiveOrderBtn" style={{ background: "#f97316", color: "white", border: "none", padding: "10px 22px", borderRadius: "40px", fontWeight: 700, fontSize: "14px", display: "flex", alignItems: "center", gap: "6px", boxShadow: "0 5px 0 #c2410c" }}>
+                        <i className="fas fa-chart-line"></i> Live order
+                    </button>
+                </div>
+
+
+                <div id="liveOrdersSection" style={{ display: showLive ? "block" : "none", marginBottom: "16px" }}>
+                    {pending.length > 0 &&
+                        pending.map((bid, index) =>
+                            <div className="light-card" style={{ padding: "16px" }}>
+                                <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                                    <div style={{ width: "48px", height: "48px", background: "#fee2e2", borderRadius: "20px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", color: "#991b1b" }}>1</div>
+                                    <div><div style={{ color: "#64748b", fontSize: "12px" }}>{colors[bid.color]}</div><div style={{ color: "#1e293b", fontSize: "20px", fontWeight: 800 }}>{Number(formatEther(bid.amount)).toFixed(2)} HEXA</div></div>
+                                    <div style={{ marginLeft: "auto", textAlign: "right" }}><div style={{ color: "#f97316" }}>⏳ {time} min</div><div style={{ color: "#64748b", fontSize: "12px" }}>in progress</div></div>
+                                </div>
+                            </div>)}
+
+                </div>
+
+
+                <div className="light-card" style={{ padding: "18px 12px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                        <h3 style={{ color: "#1e293b", fontSize: "18px", fontWeight: 800 }}><i className="fas fa-history" style={{ color: "#8b5cf6" }}></i> history</h3>
+                        <div className="history-tabs">
+                            <button
+                                id="myHistoryTab" className={showList === "my" ? "tab-btn active" : "tab-btn"} onClick={() => setShowList("my")}>My</button>
+                            <button id="gameHistoryTab" className={showList === "game" ? "tab-btn active" : "tab-btn"} onClick={() => setShowList("game")}>Game</button>
+                            <button id="depositHistoryTab" className={showList === "deposit" ? "tab-btn active" : "tab-btn"} onClick={() => setShowList("deposit")}>Deposit</button>
+                        </div>
+                    </div>
+
+
+                    <div id="myHistoryList" style={{ display: showList === "my" ? "block" : "none" }}>
+                        <div className="history-header">
+                            <span>SNo</span><span>Time</span><span>Colour</span><span>Spent</span><span>Earn</span>
+                        </div>
+                        {reversed.map((bid, index) => {
+                            const startIndex = (page - 1) * pageSize;
+                            const endIndex = startIndex + pageSize;
+                            if (index < startIndex || index >= endIndex) return null;
+                            let result = bid.settled && resultKeys[bid.won]
+                            return (
+                                <div className="history-row"><span>#{index + 1}</span>
+                                    <span>{secondsToDMY(bid.time)}</span>
+                                    <span style={{ color: bid.color }}>
+                                        {colors[bid.color]} </span>
+                                    <span>{Number(formatEther(bid.amount)).toFixed(2)}</span>
+                                    <span className={result === "WON" ? "badge-win" : result === "LOST" ? "badge-loss" : ""}>
+                                        {result === "WON" ? `+${Number(formatEther(bid.amount) * 2).toFixed(2)}` : result === "LOST" ? "0" : "-"}
+                                        </span>
+                                        </div>
+                            )
+                        })}
+                    </div>
+
+
+                    <div id="gameHistoryList" style={{ display: showList === "game" ? "block" : "none" }}>
+                        <div className="game-header"><span>SNo</span><span>Time</span><span>Colour</span></div>
+                        {allResults && allResultsReversed.map((result, index) => {
+                            const startIndex = (page - 1) * pageSize;
+                            const endIndex = startIndex + pageSize;
+                            if (index < startIndex || index >= endIndex) return null;
+                            return (
+
+                                <div className="game-row"><span>#{index + 1}</span>
+                                    <span>{secondsToDMY(result.future1)}</span>
+                                    <span style={{ color: result.winningColor }}>{colors[result.winningColor]}
+                                    </span></div>
+                            )
+                        })}
+                    </div>
+
+                    <div id="depositHistoryList" style={{ display: showList === "deposit" ? "block" : "none" }}>
+                        <div className="history-header2"><span>SNo</span><span>Time</span><span>Amount</span>
+                            <span>Sender</span><span>%</span><span>Status</span>
+                        </div>
+                        {depositHistory && depositHistory.map((deposit, index) => {
+                            const startIndex = (page - 1) * pageSize;
+                            const endIndex = startIndex + pageSize;
+                            if (index < startIndex || index >= endIndex) return null;
+                            return (
+
+                                <div className="history-row2"><span>#{index + 1}</span>
+                                    <span>{secondsToDMY(deposit.time)}</span>
+                                    <span>{Number(formatEther(deposit.amount)).toFixed(2)}</span>
+                                    <span>{formatAddress(deposit.depositor)}</span>
+                                    <span>{deposit.percentage}%</span>
+                                    <span>{deposit.eventType == "0" ? "Deposit" :
+                                        deposit.eventType == "1" ? "Bonus" : "R-Bonus"}</span>
+
+                                </div>
+                            )
+                        })}
+                    </div>
+
+
+                    <div
+                        id="paginationContainer"
+                        style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            gap: "6px",
+                            marginTop: "16px",
+                        }}
+                    >
+                        <>
+                            {[...Array(Math.min(totalPages, 5))].map((_, index) => {
+                                const pageNumber = index + 1;
+
+                                return (
+                                    <div
+                                        key={pageNumber}
+                                        className={`page-dot ${page === pageNumber ? "active-page" : ""}`}
+                                        onClick={() => setPage(pageNumber)}
+                                        style={{ cursor: "pointer" }}
+                                    >
+                                        {pageNumber}
+                                    </div>
+                                );
+                            })}
+
+                            {totalPages > 5 && (
+                                <div
+                                    className={`page-dot ${page === totalPages ? "active-page" : ""}`}
+                                    onClick={() => setPage(totalPages)}
+                                    style={{ cursor: "pointer" }}
+                                >
+                                    {totalPages}
+                                </div>
+                            )}
+                        </>
+                    </div>
+                </div>
+            </div>
+
+
+            <DepositModal
+                isOpen={showDeposit}
+                onClose={() => {
+                    setShowDeposit(false)
+
+                }}
+                onSuccess={onSuccess}
+                executeContract={executeContract}
+                config={config}
+                gameContract={gameContract}
+                hexaBalance={hexaBalance}
+                price={price}
+            />
+        </div>
+    )
+}

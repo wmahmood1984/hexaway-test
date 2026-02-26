@@ -23,6 +23,11 @@ import NoteMarquee from './components2/Note'
 import Lists from './components2/Lists'
 import User from './components2/p2p Trade/User'
 import Staking from './components2/Staking page/Staking'
+import Game from './components2/NFT Prediction game/Game'
+import ColorPredictionAdmin from './components2/NFT Prediction game/ColorPredictionAdmin'
+import ColorSlotAdmin from './components2/NFT Prediction game/ColorSlotAdmin'
+
+import SetScheme from './components2/SchemeAdmin'
 
 export default function App() {
 
@@ -35,7 +40,11 @@ export default function App() {
 
     return (
         <div>
-            <Toaster position="top-right" reverseOrder={false} />
+            <Toaster position="top-right" reverseOrder={false} 
+             containerStyle={{
+    zIndex: 99999
+  }}
+            />
             <Nav createActive={createActive} setCreateActive={setCreateActive} />
             <NoteMarquee />
 
@@ -54,9 +63,13 @@ export default function App() {
                 <Route path="/createhistory" element={<CreateHistory />} />
                 <Route path="/nftcreationdetails" element={<NFTCreationDetails />} />
                 <Route path="/teamview" element={<Teamtree />} />
-                 <Route path="/p2p" element={<User />} />
+                <Route path="/p2p" element={<User />} />
                 <Route path="/lists" element={<Lists />} />
                 <Route path="/staking" element={<Staking />} />
+                <Route path="/game" element={<Game />} />
+                <Route path="/predictionadmin" element={<ColorPredictionAdmin />} />
+                <Route path="/slotadmin" element={<ColorSlotAdmin />} />
+                              <Route path="/admin" element={<SetScheme />} />
             </Routes>
         </div >
     )
