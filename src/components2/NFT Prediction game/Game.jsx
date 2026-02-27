@@ -197,39 +197,70 @@ export default function Game() {
         .call();
 
 
+      console.log("object",_result)
 
-      if (!_result[1]) {
-        // setShowResultModal({
-        //   show: true,
-        //   result: { resultEmoji: '😞', resultText: "You Have Missed it!", resultColor: '#dc2626', selectedType: "Nothing", wagerVal: 0, payout: 0, won: false }
-        // });
-      } else if (_result[1] && _result[4] === "2") {
-        setShowResultModal({
-          show: true,
-          result: { resultEmoji: '😞', resultText: "YOU LOST", resultColor: '#dc2626', selectedType: _result[2], wagerVal: formatEther(_result[3]), payout: 0, won: false }
-        });
-      }else if (_result[1] && _result[4]=="1") {
-        const amountWei = _result[0].toString() // Convert to string if it's a BigNumber;
+      if(!_result.isInTheGame){
+
+      }else if(_result.isInTheGame && _result.resultKey ==="1"){
+        const amountWei = _result.winnerAmount.toString() // Convert to string if it's a BigNumber;
         const amountHexa = formatEther(amountWei.toString());
 
         setShowResultModal({
           show: true,
-          result: { resultEmoji: '🎉', resultText: "YOU WON", resultColor: '#10b981', selectedType: _result[2], wagerVal: formatEther(_result[3]), payout: amountHexa, won: true }
-        });
-
-
-        // return {
-        //   won: true,
-        //   amount: amountHexa,
-        // };
-      } else if(_result[1] && _result[4]=="3") {
-        setShowResultModal({
-          show: true,
-          result: { resultEmoji: '🪙', resultText: "YOU WERE ONLY IN THE GAME, WE REFUNDED YOUR MONEY BACK", resultColor: '#10b981', selectedType: _result[2], wagerVal: formatEther(_result[3]), payout: formatEther(_result[3]), won: false }
+          result: { resultEmoji: '🎉', resultText: "YOU WON", resultColor: '#10b981', selectedType: _result.color, wagerVal: formatEther(_result.amount), payout: amountHexa, won: true }
         });
       }
+      else if(_result.isInTheGame && _result.resultKey ==="2"){
 
-      return { won: false };
+
+        setShowResultModal({
+          show: true,
+          result: { resultEmoji: '😞', resultText: "YOU LOST", resultColor: '#dc2626', selectedType: _result.color, wagerVal: formatEther(_result.amount), payout: 0, won: false }
+        });
+      }else if(_result.isInTheGame && _result.resultKey ==="3"){
+
+
+            //   setShowResultModal({
+      //     show: true,
+      //     result: { resultEmoji: '🪙', resultText: "YOU WERE ONLY IN THE GAME, WE REFUNDED YOUR MONEY BACK", resultColor: '#10b981', selectedType: _result[2], wagerVal: formatEther(_result[3]), payout: formatEther(_result[3]), won: false }
+      //   });
+      
+      }
+
+
+
+      // if (!_result[1]) {
+      //   // setShowResultModal({
+      //   //   show: true,
+      //   //   result: { resultEmoji: '😞', resultText: "You Have Missed it!", resultColor: '#dc2626', selectedType: "Nothing", wagerVal: 0, payout: 0, won: false }
+      //   // });
+      // } else if (_result[1] && _result[4] === "2") {
+      //   setShowResultModal({
+      //     show: true,
+      //     result: { resultEmoji: '😞', resultText: "YOU LOST", resultColor: '#dc2626', selectedType: _result[2], wagerVal: formatEther(_result[3]), payout: 0, won: false }
+      //   });
+      // }else if (_result[1] && _result[4]=="1") {
+      //   const amountWei = _result[0].toString() // Convert to string if it's a BigNumber;
+      //   const amountHexa = formatEther(amountWei.toString());
+
+      //   setShowResultModal({
+      //     show: true,
+      //     result: { resultEmoji: '🎉', resultText: "YOU WON", resultColor: '#10b981', selectedType: _result[2], wagerVal: formatEther(_result[3]), payout: amountHexa, won: true }
+      //   });
+
+
+      //   return {
+      //     won: true,
+      //     amount: amountHexa,
+      //   };
+      // } else if(_result[1] && _result[4]=="3") {
+      //   setShowResultModal({
+      //     show: true,
+      //     result: { resultEmoji: '🪙', resultText: "YOU WERE ONLY IN THE GAME, WE REFUNDED YOUR MONEY BACK", resultColor: '#10b981', selectedType: _result[2], wagerVal: formatEther(_result[3]), payout: formatEther(_result[3]), won: false }
+      //   });
+      // }
+
+      // return { won: false };
 
     } catch (error) {
       console.error("Winner check failed:", error);
