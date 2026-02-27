@@ -31,6 +31,14 @@ const { address } = useAppKitAccount();
 
   }
 
+  const openSupportEmail = () => {
+  const supportEmail = "support@hexaway.org";
+
+  const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${supportEmail}`;
+
+  window.open(gmailUrl, "_blank");
+};
+
 
 
     return (
@@ -210,10 +218,15 @@ const { address } = useAppKitAccount();
                 
                 <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 mb-8 border border-gray-200">
                     <div class="grid md:grid-cols-2 gap-6 mb-8">
-                        <button onclick="redirectToMedia()" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-4 rounded-xl text-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl">
+                        <a 
+                        href="https://media.hexaway.org" target="_blank"
+                        class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-4 rounded-xl text-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl">
                             Media
-                        </button>
-                        <button onclick="redirectToContact()" class="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-4 rounded-xl text-lg font-semibold hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 shadow-lg hover:shadow-xl">
+                        </a>
+                        <button
+                        
+                        
+                        onClick={openSupportEmail} class="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-4 rounded-xl text-lg font-semibold hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 shadow-lg hover:shadow-xl">
                             Contact Us
                         </button>
                     </div>
