@@ -199,10 +199,10 @@ export default function Game() {
 
 
       if (!_result[1]) {
-        setShowResultModal({
-          show: true,
-          result: { resultEmoji: '😞', resultText: "You Have Missed it!", resultColor: '#dc2626', selectedType: "Nothing", wagerVal: 0, payout: 0, won: false }
-        });
+        // setShowResultModal({
+        //   show: true,
+        //   result: { resultEmoji: '😞', resultText: "You Have Missed it!", resultColor: '#dc2626', selectedType: "Nothing", wagerVal: 0, payout: 0, won: false }
+        // });
       } else if (_result[1] && _result[4] === "2") {
         setShowResultModal({
           show: true,
