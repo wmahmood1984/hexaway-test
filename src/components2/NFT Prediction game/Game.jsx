@@ -220,10 +220,10 @@ export default function Game() {
       }else if(_result.isInTheGame && _result.resultKey ==="3"){
 
 
-            //   setShowResultModal({
-      //     show: true,
-      //     result: { resultEmoji: '🪙', resultText: "YOU WERE ONLY IN THE GAME, WE REFUNDED YOUR MONEY BACK", resultColor: '#10b981', selectedType: _result[2], wagerVal: formatEther(_result[3]), payout: formatEther(_result[3]), won: false }
-      //   });
+              setShowResultModal({
+          show: true,
+          result: { resultEmoji: '🪙', resultText: "YOU WERE ONLY IN THE GAME, WE REFUNDED YOUR MONEY BACK", resultColor: '#10b981', selectedType: _result.color, wagerVal: formatEther(_result.amount), payout: formatEther(_result.amount), won: false }
+        });
       
       }
 
