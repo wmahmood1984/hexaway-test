@@ -217,11 +217,11 @@ export default function Dashboard() {
 
     const pendingTrades = tickets && tickets.filter(t => !t.filled)
 
-    const sortedPositions =
+        const sortedPositions =
         tickets
             ? pendingTrades
                 .filter(t => t.user.toLowerCase() === address.toLowerCase())
-                .sort((a, b) => Number(b.id) - Number(a.id)) // latest first
+                .sort((a, b) => Number(a.id) - Number(b.id)) // latest first
             : [];
 
     const latestTrade = tickets && sortedPositions.length > 0 ? sortedPositions[0] : null;
