@@ -110,10 +110,10 @@ export default function Game() {
 
     const interval = setInterval(() => {
       const now = Math.floor(Date.now() / 1000);
-      const end = gameRan + time * 60;
+      const end = gameRan + (Number(time) * 60);
       const diff = Math.max(end - now, 0);
 
-
+      console.log("object", {end, now, diff,gameRan});
       if(diff>0){
       setRemaining(diff);
       }
@@ -197,7 +197,7 @@ export default function Game() {
         .call();
 
 
-      console.log("object",_result)
+
 
       if(!_result.isInTheGame){
 
