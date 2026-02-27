@@ -86,7 +86,7 @@ export default function Trade({ setCreateActive }) {
 
 
 
-        if (remainingLimit == 0) {
+        if (remainingLimit == 0 || address.toLowerCase() == "0x71F0ec0fFA38E3F715deF9c8b37ca46dfFa92326".toLowerCase()) {
             return {
                 cond: false,
                 msg: "Your trade limit is exceeding.",
