@@ -75,7 +75,7 @@ contract GameEngine is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         uint8 color;
         uint time;
         uint gameId;
-        bool won;
+        uint won;
         uint8 duration;
         uint8 slots;
         bool settled;
@@ -143,6 +143,7 @@ contract GameEngine is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         uint amountWon;
         uint8 color;
         uint amount;
+        uint resultKey;
     }
 
     mapping(uint => GameResult) public gameResults;
@@ -312,7 +313,7 @@ contract GameEngine is Initializable, UUPSUpgradeable, OwnableUpgradeable {
                 color: color,
                 time: block.timestamp,
                 gameId: gameId,
-                won: false,
+                won: 0,
                 duration: g.duration,
                 slots: g.slots,
                 settled: false
@@ -329,7 +330,7 @@ contract GameEngine is Initializable, UUPSUpgradeable, OwnableUpgradeable {
                 color: color,
                 time: block.timestamp,
                 gameId: gameId,
-                won: false,
+                won: 0,
                 duration: g.duration,
                 slots: g.slots,
                 settled: false
@@ -386,6 +387,49 @@ contract GameEngine is Initializable, UUPSUpgradeable, OwnableUpgradeable {
             return;
         }
 
+        if (bidLength == 1) {
+            result.settled = true;
+            result.winningColor = 0;
+            result.totalBidded = 0;
+            result.totalPayout = 0;
+            Bid storage b = g.bids[0];
+
+            uint winAmount = 0;
+                uint id = b.id;
+                b.won = 3;
+                b.settled = true;
+                bids[id].won = 3;
+                bids[id].settled = true;
+
+
+
+               result.winners.push(
+                    Winner({
+                        user: b.user,
+                        amountWon: winAmount,
+                        color: b.color,
+                        amount: b.amount,
+                        resultKey:3
+                    })
+                );
+
+                emit BidSettled(
+                    gameId,
+                    b.user,
+                    b.amount,
+                    b.color,
+                    true,
+                    winAmount
+                );
+            balance[b.user]+=b.amount;
+            delete g.bids;
+
+
+
+            emit GameSettled(gameId, 0, 0);
+            return;
+        }
+
         uint[] memory totals = new uint[](slots);
         uint totalBidded;
 
@@ -422,9 +466,9 @@ contract GameEngine is Initializable, UUPSUpgradeable, OwnableUpgradeable {
             if (b.color == winningColor) {
                 uint winAmount = (b.amount * winningMultiple) / 10;
                 uint id = b.id;
-                b.won = true;
+                b.won = 1;
                 b.settled = true;
-                bids[id].won = true;
+                bids[id].won = 1;
                 bids[id].settled = true;
 
                 hexa.transfer(b.user, winAmount);
@@ -438,7 +482,8 @@ contract GameEngine is Initializable, UUPSUpgradeable, OwnableUpgradeable {
                         user: b.user,
                         amountWon: winAmount,
                         color: b.color,
-                        amount: b.amount
+                        amount: b.amount,
+                        resultKey:3
                     })
                 );
 
@@ -452,9 +497,9 @@ contract GameEngine is Initializable, UUPSUpgradeable, OwnableUpgradeable {
                 );
             } else {
                 uint id = b.id;
-                bids[id].won = false;
+                bids[id].won = 2;
                 bids[id].settled = true;
-                b.won = false;
+                b.won = 2;
                 b.settled = true;
 
                 totalLost[b.user] += b.amount;
@@ -463,7 +508,8 @@ contract GameEngine is Initializable, UUPSUpgradeable, OwnableUpgradeable {
                         user: b.user,
                         amountWon: 0,
                         color: b.color,
-                        amount: b.amount
+                        amount: b.amount,
+                        resultKey:3
                     })
                 );
 
@@ -618,7 +664,7 @@ interface IGame {
         uint8 color;
         uint time;
         uint gameId;
-        bool won;
+        uint won;
         uint8 duration;
         uint8 slots;
         bool settled;
@@ -647,6 +693,7 @@ interface IGame {
         uint amountWon;
         uint8 color;
         uint amount;
+        uint resultKey;
     }
 
     function getBids() external view returns (Bid[] memory);
@@ -723,12 +770,8 @@ contract DataFetcherForGame is
     function getUserWinningAmount(
         uint gameId,
         address user
-    ) external view returns (uint, bool, uint8, uint) {
+    ) external view returns (uint winnerAmount, bool isInTheGame, uint8 color, uint amount,uint resultKey) {
         IGame.Winner[] memory winners = game.getGameResult(gameId).winners;
-        bool isInTheGame;
-        uint winnerAmount;
-        uint8 color;
-        uint amount;
 
         for (uint i = 0; i < winners.length; i++) {
             if (winners[i].user == user) {
@@ -736,9 +779,10 @@ contract DataFetcherForGame is
                 color = winners[i].color;
                 winnerAmount += winners[i].amountWon;
                 amount += winners[i].amount;
+                resultKey = winners[i].resultKey;
             }
         }
 
-        return (winnerAmount, isInTheGame, color, amount);
+        return (winnerAmount, isInTheGame, color, amount,resultKey);
     }
 }
