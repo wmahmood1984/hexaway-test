@@ -82,7 +82,7 @@ export default function Trade({ setCreateActive }) {
                 msg: "Your package is expired.",
             };
         }
-        console.log("object", walletBalance, nftValue, price);
+        console.log("object", walletBalance, nftValue, price)
 
 
 
