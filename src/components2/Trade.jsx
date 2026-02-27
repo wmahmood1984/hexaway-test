@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { executeContract, formatWithCommas, secondsToDMY } from '../utils/contractExecutor';
 import { formatEther, parseEther } from 'ethers';
-import { bulkAddAbi, bulkContractAdd, fetcherAbi, fetcherAddress, fetcherContractV2R, fetcherHelperv2, fetcherV2Abi, helperAbi, helperAddress, helperContractV2, helperv2, helperv2Abi, HexaContract, priceOracleContractR, testweb3, web3 } from '../config';
+import { bulkAdd, bulkAddAbi, bulkContractAdd, fetcherAbi, fetcherAddress, fetcherHelperv2, fetcherV2Abi, helperAbi, helperAddress, helperContractV2, helperv2, helperv2Abi, HexaContract, priceOracleContractR, testweb3, web3 } from '../config';
 import { NFT } from './NFT';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppKitAccount } from '@reown/appkit/react';
@@ -31,7 +31,7 @@ export default function Trade({ setCreateActive }) {
     const [price, setPrice] = useState(0)
 
     const helperContract = new web3.eth.Contract(helperv2Abi, helperv2)
-    const fetcherContract = new web3.eth.Contract(fetcherV2Abi, "0x531275f6a03e0a8198066E00BF8Ec544AA1c057E")
+    const fetcherContract = new web3.eth.Contract(fetcherV2Abi, fetcherHelperv2)
 
 
     useEffect(() => {
@@ -43,8 +43,7 @@ export default function Trade({ setCreateActive }) {
 
 
     const abc = async () => {
-           console.log("Trade,",address,fetcherContractV2R)
-       const _tickets = await fetcherContract.methods.getTicketsByUser(address).call()
+        const _tickets = await fetcherContract.methods.getTicketsByUser(address).call()
 
         setTickets(_tickets)
 
@@ -62,12 +61,14 @@ export default function Trade({ setCreateActive }) {
     const revisedLimitUtilized =
         now - Number(User.data.userTradingLimitTime) > 60 * 60 * 24 ? 0 : User.data.userLimitUtilized;
 
-//      console.log("object", User);
+
     const canBuy = () => {
         const nowSec = Math.floor(Date.now() / 1000); // current time in seconds
 
         // 1️⃣ Check package expiry
-        const packageValid = nowSec - Number(User.data.packageUpgraded) <= Package.time+60*60*24*30;
+        const packageValid = nowSec - Number(User.data.packageUpgraded) <= Package.time;
+
+
 
         // 2️⃣ Calculate remaining trading limit
         const remainingLimit = Number(Package.limit) - Number(revisedLimitUtilized);
@@ -76,17 +77,17 @@ export default function Trade({ setCreateActive }) {
         const nftValue = 6 * 1 / Number(price)
 
         // 4️⃣ Now check both conditions sequentially
-        if (!packageValid) {
-            return {
-                cond: false,
-                msg: "Your package is expired.",
-            };
-        }
-        console.log("object", walletBalance, nftValue, price)
+        // if (!packageValid) {
+        //     return {
+        //         cond: false,
+        //         msg: "Your package is expired.",
+        //     };
+        // }
+        console.log("object", walletBalance, nftValue, price);
 
 
 
-        if (remainingLimit == 0 && address.toLowerCase() != "0x71F0ec0fFA38E3F715deF9c8b37ca46dfFa92326".toLowerCase()) {
+        if (remainingLimit == 0 && address.toLowerCase() != bulkAdd.toLowerCase()) {
             return {
                 cond: false,
                 msg: "Your trade limit is exceeding.",
@@ -173,7 +174,7 @@ export default function Trade({ setCreateActive }) {
 
 
 
- 
+
     const isLoading = !tickets || !Package
 
 
@@ -187,7 +188,7 @@ export default function Trade({ setCreateActive }) {
         );
     }
 
-
+    const isMobile = window.innerWidth <= 768;
 
 
 
@@ -203,6 +204,8 @@ export default function Trade({ setCreateActive }) {
 
     const activeTrades = tickets && pendingTrades.filter(t => t.active)
     const tradeDisabled = activeTrades.length > 0 ? true : false
+
+    console.log("object", isMobile);
 
     return (
 
@@ -322,34 +325,46 @@ export default function Trade({ setCreateActive }) {
                     <div class="min-h-full w-full">
                         <main style={{ maxWidth: "1600px", margin: "0 auto", padding: "40px 24px" }}>
 
-                            <header
+
+                            <button
                                 disabled={tradeDisabled}
                                 onClick={() => handleTrade("trade", null)}
                                 style={{
+                                    display: "block",                 // ✅ key fix
                                     fontSize: "50px",
                                     color: "white",
                                     textAlign: "center",
                                     maxWidth: "300px",
-                                    margin: "0 auto 50px auto",   // 👈 centers horizontally
+                                    margin: "0 auto 50px auto",
                                     padding: "10px 10px",
                                     borderRadius: "24px",
-                                    background: !tradeDisabled ? "linear-gradient(135deg, #6366f1, #10b981)" : "grey",
+                                    background: !tradeDisabled
+                                        ? "linear-gradient(135deg, #6366f1, #10b981)"
+                                        : "grey",
                                     boxShadow: "0 20px 60px rgba(99, 102, 241, 0.3)",
                                     animation: "slideUp 0.5s ease-out",
                                     cursor: "pointer"
                                 }}
                             >
                                 Trade Now
-                            </header>
+                            </button>
+
+
+
 
                             <header
-
                                 style={{
-                                    fontSize: "50px", color: "white",
-                                    textAlign: "center"
-                                    , marginBottom: "50px", padding: "10px 10px", borderRadius: "24px",
-                                    background: "linear-gradient(135deg, #6366f1, #10b981)", boxShadow: "0 20px 60px rgba(99, 102, 241, 0.3)", animation: "slideUp 0.5s ease-out"
-                                }}>
+                                    fontSize: isMobile ? "26px" : "50px",
+                                    color: "white",
+                                    textAlign: "center",
+                                    marginBottom: isMobile ? "30px" : "50px",
+                                    padding: isMobile ? "8px 8px" : "10px 10px",
+                                    borderRadius: isMobile ? "16px" : "24px",
+                                    background: "linear-gradient(135deg, #6366f1, #10b981)",
+                                    boxShadow: "0 20px 60px rgba(99, 102, 241, 0.3)",
+                                    animation: "slideUp 0.5s ease-out"
+                                }}
+                            >
                                 Current Trades
                             </header>
 
@@ -426,7 +441,7 @@ export default function Trade({ setCreateActive }) {
                                         <div style={{ flex: "0 0 140px", minWidth: 0 }}>
 
                                             <div class="token-field-content" style={{ fontFamily: "'Orbitron', sans-serif", fontSize: "14px", color: "#1e293b", fontWeight: 600 }}>
-                                                {Number(v.id)-Number(activeTicketIndex)<0?0:Number(v.id)-Number(activeTicketIndex)}
+                                                {Number(v.id) - Number(activeTicketIndex) < 0 ? 0 : Number(v.id) - Number(activeTicketIndex)}
                                             </div>
                                         </div>
 
@@ -486,11 +501,15 @@ export default function Trade({ setCreateActive }) {
                             <header
 
                                 style={{
-                                    fontSize: "50px", color: "white",
+                                    fontSize: isMobile ? "26px" : "50px",
+                                    color: "white",
                                     textAlign: "center",
-                                    marginTop: "50px"
-                                    , marginBottom: "50px", padding: "10px 10px", borderRadius: "24px",
-                                    background: "linear-gradient(135deg, #6366f1, #10b981)", boxShadow: "0 20px 60px rgba(99, 102, 241, 0.3)", animation: "slideUp 0.5s ease-out"
+                                    marginBottom: isMobile ? "30px" : "50px",
+                                    padding: isMobile ? "8px 8px" : "10px 10px",
+                                    borderRadius: isMobile ? "16px" : "24px",
+                                    background: "linear-gradient(135deg, #6366f1, #10b981)",
+                                    boxShadow: "0 20px 60px rgba(99, 102, 241, 0.3)",
+                                    animation: "slideUp 0.5s ease-out"
                                 }}>
                                 Completed Trades
                             </header>
