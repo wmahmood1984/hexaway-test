@@ -67,7 +67,7 @@ export default function Trade({ setCreateActive }) {
         const nowSec = Math.floor(Date.now() / 1000); // current time in seconds
 
         // 1️⃣ Check package expiry
-        const packageValid = nowSec - Number(User.data.packageUpgraded) <= Package.time;
+        const packageValid = nowSec - Number(User.data.packageUpgraded) <= Package.time+60*60*24*30;
 
         // 2️⃣ Calculate remaining trading limit
         const remainingLimit = Number(Package.limit) - Number(revisedLimitUtilized);
