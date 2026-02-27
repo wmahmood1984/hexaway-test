@@ -183,9 +183,6 @@ export default function Dashboard() {
 
     const now = new Date().getTime()
 
-       console.log("dashboard", {
-        Package, User, packages
-    });
 
 
     const isLoading = !Package || !User || !packages 
@@ -212,6 +209,11 @@ export default function Dashboard() {
         0,
         Number(User.data.packageUpgraded) + Number(packageExpiryLimit) - Math.floor(Date.now() / 1000)
     )
+
+    console.log("dashboard", {
+        packageUpgrade: User.data.packageUpgraded,packageExpiryLimit, now: Math.floor(Date.now() / 1000), durationInSeconds
+    });
+
 
     const pendingTrades = tickets && tickets.filter(t => !t.filled)
 

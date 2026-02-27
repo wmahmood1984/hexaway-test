@@ -127,7 +127,7 @@ export const readName = createAsyncThunk(
         // NFTMayBeCreated,
         // nextTokenId,
         // timeLimit,
-        // packageExpiryLimit,
+        packageExpiryLimit,
         // userTradingTime,
         // tradingReferralBonus: Number(formatEther(tradingReferralBonus)).toFixed(4),
         // packageReferralBonus: Number(formatEther(packageReferralBonus)).toFixed(4),

@@ -13,9 +13,9 @@ monthlyReferralInfo,
 
     const [data, setData] = useState(dailyReferralInfo)
     const [data1, setData1] = useState(dailyBidderInfo)
-    console.log("object",{
-data,data1
-})    
+//     console.log("object",{
+// data,data1
+// })    
 
 
     return (
