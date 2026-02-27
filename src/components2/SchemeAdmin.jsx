@@ -33,12 +33,12 @@ const SetScheme = () => {
       return;
     }
 
-    if (
-      Number(perToDepositor) + Number(perToReferrer) !== 100
-    ) {
-      toast.error("Percentages must sum to 100");
-      return;
-    }
+    // if (
+    //   Number(perToDepositor) + Number(perToReferrer) !== 100
+    // ) {
+    //   toast.error("Percentages must sum to 100");
+    //   return;
+    // }
 
     try {
       setLoading(true);
