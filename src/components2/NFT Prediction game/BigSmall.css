@@ -380,7 +380,7 @@
     }
     .game-header {
       display: grid;
-      grid-template-columns: 35px 60px 1fr;
+      grid-template-columns: 35px 60px 60px;
       background: #e2e8f0;
       border-radius: 20px;
       padding: 8px 6px;
@@ -414,7 +414,7 @@
     }
     .game-row {
       display: grid;
-      grid-template-columns: 35px 60px 1fr;
+      grid-template-columns: 35px 60px 60px;
       align-items: center;
       background: #ffffff;
       border-radius: 18px;

@@ -13,7 +13,7 @@ export default function ColorGame({ colors, depositHistory, onSuccess, allResult
     const [page, setPage] = useState(1)
     const [showLive, setShowLive] = useState(false)
     const [showList, setShowList] = useState("my")
-    const pageSize = 5;
+    const pageSize = 10;
 
 
     const pending = myBids.filter(bid => !bid.settled).filter(b=>(time == 1 && b.gameId=="0") ||(time == 3 && b.gameId=="1") );
@@ -51,7 +51,7 @@ export default function ColorGame({ colors, depositHistory, onSuccess, allResult
 
                 <div className="light-card">
 
-                    <RoundCountdown seconds={remaining} serverStatus={serverStatus} />
+                    <RoundCountdown seconds={remaining} serverStatus={serverStatus} length={allResults.length}/>
 
 
                     <div className="time-selector">
@@ -251,7 +251,7 @@ export default function ColorGame({ colors, depositHistory, onSuccess, allResult
 
 
                     <div id="gameHistoryList" style={{ display: showList === "game" ? "block" : "none" }}>
-                        <div className="game-header"><span>SNo</span><span>Time</span><span>Colour</span></div>
+                        <div className="game-header"><span>Game No.</span><span>Time</span><span>Colour</span></div>
                         {allResults && allResultsReversed.map((result, index) => {
                             const startIndex = (page - 1) * pageSize;
                             const endIndex = startIndex + pageSize;
@@ -267,7 +267,7 @@ export default function ColorGame({ colors, depositHistory, onSuccess, allResult
                     </div>
 
                     <div id="depositHistoryList" style={{ display: showList === "deposit" ? "block" : "none" }}>
-                        <div className="history-header2"><span>SNo</span><span>Time</span><span>Amount</span>
+                        <div className="history-header2"><span>Game No.</span><span>Time</span><span>Amount</span>
                             <span>Sender</span><span>%</span><span>Status</span>
                         </div>
                         {depositHistory && depositHistory.map((deposit, index) => {

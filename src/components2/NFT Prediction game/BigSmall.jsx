@@ -12,7 +12,7 @@ export default function BigSmall({ config, allResults, depositHistory, onSuccess
     const [page, setPage] = useState(1)
     const [showLive, setShowLive] = useState(false)
     const [showList, setShowList] = useState("my")
-    const pageSize = 5;
+    const pageSize = 10;
     const pending = myBids.filter(bid => !bid.settled).filter(b => (time == 1 && b.gameId == "12") || (time == 3 && b.gameId == "13"));
     const isDisabled = remaining <= 10;
     const reversed = [...myBids].reverse().filter(b => (time == 1 && b.gameId == "12") || (time == 3 && b.gameId == "13"));
@@ -49,7 +49,7 @@ export default function BigSmall({ config, allResults, depositHistory, onSuccess
 
                 <div class="light-card">
 
-                    <RoundCountdown seconds={remaining} serverStatus={serverStatus} />
+                    <RoundCountdown seconds={remaining} serverStatus={serverStatus} length={allResults.length}/>
 
 
                     <div className="time-selector">
@@ -247,7 +247,7 @@ export default function BigSmall({ config, allResults, depositHistory, onSuccess
 
 
                     <div id="gameHistoryList" style={{ display: showList === "game" ? "block" : "none" }}>
-                        <div class="game-header"><span>SNo</span><span>Time</span><span>Result</span></div>
+                        <div class="game-header"><span>Game No.</span><span>Time</span><span>Result</span></div>
                         {allResults && allResultsReversed.map((result, index) => {
 
                             const startIndex = (page - 1) * pageSize;

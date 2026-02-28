@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { gameContractR } from "../../config";
 
 export default function RoundCountdown({
-  seconds, warningAt = 10, serverStatus
+  seconds, warningAt = 10, serverStatus,length
 }) {
 
-
+console.log("lengt",length)
   return (
     <div className="round-container final-call" id="roundContainer">
-        <span className="round-label">round</span>
+        <span className="round-label">Game. No: {Number(length)%10000}</span>
         <span className="round-timer" id="mainCountdownTime">{serverStatus ? `${seconds}s`: "Server Down"}</span>
       </div>
   );

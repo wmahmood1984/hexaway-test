@@ -272,8 +272,10 @@ export default function Game() {
 
 
   const abc = async () => {
-
+        let gameAddr = findGame(slot, time);
     const _hexaBalance = await HEXAContractR.methods.balanceOf(address).call()
+
+         console.log("gamead  ", { gameAddr })
     setHexaBalance((_hexaBalance / 1e18).toFixed(0))
     const _price = await priceOracleContractR.methods.price().call()
     setPrice((_price / 1e18).toFixed(4))
@@ -350,8 +352,14 @@ export default function Game() {
       </div>
     );
   }
+    const segregatedGames = allResults.filter(game=>
+      { const gameAdd = findGame(slot, time)
+        return game.future2==gameAdd
+      }
+    )
 
-  //   console.log("prediction", { allResults })
+
+     console.log("prediction", { segregatedGames })
 
   return (
     <div>
@@ -386,7 +394,7 @@ export default function Game() {
 
         {activeTab === "color" && <ColorGame
           setShowDeposit={setShowDeposit}
-          allResults={allResults}
+          allResults={segregatedGames}
           showDeposit={showDeposit}
           colors={colors}
           depositBalance={depositBalance}
@@ -408,7 +416,7 @@ export default function Game() {
         />}
         {activeTab === "bigsmall" && <BigSmall
           setShowDeposit={setShowDeposit}
-          allResults={allResults}
+          allResults={segregatedGames}
           depositHistory={depositHistory}
           depositBalance={depositBalance}
           remaining={duration}
