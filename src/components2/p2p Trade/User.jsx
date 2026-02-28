@@ -643,11 +643,11 @@ export default function User() {
                                             Total (USDT)
                                         </div>
                                         <div class="stat-value" style={{ fontFamily: "'Poppins', system-ui, sans-serif", fontSize: "22px", color: "#ef4444", fontWeight: 800 }}>
-                                            {sellAmount ? Number(sellAmount * price * (1 - fee / 100)).toFixed(2) : 0}
+                                            {sellAmount ? Number(sellAmount * price * (1 - 10 / 100)).toFixed(2) : 0}
                                         </div>
                                         <p
                                             style={{ fontSize: "10px" }}
-                                        >{fee}% fee will be applicable on sale</p>
+                                        >{10}% fee will be applicable on sale</p>
                                     </div>
 
                                     <button
