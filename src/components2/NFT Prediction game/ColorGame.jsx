@@ -3,7 +3,7 @@ import './ColorGame.css'
 import RoundCountdown from './Countdown2'
 import toast from 'react-hot-toast'
 import { formatEther } from 'ethers'
-import { formatAddress, secondsToDMY } from '../../utils/contractExecutor'
+import { formatAddress, secondsToDMY, secondsToMHDMY } from '../../utils/contractExecutor'
 import DepositModal from './Modal'
 import { gameContract, resultKeys } from '../../config'
 import { all } from 'axios'
@@ -11,17 +11,26 @@ import { all } from 'axios'
 
 export default function ColorGame({ colors, depositHistory, onSuccess, allResults, config, executeContract, hexaBalance, showDeposit, price, myBids, time, setShowDeposit, depositBalance, remaining, serverStatus, setTime, amount, setAmount, handleClick }) {
     const [page, setPage] = useState(1)
-    const [showLive, setShowLive] = useState(false)
+    const [showLive, setShowLive] = useState(true)
     const [showList, setShowList] = useState("my")
     const pageSize = 10;
 
 
-    const pending = myBids.filter(bid => !bid.settled).filter(b=>(time == 1 && b.gameId=="0") ||(time == 3 && b.gameId=="1") );
+    const pending = myBids.filter(bid => !bid.settled).filter(b => (time == 1 && b.gameId == "0") || (time == 3 && b.gameId == "1"));
     const isDisabled = remaining <= 10;
-    const reversed = [...myBids].reverse().filter(b=>(time == 1 && b.gameId=="0") ||(time == 3 && b.gameId=="1") );
-        const totalPages = showList == "my" ? Math.ceil(reversed.length / pageSize) : Math.ceil(allResults.length / pageSize)
+    const reversed = [...myBids].reverse().filter(b => (time == 1 && b.gameId == "0") || (time == 3 && b.gameId == "1"));
+    const totalPages = showList == "my" ? Math.ceil(reversed.length / pageSize) : Math.ceil(allResults.length / pageSize)
 
 
+    const totalWinnerAmount = reversed.reduce((sum, g) => {
+        if (g.won === "1") {
+            return sum + Number(formatEther(g.amount));
+        }
+        return sum;
+    }, 0) * 2;
+
+
+    console.log("lengt", reversed)
     const allResultsReversed = [...allResults].reverse();
     return (
         <div>
@@ -35,23 +44,41 @@ export default function ColorGame({ colors, depositHistory, onSuccess, allResult
 
                 </div>
 
-
-                <div className="deposit-wallet-row">
-                    <button
-                        onClick={() => setShowDeposit(true)}
-                        id="depositBtn" className="deposit-btn">
-                        <i className="fas fa-plus-circle"></i> Deposit
-                    </button>
-                    <div className="hexa-wallet">
-                        <span className="hexa-label"><i className="fas fa-gem"></i> HEXA</span>
-                        <span className="hexa-balance" id="walletHexaBalance">{depositBalance}</span>
+                <div class="deposit-wallet-row">
+                    <div
+                        style={{ marginBottom: "20px" }}
+                        className="hexa-wallet">
+                        <span className="hexa-label"><i className="fas fa-gem"></i>Earnings</span>
+                        <span className="hexa-balance" id="walletHexaBalance">{totalWinnerAmount}</span>
+                    </div>
+                    <div
+                        style={{ marginBottom: "20px" }}
+                        className="hexa-wallet">
+                        <span className="hexa-label"><i className="fas fa-gem"></i> HEXA balance</span>
+                        <span className="hexa-balance" id="walletHexaBalance">{hexaBalance}</span>
                     </div>
                 </div>
 
 
+
+
+                <div class="deposit-wallet-row">
+                    <button
+                        onClick={() => setShowDeposit(true)}
+                        id="depositBtn" class="deposit-btn">
+                        <i class="fas fa-plus-circle"></i> Deposit
+                    </button>
+                    <div class="hexa-wallet">
+                        <span class="hexa-label"><i class="fas fa-gem"></i> Game Balance</span>
+                        <span class="hexa-balance" id="walletHexaBalance">{depositBalance}</span>
+                    </div>
+                </div>
+
+
+
                 <div className="light-card">
 
-                    <RoundCountdown seconds={remaining} serverStatus={serverStatus} length={allResults.length}/>
+                    <RoundCountdown seconds={remaining} serverStatus={serverStatus} length={allResults.length} />
 
 
                     <div className="time-selector">
@@ -237,14 +264,15 @@ export default function ColorGame({ colors, depositHistory, onSuccess, allResult
                             let result = bid.settled && resultKeys[bid.won]
                             return (
                                 <div className="history-row"><span>#{index + 1}</span>
-                                    <span>{secondsToDMY(bid.time)}</span>
+                                    <span>{secondsToMHDMY(bid.time)}</span>
                                     <span style={{ color: bid.color }}>
                                         {colors[bid.color]} </span>
                                     <span>{Number(formatEther(bid.amount)).toFixed(2)}</span>
                                     <span className={result === "WON" ? "badge-win" : result === "LOST" ? "badge-loss" : ""}>
-                                        {result === "WON" ? `+${Number(formatEther(bid.amount) * 2).toFixed(2)}` : result === "LOST" ? "0" : "-"}
-                                        </span>
-                                        </div>
+                                        {result === "WON" ? `+${Number(formatEther(bid.amount) * 1.8).toFixed(2)}` : result === "LOST" ? "0"
+                                            : result === "Refunded" ? `+${Number(formatEther(bid.amount)).toFixed(2)}`
+                                                : "-"}</span>
+                                </div>
                             )
                         })}
                     </div>
@@ -258,7 +286,7 @@ export default function ColorGame({ colors, depositHistory, onSuccess, allResult
                             if (index < startIndex || index >= endIndex) return null;
                             return (
 
-                                <div className="game-row"><span>#{index + 1}</span>
+                                <div className="game-row"><span>#{allResultsReversed.length-index}</span>
                                     <span>{secondsToDMY(result.future1)}</span>
                                     <span style={{ color: result.winningColor }}>{colors[result.winningColor]}
                                     </span></div>

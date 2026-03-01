@@ -113,7 +113,7 @@ export default function Game() {
       const end = gameRan + (Number(time) * 60);
       const diff = Math.max(end - now, 0);
 
-      console.log("object", {end, now, diff,gameRan});
+  
       if(diff>0){
       setRemaining(diff);
       }
@@ -359,7 +359,7 @@ export default function Game() {
     )
 
 
-     console.log("prediction", { segregatedGames })
+//     console.log("prediction", { segregatedGames })
 
   return (
     <div>

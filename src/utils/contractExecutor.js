@@ -124,6 +124,19 @@ export function secondsToDMY(seconds) {
         day: "2-digit",
         month: "short",
         year: "numeric",
+ 
+    });
+}
+
+export function secondsToMHDMY(seconds) {
+    const date = new Date(Number(seconds) * 1000); // convert to milliseconds
+
+    return date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+               hour:"2-digit",
+        minute:"2-digit"
     });
 }
 

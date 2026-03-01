@@ -349,7 +349,7 @@
     }
     .history-header {
       display: grid;
-      grid-template-columns: 35px 50px 1fr 55px 55px;
+grid-template-columns: 40px 110px 80px 1fr 1fr;
       background: #e2e8f0;
       border-radius: 20px;
       padding: 8px 6px;
@@ -371,7 +371,7 @@
     }
     .game-header {
       display: grid;
-      grid-template-columns: 35px 120px 120px;
+grid-template-columns: 70px 1fr 90px;
       background: #e2e8f0;
       border-radius: 20px;
       padding: 8px 6px;
@@ -381,7 +381,7 @@
     }
     .history-row {
       display: grid;
-      grid-template-columns: 35px 50px 1fr 55px 55px;
+grid-template-columns: 40px 110px 80px 1fr 1fr;
       align-items: center;
       background: #ffffff;
       border-radius: 18px;
@@ -405,7 +405,7 @@
     }
     .game-row {
       display: grid;
-      grid-template-columns: 35px 120px 120px;
+grid-template-columns: 70px 1fr 90px;
       align-items: center;
       background: #ffffff;
       border-radius: 18px;

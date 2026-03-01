@@ -3,14 +3,14 @@ import './BigSmall.css'
 import RoundCountdown from './Countdown2'
 import toast from 'react-hot-toast'
 import { formatEther } from 'ethers'
-import { formatAddress, secondsToDMY } from '../../utils/contractExecutor'
+import { formatAddress, secondsToDMY, secondsToMHDMY } from '../../utils/contractExecutor'
 import DepositModal from './Modal'
 import { gameContract, resultKeys } from '../../config'
 import { reverse } from '@cloudinary/url-gen/actions/effect'
 
 export default function BigSmall({ config, allResults, depositHistory, onSuccess, colors, executeContract, hexaBalance, showDeposit, price, myBids, time, setShowDeposit, depositBalance, remaining, serverStatus, setTime, amount, setAmount, handleClick }) {
     const [page, setPage] = useState(1)
-    const [showLive, setShowLive] = useState(false)
+    const [showLive, setShowLive] = useState(true)
     const [showList, setShowList] = useState("my")
     const pageSize = 10;
     const pending = myBids.filter(bid => !bid.settled).filter(b => (time == 1 && b.gameId == "12") || (time == 3 && b.gameId == "13"));
@@ -18,7 +18,15 @@ export default function BigSmall({ config, allResults, depositHistory, onSuccess
     const reversed = [...myBids].reverse().filter(b => (time == 1 && b.gameId == "12") || (time == 3 && b.gameId == "13"));
     const totalPages = showList == "my" ? Math.ceil(reversed.length / pageSize) : Math.ceil(allResults.length / pageSize)
 
-//    console.log("object of game ",{myBids,reversed})
+    const totalWinnerAmount = reversed.reduce((sum, g) => {
+        if (g.won === "1") {
+            return sum + Number(formatEther(g.amount));
+        }
+        return sum;
+    }, 0) * 2;
+
+
+    console.log("lengt", totalWinnerAmount)
 
     const allResultsReversed = [...allResults].reverse();
     return (
@@ -35,13 +43,31 @@ export default function BigSmall({ config, allResults, depositHistory, onSuccess
 
 
                 <div class="deposit-wallet-row">
+                    <div
+                        style={{ marginBottom: "20px" }}
+                        className="hexa-wallet">
+                        <span className="hexa-label"><i className="fas fa-gem"></i>Earnings</span>
+                        <span className="hexa-balance" id="walletHexaBalance">{totalWinnerAmount}</span>
+                    </div>
+                    <div
+                        style={{ marginBottom: "20px" }}
+                        className="hexa-wallet">
+                        <span className="hexa-label"><i className="fas fa-gem"></i> HEXA balance</span>
+                        <span className="hexa-balance" id="walletHexaBalance">{hexaBalance}</span>
+                    </div>
+                </div>
+
+
+
+
+                <div class="deposit-wallet-row">
                     <button
                         onClick={() => setShowDeposit(true)}
                         id="depositBtn" class="deposit-btn">
                         <i class="fas fa-plus-circle"></i> Deposit
                     </button>
                     <div class="hexa-wallet">
-                        <span class="hexa-label"><i class="fas fa-gem"></i> HEXA</span>
+                        <span class="hexa-label"><i class="fas fa-gem"></i> Game Balance</span>
                         <span class="hexa-balance" id="walletHexaBalance">{depositBalance}</span>
                     </div>
                 </div>
@@ -49,7 +75,7 @@ export default function BigSmall({ config, allResults, depositHistory, onSuccess
 
                 <div class="light-card">
 
-                    <RoundCountdown seconds={remaining} serverStatus={serverStatus} length={allResults.length}/>
+                    <RoundCountdown seconds={remaining} serverStatus={serverStatus} length={allResults.length} />
 
 
                     <div className="time-selector">
@@ -168,7 +194,7 @@ export default function BigSmall({ config, allResults, depositHistory, onSuccess
                         <div className="slots-grid1">
                             <button
                                 disabled={remaining <= 10}
-                                    onClick={!isDisabled ? () => handleClick("Red") : undefined}
+                                onClick={!isDisabled ? () => handleClick("Red") : undefined}
                                 className="big-slot"
                                 id="big-slot"
                             >
@@ -234,13 +260,17 @@ export default function BigSmall({ config, allResults, depositHistory, onSuccess
                             const startIndex = (page - 1) * pageSize;
                             const endIndex = startIndex + pageSize;
                             if (index < startIndex || index >= endIndex) return null;
-                                                        let result = bid.settled && resultKeys[bid.won]
+                            let result = bid.settled && resultKeys[bid.won]
                             return (
                                 <div className="history-row"><span>#{index + 1}</span>
-                                    <span>{secondsToDMY(bid.time)}</span>
+                                    <span>{secondsToMHDMY(bid.time)}</span>
                                     <span style={{ color: bid.color === "Red" ? "#b91c1c" : bid.color === "Green" ? "#166534" : "#6b21a5" }}>
                                         {bid.color == 0 ? "BIG" : "SMALL"}</span>
-                                    <span>{Number(formatEther(bid.amount)).toFixed(2)}</span><span className={result === "WON" ? "badge-win" : result === "LOST" ? "badge-loss" : ""}>{result === "WON" ? `+${Number(formatEther(bid.amount) * 1.8).toFixed(2)}` : result === "LOST" ? "0" : "-"}</span></div>
+                                    <span>{Number(formatEther(bid.amount)).toFixed(2)}</span>
+                                    <span className={result === "WON" ? "badge-win" : result === "LOST" ? "badge-loss" : ""}>
+                                        {result === "WON" ? `+${Number(formatEther(bid.amount) * 1.8).toFixed(2)}` : result === "LOST" ? "0"
+                                            : result === "Refunded" ? `+${Number(formatEther(bid.amount)).toFixed(2)}`
+                                                : "-"}</span></div>
                             )
                         })}
                     </div>
@@ -254,7 +284,7 @@ export default function BigSmall({ config, allResults, depositHistory, onSuccess
                             const endIndex = startIndex + pageSize;
                             if (index < startIndex || index >= endIndex) return null;
                             return (
-                                <div className="game-row"><span>#{index + 1}</span>
+                                <div className="game-row"><span>#{allResultsReversed.length-index}</span>
                                     <span>{secondsToDMY(result.future1)}</span>
                                     <span style={{ color: result.winningColor }}>{result.winningColor == 0 ? "BIG" : "SMALL"}
                                     </span></div>

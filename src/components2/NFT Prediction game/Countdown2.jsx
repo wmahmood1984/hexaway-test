@@ -5,7 +5,7 @@ export default function RoundCountdown({
   seconds, warningAt = 10, serverStatus,length
 }) {
 
-console.log("lengt",length)
+
   return (
     <div className="round-container final-call" id="roundContainer">
         <span className="round-label">Game. No: {Number(length)%10000}</span>
