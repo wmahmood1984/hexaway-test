@@ -483,7 +483,7 @@ contract GameEngine is Initializable, UUPSUpgradeable, OwnableUpgradeable {
                         amountWon: winAmount,
                         color: b.color,
                         amount: b.amount,
-                        resultKey:3
+                        resultKey:1
                     })
                 );
 
@@ -509,7 +509,7 @@ contract GameEngine is Initializable, UUPSUpgradeable, OwnableUpgradeable {
                         amountWon: 0,
                         color: b.color,
                         amount: b.amount,
-                        resultKey:3
+                        resultKey:2
                     })
                 );
 
@@ -546,7 +546,7 @@ contract GameEngine is Initializable, UUPSUpgradeable, OwnableUpgradeable {
             totalBidded: result.totalBidded,
             totalPayout: result.totalPayout,
             future1: block.timestamp,
-            future2: result.future2,
+            future2: gameId,
             future3: result.future3
         });
         gameResultsArray.push(tx1);
