@@ -234,6 +234,7 @@ export default function User() {
     
     const handleCancel = async (id, type) => {
         console.log("cancel",id)
+        const _id = type ? Number(id)-1 : Number(id)-2 
         await executeContract({
             config,
             functionName: "cancelOrder",
