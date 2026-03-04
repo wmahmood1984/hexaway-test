@@ -197,7 +197,7 @@ export default function Game() {
         .call();
 
 
-
+        console.log("result",_result)
 
       if(!_result.isInTheGame){
 

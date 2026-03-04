@@ -269,7 +269,7 @@ export default function ColorGame({ colors, depositHistory, onSuccess, allResult
                                         {colors[bid.color]} </span>
                                     <span>{Number(formatEther(bid.amount)).toFixed(2)}</span>
                                     <span className={result === "WON" ? "badge-win" : result === "LOST" ? "badge-loss" : ""}>
-                                        {result === "WON" ? `+${Number(formatEther(bid.amount) * 1.8).toFixed(2)}` : result === "LOST" ? "0"
+                                        {result === "WON" ? `+${Number(formatEther(bid.amount) *2).toFixed(2)}` : result === "LOST" ? "0"
                                             : result === "Refunded" ? `+${Number(formatEther(bid.amount)).toFixed(2)}`
                                                 : "-"}</span>
                                 </div>
