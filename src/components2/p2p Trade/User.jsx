@@ -236,7 +236,7 @@ export default function User() {
 
         const _id = type ? Number(id)-1 : Number(id)-2 
 
-                console.log("cancel",{_id,id})
+                console.log("cancel",{_id,id})//
         await executeContract({
             config,
             functionName: "cancelOrder",
